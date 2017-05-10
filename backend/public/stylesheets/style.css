@@ -8,4 +8,12 @@ a {
 label.blue {
   color: #00B7FF; }
 
+input {
+  text-align: center;
+  height: 40px;
+  font-size: 1em;
+  border-radius: 8px; }
+  input [type='text'] {
+    width: 500px; }
+
 /*# sourceMappingURL=style.css.map */
