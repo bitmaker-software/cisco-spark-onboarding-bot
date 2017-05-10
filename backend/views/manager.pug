@@ -2,3 +2,24 @@ extends layout
 
 block content
   h1= title
+  label(
+    name='bot-token'
+    class='blue'
+  ) Cisco Spark Bot Token
+  input(
+    id='bot-token'
+    type='text'
+    label='bot-token'
+  )
+  input(
+    id='save-bot-token'
+    type='button'
+    value='Save'
+  )
+
+  script.
+    $(function() {
+      $('#save-bot-token').click(function () {
+        alert('(DEBUG) Clicked the button to set the token:\n' + $('#bot-token').val());
+      });
+    });

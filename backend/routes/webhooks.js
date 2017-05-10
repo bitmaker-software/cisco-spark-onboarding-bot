@@ -3,9 +3,16 @@ var router = express.Router();
 
 /* POST webhooks. */
 router.post('/', function (req, res, next) {
-  var response = {
-    date: new Date()
-  };
+  var token = req.body.token;
+  var response;
+  if (token) {
+    response = {
+      id: req.body.id,
+      date: new Date()
+    }
+  } else {
+    response = "Invalid token."
+  }
   res.send(response);
 });
 
