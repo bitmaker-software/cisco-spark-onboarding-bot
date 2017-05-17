@@ -9,40 +9,50 @@ var sassMiddleware = require('node-sass-middleware');
 var index = require('./routes/index');
 var manager = require('./routes/manager');
 var webhooks = require('./routes/webhooks');
+var botWebhooks = require('./bot/components/routes/incoming_webhooks');
 
-var app = express();
+var bot = require('./bot/bot');
+
+var webserver = express();
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
+webserver.set('views', path.join(__dirname, 'views'));
+webserver.set('view engine', 'pug');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(sassMiddleware({
+webserver.use(logger('dev'));
+webserver.use(bodyParser.json());
+webserver.use(bodyParser.urlencoded({ extended: false }));
+webserver.use(cookieParser());
+webserver.use(sassMiddleware({
   src: path.join(__dirname, 'public'),
   dest: path.join(__dirname, 'public'),
   indentedSyntax: true, // true = .sass and false = .scss
   sourceMap: true
 }));
-app.use(express.static(path.join(__dirname, 'public')));
+webserver.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', index);
-app.use('/manager', manager);
-app.use('/webhooks', webhooks);
+webserver.use('/', index);
+webserver.use('/manager', manager);
+webserver.use('/webhooks', webhooks);
+
+// import all the pre-defined bot routes that are present in /bot/components/routes
+var normalizedPath = require("path").join(__dirname, "bot/components/routes");
+require("fs").readdirSync(normalizedPath).forEach(function(file) {
+  console.log(file);
+  require("./bot/components/routes/" + file)(webserver, bot);
+});
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+webserver.use(function(req, res, next) {
   var err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+webserver.use(function(err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -52,4 +62,4 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-module.exports = app;
+module.exports = webserver;
