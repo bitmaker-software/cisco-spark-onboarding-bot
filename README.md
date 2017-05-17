@@ -1,6 +1,16 @@
 # README #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This project uses BotKit
+
+You can create a .env file on the bot dir (code/bot/.env) with:
+
+access_token=...
+public_address=...
+secret=...
+studio_token=...
+PORT=...
+
+
 
 ### What is this repository for? ###
 
