@@ -1,5 +1,5 @@
 bot/.env
-
+dist
 node_modules
 
 # All IntelliJ files
