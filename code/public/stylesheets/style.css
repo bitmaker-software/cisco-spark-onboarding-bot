@@ -1,6 +1,16 @@
 body {
-  padding: 50px;
+  margin: 0;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif; }
+
+.banner-blue {
+  width: 100%;
+  height: 12px;
+  background-color: #07c1e4;
+  z-index: 5; }
+
+.content {
+  background-color: antiquewhite;
+  padding: 40px; }
 
 a {
   color: #00B7FF; }
@@ -15,5 +25,20 @@ input {
   border-radius: 8px; }
   input [type='text'] {
     width: 500px; }
+
+#flow-container {
+  background-color: lightsteelblue; }
+  #flow-container .step {
+    border: 1px solid #cccccc; }
+
+.flows-container {
+  background-color: aquamarine; }
+  .flows-container .flow {
+    padding-top: 10px; }
+
+.steps-container {
+  background-color: lightsalmon; }
+  .steps-container .step {
+    padding-top: 10px; }
 
 /*# sourceMappingURL=style.css.map */

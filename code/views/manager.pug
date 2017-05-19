@@ -2,23 +2,47 @@ extends layout
 
 block content
   h1= title
+
+  div#flow-container
+    | Example of a flow
+    // will be populated after the AJAX call
+
+  div.flows-container
+    | Available flows
+    each flow in flows
+      div.flow
+        p= 'ID: ' + flow.id
+        p= 'Name: ' + flow.name
+        p= 'Status: ' + flow.status
+
+  div.steps-container
+    | Available step types do be added to a flow
+    each stepType in stepTypes
+      div.stepType
+        p= 'ID: ' + stepType.id
+        p= 'Description: ' + stepType.description
+
+  div(style='margin-top:50px') Tests/Sandbox:
   label(
-    for='bot-token'
-    class='blue'
+  for='bot-token'
+  class='blue'
   ) Cisco Spark Bot Token
 
   input#bot-token(
-    type='text'
-    name='bot-token'
-    placeholder="Your bot token"
+  type='text'
+  name='bot-token'
+  placeholder="Your bot token"
   )
 
   input#save-bot-token(
-    type='button'
-    value='Save'
+  type='button'
+  value='Save'
   )
 
   h2#results
 
   script(src='/javascripts/jquery-3.2.1.js')
-  script(src="/javascripts/manager.js")
+  script(src='/javascripts/manager.js' defer)
+
+  script.
+    var stepTypes = !{JSON.stringify(stepTypes).replace(/<\//g, '<\\/')};

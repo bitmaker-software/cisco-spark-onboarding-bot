@@ -4,4 +4,10 @@ html
     title= title
     link(rel='stylesheet', href='/stylesheets/style.css')
   body
-    block content
+    div(class='banner-blue')
+    div(class='content')
+      block content
+    script(src='https://unpkg.com/react@15/dist/react.js')
+    script(src='https://unpkg.com/react-dom@15/dist/react-dom.js')
+    script(src='https://unpkg.com/react-router/umd/react-router.min.js')
+    script(src='https://unpkg.com/history/umd/history.min.js')
