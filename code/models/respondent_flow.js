@@ -5,9 +5,6 @@ module.exports = function (sequelize, DataTypes) {
       assignDate: {
         type: DataTypes.DATE
       },
-      status: {
-        type: DataTypes.STRING
-      },
       startDate: {
         type: DataTypes.DATE
       },

@@ -48,6 +48,7 @@ Object.keys(db).forEach(function (modelName) {
   // - Flow
   m.flow.belongsTo(m.tenant);
   m.flow.belongsTo(m.user, {as: 'owner'});
+  m.flow.belongsTo(m.flow_status);
 
   // - Step
   m.step.belongsTo(m.flow);
@@ -75,6 +76,7 @@ Object.keys(db).forEach(function (modelName) {
   m.respondent_flow.belongsTo(m.respondent);
   m.respondent_flow.belongsTo(m.step, {as: 'current_step'});
   m.respondent_flow.belongsTo(m.flow);
+  m.respondent_flow.belongsTo(m.flow_status);
 
   // - Respondent Answer
   m.respondent_answer.belongsTo(m.respondent_flow);
