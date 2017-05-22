@@ -11,7 +11,9 @@ var manager = require('./routes/manager');
 var webhooks = require('./routes/webhooks');
 var botWebhooks = require('./bot/components/routes/incoming_webhooks');
 
-var bot = require('./bot/bot');
+var bot;
+// bot = require('./bot/bot'); // comment to avoid registering with Spark
+var database = require('./database');
 
 var app = express();
 
@@ -38,11 +40,15 @@ app.use('/manager', manager);
 app.use('/webhooks', webhooks);
 
 // import all the pre-defined bot routes that are present in /bot/components/routes
-var normalizedPath = require("path").join(__dirname, "bot/components/routes");
-require("fs").readdirSync(normalizedPath).forEach(function(file) {
-  console.log(file);
-  require("./bot/components/routes/" + file)(app, bot);
-});
+if (bot) {
+  var normalizedPath = require("path").join(__dirname, "bot/components/routes");
+  require("fs").readdirSync(normalizedPath).forEach(function (file) {
+    console.log(file);
+    require("./bot/components/routes/" + file)(app, bot);
+  });
+} else {
+  console.log("Warning: bot is not defined; did you import it?");
+}
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

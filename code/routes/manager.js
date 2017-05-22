@@ -1,3 +1,4 @@
+var models = require('../models');
 var express = require('express');
 var router = express.Router();
 
@@ -53,16 +54,16 @@ function getStepTypes() {
 }
 
 router.post('/api/saveToken', function (req, res, next) {
-  // Simulate some work
-  setTimeout(sendResponse, 2000);
-
-  function sendResponse() {
-    var token = req.body.token;
-    if (token) {
+  var token = req.body.token;
+  if (token) {
+    models.tenant.create({
+      name: 'auto',
+      botKey: req.body.token
+    }).then(function () {
       res.send('OK, saved token ' + token);
-    } else {
-      res.send('No token provided')
-    }
+    });
+  } else {
+    res.send('No token provided')
   }
 });
 
@@ -72,7 +73,7 @@ router.get('/api/flow/:id', function (req, res, next) {
 
   // Dummy data
   res.send({
-    flow_id: req.param('id'),
+    flow_id: req.params.id,
     steps: [
       {id: '0', step_order: '1', text: 'Step number one', step_type: 0},
       {id: '1', step_order: '2', text: 'Step number two', step_type: 1},
