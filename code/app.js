@@ -13,7 +13,6 @@ var botWebhooks = require('./bot/components/routes/incoming_webhooks');
 
 var bot;
 // bot = require('./bot/bot'); // comment to avoid registering with Spark
-var database = require('./database');
 
 var app = express();
 
