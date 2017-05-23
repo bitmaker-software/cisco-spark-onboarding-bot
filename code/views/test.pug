@@ -1,0 +1,16 @@
+extends layout
+
+block content
+  h1= title
+
+  div
+    label(for='txt-search-user') Search User:
+
+    input#txt-search-user(type='text' name='search-user' placeholder='Type a username to search')
+
+    input#btn-search-user(type='button' name='btn-search-user' value='Search')
+
+    ul#lst-result-user
+
+    script(src='/javascripts/jquery-3.2.1.js')
+    script(src='/javascripts/test.js' defer)

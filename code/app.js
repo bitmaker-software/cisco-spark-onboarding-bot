@@ -10,6 +10,7 @@ var index = require('./routes/index');
 var manager = require('./routes/manager');
 var webhooks = require('./routes/webhooks');
 var auth = require('./routes/auth');
+var testPages = require('./routes/test');
 var services = require('./bot/services');
 
 var botWebhooks = require('./bot/components/routes/incoming_webhooks');
@@ -95,6 +96,7 @@ app.use('/', index);
 app.use('/manager', manager);
 app.use('/webhooks', webhooks);
 app.use('/auth', auth);
+app.use('/test', testPages);
 
 // import all the pre-defined bot routes that are present in /bot/components/routes
 if (bot) {

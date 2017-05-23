@@ -22,6 +22,7 @@
     "pg": "^6.2.2",
     "pg-hstore": "^2.3.2",
     "pug": "^2.0.0-rc.1",
+    "request": "^2.81.0",
     "sequelize": "^3.30.4",
     "serve-favicon": "~2.4.2",
     "wordfilter": "^0.2.6"
