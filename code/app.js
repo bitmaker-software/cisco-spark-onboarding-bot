@@ -10,6 +10,7 @@ var index = require('./routes/index');
 var manager = require('./routes/manager');
 var webhooks = require('./routes/webhooks');
 var auth = require('./routes/auth');
+var services = require('./bot/services');
 
 var botWebhooks = require('./bot/components/routes/incoming_webhooks');
 
@@ -45,6 +46,13 @@ passport.use(new CiscoSparkStrategy({
     },
     function(accessToken, refreshToken, profile, done) {
       console.log(accessToken);
+      console.log(profile.id)
+      console.log(profile.displayName)
+      console.log(profile.emails)
+      console.log(profile._json.nickName)
+      console.log(profile._json.orgId)
+      console.log(profile._json.avatar)
+      console.log('-----------------------------')
       console.log(profile);
       // asynchronous verification, for effect...
       process.nextTick(function () {
@@ -54,8 +62,10 @@ passport.use(new CiscoSparkStrategy({
         // and return that user instead.
         //TODO
         // perform a database "login"
+        //services.userLoggedIn(profile.id, profile.displayName, profile.emails, profile._json.orgId).then(function() {
         // database.login(profile)
-        var user = { id: profile.id, spark_token: accessToken };
+        services.userLoggedIn(profile.id, profile.displayName, profile.emails, profile._json.orgId).then(function() {});
+        var user = { id: profile.id, name: profile.displayName, avatar: profile._json.avatar, spark_token: accessToken };
         return done(null, user);
       });
     }

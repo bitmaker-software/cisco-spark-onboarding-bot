@@ -5,6 +5,9 @@ module.exports = function (sequelize, DataTypes) {
       name: {
         type: DataTypes.STRING
       },
+      orgId: {
+        type: DataTypes.STRING
+      },
       botKey: {
         type: DataTypes.STRING
       },
