@@ -1,9 +1,10 @@
 var models = require('../models');
 var express = require('express');
 var router = express.Router();
+var ensureAuthenticated = require('./auth_middleware');
 
 /* GET manager. */
-router.get('/', function (req, res, next) {
+router.get('/', ensureAuthenticated, function (req, res, next) {
   res.render('manager', {
     title: 'Onboarding manager',
     flows: getFlows(),
@@ -53,7 +54,7 @@ function getStepTypes() {
   ];
 }
 
-router.post('/api/saveToken', function (req, res, next) {
+router.post('/api/saveToken', ensureAuthenticated, function (req, res, next) {
   var token = req.body.token;
   if (token) {
     models.tenant.create({
@@ -67,7 +68,7 @@ router.post('/api/saveToken', function (req, res, next) {
   }
 });
 
-router.get('/api/flow/:id', function (req, res, next) {
+router.get('/api/flow/:id', ensureAuthenticated, function (req, res, next) {
   // Returns the flow steps
   // TODO
 
@@ -86,7 +87,7 @@ router.get('/api/flow/:id', function (req, res, next) {
   });
 });
 
-router.get('/api/flows', function (req, res, next) {
+router.get('/api/flows', ensureAuthenticated, function (req, res, next) {
   res.send(['first flow', 'second flow', 'third flow', 'fourth flow']);
 });
 

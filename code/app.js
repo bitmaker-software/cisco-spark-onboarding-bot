@@ -9,10 +9,54 @@ var sassMiddleware = require('node-sass-middleware');
 var index = require('./routes/index');
 var manager = require('./routes/manager');
 var webhooks = require('./routes/webhooks');
+var auth = require('./routes/auth');
+
 var botWebhooks = require('./bot/components/routes/incoming_webhooks');
 
 var bot;
-// bot = require('./bot/bot'); // comment to avoid registering with Spark
+bot = require('./bot/bot'); // comment to avoid registering with Spark
+
+var passport = require('passport');
+var CiscoSparkStrategy = require('passport-cisco-spark').Strategy;
+var session = require('express-session');
+
+
+var env = require('node-env-file');
+env(__dirname + '/bot/.env');
+
+
+// Passport configuration
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function(obj, done){
+  done(null, obj);
+});
+
+//use the SparkStrategy within passport
+passport.use(new CiscoSparkStrategy({
+      clientID: process.env.cisco_spark_client_id,
+      clientSecret: process.env.cisco_spark_client_secret,
+      callbackURL: "/auth/spark/callback",
+      scope: [
+        'spark:all'
+      ]
+    },
+    function(accessToken, refreshToken, profile, done) {
+      console.log(accessToken);
+      // asynchronous verification, for effect...
+      process.nextTick(function () {
+
+        // To keep the example simple, the user's Cisco Spark profile is returned to
+        // represent the logged-in user.  In a typical application, you would want
+        // to associate the Cisco Spark account with a user record in your database,
+        // and return that user instead.
+        //TODO
+        return done(null, profile);
+      });
+    }
+));
 
 var app = express();
 
@@ -32,11 +76,18 @@ app.use(sassMiddleware({
   indentedSyntax: true, // true = .sass and false = .scss
   sourceMap: true
 }));
+
+//setup session & passport
+app.use(session({ secret: process.env.session_secret, resave: false, saveUninitialized: false }));
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/manager', manager);
 app.use('/webhooks', webhooks);
+app.use('/auth', auth);
 
 // import all the pre-defined bot routes that are present in /bot/components/routes
 if (bot) {
