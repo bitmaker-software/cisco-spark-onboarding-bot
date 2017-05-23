@@ -45,15 +45,18 @@ passport.use(new CiscoSparkStrategy({
     },
     function(accessToken, refreshToken, profile, done) {
       console.log(accessToken);
+      console.log(profile);
       // asynchronous verification, for effect...
       process.nextTick(function () {
-
         // To keep the example simple, the user's Cisco Spark profile is returned to
         // represent the logged-in user.  In a typical application, you would want
         // to associate the Cisco Spark account with a user record in your database,
         // and return that user instead.
         //TODO
-        return done(null, profile);
+        // perform a database "login"
+        // database.login(profile)
+        var user = { id: profile.id, spark_token: accessToken };
+        return done(null, user);
       });
     }
 ));
