@@ -1,3 +1,5 @@
+"use strict";
+
 module.exports = function(controller) {
 
     // controller.middleware.receive.use(function(bot, message, next) {

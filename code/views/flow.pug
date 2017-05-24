@@ -4,15 +4,19 @@ block content
   a(href='/manager') Back
   h1= title
   div#flow-container
-    | Example of a flow
-    // will be populated after the AJAX call
+    h3 Steps
+    div#steps
+      // will be populated after the AJAX call
+    input#save-steps(
+    type='button'
+    value='Save'
+    )
 
   div.steps-container
-    | Available step types do be added to a flow
+    h3 Available step types do be added to the flow
     each stepType in stepTypes
       div.stepType
-        p= 'ID: ' + stepType.id
-        p= 'Description: ' + stepType.description
+        h4= '--- ' + stepType.description
 
   script.
     var stepTypes = !{JSON.stringify(stepTypes).replace(/<\//g, '<\\/')};

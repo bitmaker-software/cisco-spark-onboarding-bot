@@ -13,10 +13,14 @@ router.get('/', ensureAuthenticated, function (req, res, next) {
   });
 });
 
+router.get('/flow/new', ensureAuthenticated, function (req, res, next) {
+  res.send('To be implemented');
+});
+
 router.get('/flow/:id', ensureAuthenticated, function (req, res, next) {
   const flow = getFlow(req.params.id);
   res.render('flow', {
-    title: 'Flow',
+    title: flow.name,
     flows: getFlows(),
     stepTypes: getStepTypes()
   });

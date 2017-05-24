@@ -1,3 +1,5 @@
+"use strict";
+
 $(function () {
   const searchButton = $('#btn-search-user');
   const searchInput = $('#txt-search-user');
@@ -25,7 +27,7 @@ $(function () {
     }).fail(
       error => {
         if (error.status === 401) {
-          window.location.replace('/auth/login');
+          window.location.replace('/auth/spark');
         }
       });
   });

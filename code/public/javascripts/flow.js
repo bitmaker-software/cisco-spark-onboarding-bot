@@ -1,10 +1,12 @@
+"use strict";
+
 $(function () {
   //
   // Get data
   //
   $.get('/manager/api/flow/12345', {}, function (flow) {
     flow.steps.forEach(function (step) {
-      $('#flow-container').append(
+      $('#steps').append(
         '<div class="step">' +
         '<h3>' + getStepTypeNameFromId(step.step_type).description + '</h3>' +
         '<span style="padding: 0 10px 0 10px">' + step.id + '</span>' +
@@ -21,4 +23,8 @@ $(function () {
       }
     }
   }
+
+  $('#save-steps').click(() => {
+    console.log("Clicked save steps");
+  });
 });

@@ -1,3 +1,5 @@
+"use strict";
+
 /*
 
  This is a sample bot that provides a simple todo list function

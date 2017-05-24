@@ -1,3 +1,5 @@
+"use strict";
+
 /*
 
  Botkit hears a keyword, then asks a question. Different paths

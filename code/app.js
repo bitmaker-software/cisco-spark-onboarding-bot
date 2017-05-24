@@ -1,3 +1,5 @@
+"use strict";
+
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -6,12 +8,13 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var sassMiddleware = require('node-sass-middleware');
 
-var index = require('./routes/index');
-var manager = require('./routes/manager');
-var webhooks = require('./routes/webhooks');
-var auth = require('./routes/auth');
-var testPages = require('./routes/test');
-var services = require('./bot/services');
+var routes_index = require('./routes/index');
+var routes_settings = require('./routes/settings');
+var routes_manager = require('./routes/manager');
+var routes_webhooks = require('./routes/webhooks');
+var routes_auth = require('./routes/auth');
+var routes_test = require('./routes/test');
+var routes_services = require('./bot/services');
 
 var botWebhooks = require('./bot/components/routes/incoming_webhooks');
 
@@ -85,11 +88,32 @@ app.use(passport.session());
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', index);
-app.use('/manager', manager);
-app.use('/webhooks', webhooks);
-app.use('/auth', auth);
-app.use('/test', testPages);
+const middleware = {
+  globalLocals: function (req, res, next) {
+    res.locals = {
+      user: {isAuthenticated: req.isAuthenticated()},
+      // siteTitle: "My Website's Title",
+      // pageTitle: "The Root Splash Page",
+      // author: "Cory Gross",
+      // description: "My app's description",
+    };
+    console.log("xxxxx")
+    console.log("xxxxx")
+    console.log(res.locals.user.isAuthenticated);
+    console.log("xxxxx")
+    console.log("xxxxx")
+    next();
+  },
+};
+
+app.use(middleware.globalLocals);
+
+app.use('/', routes_index);
+app.use('/manager', routes_manager);
+app.use('/settings', routes_settings);
+app.use('/webhooks', routes_webhooks);
+app.use('/auth', routes_auth);
+app.use('/test', routes_test);
 
 // import all the pre-defined bot routes that are present in /bot/components/routes
 if (bot) {

@@ -27,6 +27,8 @@ input {
     width: 500px; }
 
 #flow-container {
+  width: 60%;
+  float: right;
   background-color: lightsteelblue; }
   #flow-container .step {
     border: 1px solid #cccccc; }
@@ -37,11 +39,13 @@ input {
     padding-top: 10px; }
 
 .steps-container {
-  background-color: lightsalmon; }
+  background-color: lightsalmon;
+  width: 40%;
+  float: left; }
   .steps-container .step {
     padding-top: 10px; }
 
-#logout {
+.top-right-button {
   float: right;
   padding: 10px;
   border: 1px solid black;

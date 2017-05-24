@@ -1,6 +1,4 @@
-/**
- * Created by tiago on 19/05/17.
- */
+"use strict";
 
 module.exports = function (controller) {
 

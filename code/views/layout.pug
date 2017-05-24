@@ -6,7 +6,12 @@ html
   body
     div(class='banner-blue')
     div(class='content')
-      a#logout(href="/auth/logout") Logout
+      //| User: #{locals.user.isAuthenticated}, #{locals.siteTitle}
+      if locals.user && locals.user.isAuthenticated
+        a.top-right-button(href="/auth/logout") Logout
+        a.top-right-button(href="/settings") Settings
+      else
+        a.top-right-button(href="/auth/spark") Sign up with Cisco Spark
       block content
     //script(src='https://unpkg.com/react@15/dist/react.js')
     //script(src='https://unpkg.com/react-dom@15/dist/react-dom.js')

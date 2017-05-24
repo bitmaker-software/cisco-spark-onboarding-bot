@@ -1,3 +1,5 @@
+"use strict";
+
 module.exports = function (controller) {
 
   // reply to any incoming message
