@@ -21,6 +21,8 @@ bot = require('./bot/bot'); // comment to avoid registering with Spark
 var passport = require('passport');
 var CiscoSparkStrategy = require('passport-cisco-spark').Strategy;
 var session = require('express-session');
+var sequelize = require('./models/index.js').sequelize;
+var SequelizeStore = require('connect-session-sequelize')(session.Store);
 
 
 var env = require('node-env-file');
@@ -46,15 +48,6 @@ passport.use(new CiscoSparkStrategy({
       ]
     },
     function(accessToken, refreshToken, profile, done) {
-      console.log(accessToken);
-      console.log(profile.id)
-      console.log(profile.displayName)
-      console.log(profile.emails)
-      console.log(profile._json.nickName)
-      console.log(profile._json.orgId)
-      console.log(profile._json.avatar)
-      console.log('-----------------------------')
-      console.log(profile);
       services.userLoggedIn(profile.id, profile.displayName, profile.emails, profile._json.orgId).then(user => {
         var sessionUser = { id: user.id, name: user.name, avatar: profile._json.avatar, spark_token: accessToken };
         return done(null, sessionUser);
@@ -86,7 +79,7 @@ app.use(sassMiddleware({
 }));
 
 //setup session & passport
-app.use(session({ secret: process.env.session_secret, resave: false, saveUninitialized: false }));
+app.use(session({ secret: process.env.session_secret, resave: false, saveUninitialized: false, store: new SequelizeStore({db: sequelize}) }));
 app.use(passport.initialize());
 app.use(passport.session());
 
