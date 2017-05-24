@@ -2,6 +2,9 @@ var express = require('express');
 var request = require('request');
 var router = express.Router();
 var ensureAuthenticated = require('./auth_middleware');
+var env = require('node-env-file');
+env(__dirname + '/../bot/.env');
+
 
 router.get('/', ensureAuthenticated, (req, res, next) => {
   res.render('test', {
@@ -37,6 +40,26 @@ router.get('/search_users/:user', ensureAuthenticated, (req, res, next) => {
       res.send(users);
     } else {
       res.send([]);
+    }
+  });
+});
+
+router.post('/send_flow/:flowid/:sparkuserid', ensureAuthenticated, (req, res, next) => {
+  request({
+    url: 'https://api.ciscospark.com/v1/messages',
+    method: 'POST',
+    auth: {
+      user: null,
+      pass: null,
+      bearer: process.env.access_token
+    },
+    json: true,
+    body: {toPersonId: req.params.sparkuserid, text: 'Hello. I am the onboarding bot!'}
+  }, (error, response, body) => {
+    if (!error && response.statusCode == 200) {
+      res.send("flow sent!")
+    } else {
+      res.send("flow not sent: " + error)
     }
   });
 });

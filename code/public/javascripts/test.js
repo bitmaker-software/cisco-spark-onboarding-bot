@@ -31,6 +31,12 @@ $(function () {
   });
 
   function sendFlow() {
-    alert($(this).data('sparkid'));
+    $.post('/test/send_flow/1/' + $(this).data('sparkid'), {}, res =>{
+      alert(res);
+    }).fail( error => {
+      if (error.status === 401) {
+        window.location.replace('/auth/login');
+      }
+    });
   }
 });
