@@ -1,0 +1,57 @@
+extends layout
+
+block content
+  a(href='/manager') Back
+  h1= title
+  div.form-group
+    label(
+    for='bot-token'
+    class='blue'
+    ) ...
+
+    input#bot-token(
+    type='text'
+    name='bot-token'
+    placeholder="Your bot token"
+    )
+
+    input#save-bot-token(
+    type='button'
+    value='Save'
+    )
+  div.form-group
+    label(
+    for='bot-token'
+    class='blue'
+    ) ...
+
+    input(
+    type='text'
+    name='bot-token'
+    placeholder="Your ..."
+    )
+
+    input(
+    type='button'
+    value='Save'
+    )
+  div.form-group
+    label(
+    for='bot-token'
+    class='blue'
+    ) Cisco Spark Bot Token
+
+    input(
+    type='text'
+    name='bot-token'
+    placeholder="Your ..."
+    )
+
+    input(
+    type='button'
+    value='Save'
+    )
+
+    h2#results
+
+  script(src='/javascripts/settings.js' defer)
