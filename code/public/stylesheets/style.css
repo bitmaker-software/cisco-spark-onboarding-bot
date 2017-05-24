@@ -41,4 +41,11 @@ input {
   .steps-container .step {
     padding-top: 10px; }
 
+#logout {
+  float: right;
+  padding: 10px;
+  border: 1px solid black;
+  color: #000;
+  text-decoration: none; }
+
 /*# sourceMappingURL=style.css.map */

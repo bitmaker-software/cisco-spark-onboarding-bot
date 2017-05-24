@@ -1,3 +1,5 @@
+"use strict";
+
 var models = require('../models');
 var express = require('express');
 var router = express.Router();
@@ -7,6 +9,14 @@ var ensureAuthenticated = require('./auth_middleware');
 router.get('/', ensureAuthenticated, function (req, res, next) {
   res.render('manager', {
     title: 'Onboarding manager',
+    flows: getFlows(),
+  });
+});
+
+router.get('/flow/:id', ensureAuthenticated, function (req, res, next) {
+  const flow = getFlow(req.params.id);
+  res.render('flow', {
+    title: 'Flow',
     flows: getFlows(),
     stepTypes: getStepTypes()
   });
@@ -23,6 +33,10 @@ function getFlows() {
     {id: 2, name: 'Third flow', status: 'The status'},
     {id: 3, name: 'Fourth flow', status: 'The status'}
   ];
+}
+
+function getFlow(id) {
+  return getFlows()[id]; // TODO
 }
 
 function getStepTypes() {

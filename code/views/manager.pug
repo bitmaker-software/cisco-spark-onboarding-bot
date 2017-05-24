@@ -3,26 +3,32 @@ extends layout
 block content
   h1= title
 
-  div#flow-container
-    | Example of a flow
-    // will be populated after the AJAX call
-
   div.flows-container
     | Available flows
     each flow in flows
-      div.flow
-        p= 'ID: ' + flow.id
-        p= 'Name: ' + flow.name
-        p= 'Status: ' + flow.status
+      div
+        a.flow(href='/manager/flow/' + flow.id)
+          | #{flow.name} (Status: #{flow.status})
 
-  div.steps-container
-    | Available step types do be added to a flow
-    each stepType in stepTypes
-      div.stepType
-        p= 'ID: ' + stepType.id
-        p= 'Description: ' + stepType.description
 
-  div(style='margin-top:50px') Tests/Sandbox:
+
+
+
+
+
+
+
+
+
+  h3(style='margin-top:50px') Tests/Sandbox:
+
+  div
+    a(href='/test') Test search by user
+
+  br
+  br
+  br
+
   label(
   for='bot-token'
   class='blue'
@@ -41,8 +47,4 @@ block content
 
   h2#results
 
-  script(src='/javascripts/jquery-3.2.1.js')
   script(src='/javascripts/manager.js' defer)
-
-  script.
-    var stepTypes = !{JSON.stringify(stepTypes).replace(/<\//g, '<\\/')};

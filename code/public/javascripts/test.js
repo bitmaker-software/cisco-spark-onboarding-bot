@@ -1,17 +1,36 @@
 $(function () {
-    $('#btn-search-user').click(() => {
-        var searchString = encodeURIComponent($('#txt-search-user').val());
-        $.get('/test/search_users/' + searchString, {}, res => {
-            var ul = $('#lst-result-user');
-            res.forEach( item => {
-                ul.append('<li>' + item.displayName + ' (' + item.email + ') <input class="btn-send-flow" type="button" value="send" data-sparkid="' + item.id + '" /></li>');
-            });
+  const searchButton = $('#btn-search-user');
+  const searchInput = $('#txt-search-user');
+  const searchResultsList = $('#lst-result-user');
 
-            $('.btn-send-flow').click(sendFlow);
-        });
-    });
-
-    function sendFlow(){
-        alert($(this).data('sparkid'));
+  searchInput.keyup(event => {
+    if (event.keyCode === 13) {
+      searchButton.click();
     }
+  });
+
+  searchButton.click(() => {
+    const searchString = encodeURIComponent(searchInput.val());
+    $.get('/test/search_users/' + searchString, {}, res => {
+      $('#result-info').text('Found ' + res.length + ' result(s).');
+
+      // Clear previous results
+      searchResultsList.empty();
+      res.forEach(item => {
+        searchResultsList.append('<li>' + item.displayName + ' (' + item.email + ') <input id="btn-send-flow" type="button" value="Send" data-sparkid="' + item.id + '" /></li>');
+      });
+
+      // Add the callback to all the buttons
+      $('#btn-send-flow').click(sendFlow);
+    }).fail(
+      error => {
+        if (error.status === 401) {
+          window.location.replace('/auth/login');
+        }
+      });
+  });
+
+  function sendFlow() {
+    alert($(this).data('sparkid'));
+  }
 });

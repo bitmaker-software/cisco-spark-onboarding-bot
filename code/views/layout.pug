@@ -5,10 +5,11 @@ html
     link(rel='stylesheet', href='/stylesheets/style.css')
   body
     div(class='banner-blue')
-        a(href="/auth/logout") Logout
     div(class='content')
+      a#logout(href="/auth/logout") Logout
       block content
-    script(src='https://unpkg.com/react@15/dist/react.js')
-    script(src='https://unpkg.com/react-dom@15/dist/react-dom.js')
-    script(src='https://unpkg.com/react-router/umd/react-router.min.js')
-    script(src='https://unpkg.com/history/umd/history.min.js')
+    //script(src='https://unpkg.com/react@15/dist/react.js')
+    //script(src='https://unpkg.com/react-dom@15/dist/react-dom.js')
+    //script(src='https://unpkg.com/react-router/umd/react-router.min.js')
+    //script(src='https://unpkg.com/history/umd/history.min.js')
+    script(src='/javascripts/jquery-3.2.1.js')
