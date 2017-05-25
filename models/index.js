@@ -86,6 +86,53 @@ Object.keys(db).forEach(function (modelName) {
 
 })(db);
 
+// Add initial data
+const normalizedPath = require("path").join(__dirname, "../fixtures");
+let listOfFixtures = require("fs").readdirSync(normalizedPath)
+  .filter(function (file) {
+    return (file.indexOf('.') !== 0) && (file.slice(-3) === '.js');
+  })
+  .sort();
+let fileIdx = 0;
+function importFixture() {
+  if (!listOfFixtures.length || fileIdx >= listOfFixtures.length) {
+    return;
+  }
+  let file = listOfFixtures[fileIdx];
+  console.log(`Importing fixtures ${file}`);
+  let fixture = require("../fixtures/" + file);
+  let modelName = fixture.model;
+  fixture.data.forEach(item => {
+    db[modelName].findOrCreate({
+      where: {
+        id: item.id
+      },
+      defaults: item
+    }).then(function (result) {
+      const record = result[0], // the instance
+        created = result[1]; // boolean stating if it was created or not
+
+      if (created) {
+        console.log(`[Model ${modelName}] Created record with id ${record.id}`);
+      } else {
+        console.log(`[Model ${modelName}] Record with id ${record.id} already exists`);
+      }
+      tryToContinue();
+    });
+  });
+  // Wait for all insertions
+  let done = 0;
+
+  function tryToContinue() {
+    done++;
+    if (done === fixture.data.length) {
+      importFixture(fileIdx++);
+    }
+  }
+}
+// Start importing
+importFixture(fileIdx);
+
 //Export the db Object
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;

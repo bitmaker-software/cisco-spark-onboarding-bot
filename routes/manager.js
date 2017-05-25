@@ -105,8 +105,8 @@ router.get('/api/flow/:id', ensureAuthenticated, function (req, res, next) {
   });
 });
 
-router.get('/api/flows', ensureAuthenticated, function (req, res, next) {
-  res.send(['first flow', 'second flow', 'third flow', 'fourth flow']);
-});
+// router.get('/api/flows', ensureAuthenticated, function (req, res, next) {
+//   res.send(['first flow', 'second flow', 'third flow', 'fourth flow']);
+// });
 
 module.exports = router;
