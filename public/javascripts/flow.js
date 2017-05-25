@@ -31,12 +31,11 @@ $(function () {
         case 4:
           // Multiple Choice
           stepHtml += '<div>' +
-            '<div class="input-group"><label>Title</label><input type="text" class="question form-control" value="' + step.text + '" /></div>' +
-            '<div class="input-group"><label>Question</label><input type="text" class="answer form-control" /><span class="input-group-addon">remove</span></div>' +
-            '<div class="input-group"><label>Question</label><input type="text" class="answer form-control" /><span class="input-group-addon">remove</span></div>' +
-            '<div class="input-group"><label>Question</label><input type="text" class="answer form-control" /><span class="input-group-addon">remove</span></div>' +
-            '<div class="input-group"><label>Question</label><input type="text" class="answer form-control" /><span class="input-group-addon">remove</span></div>' +
-            'add question' +
+            '<div class="input-group"><label>Title</label><input type="text" class="question form-control" value="' + step.text + '" /></div>';
+          step.step_choices.forEach(choice => {
+            stepHtml += '<div class="input-group"><label>Question</label><input type="text" class="answer form-control" value="' + choice.text + '" data-id="' + choice.id + '" data-choice-order="' + choice.choiceOrder + '"/><span class="input-group-addon">remove</span></div>';
+          });
+          stepHtml += 'add question' +
             '</div>';
           break;
         case 5:
@@ -59,15 +58,16 @@ $(function () {
   }
 
   $('#save-steps').click(() => {
-    console.log("Clicked save steps");
+    console.log('Clicked save steps');
     let steps = [];
     $('#steps').children().each((idx, step) => {
       step = $(step);
+      let stepType = parseInt(step.attr('data-step-type'));
       let currentStep = {
         id: parseInt(step.attr('data-step-id')),
-        text: step.find('input.question').val()
+        text: step.find('input.question').val(),
+        step_type: stepType
       };
-      let stepType = parseInt(step.attr('data-step-type'));
       switch (stepType) {
         case 1:
           // Announcement
@@ -80,6 +80,14 @@ $(function () {
           break;
         case 4:
           // Multiple Choice
+          currentStep.step_choices = [];
+          step.find('input.answer').each((idx, answer) => {
+            currentStep.step_choices.push({
+              id: parseInt(answer.getAttribute('data-id')),
+              choiceOrder: parseInt(answer.getAttribute('data-choice-order')),
+              text: answer.value
+            });
+          });
           break;
         case 5:
           // Docusign

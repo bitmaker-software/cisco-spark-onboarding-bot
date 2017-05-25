@@ -14,7 +14,8 @@ var routes_manager = require('./routes/manager');
 var routes_webhooks = require('./routes/webhooks');
 var routes_auth = require('./routes/auth');
 var routes_test = require('./routes/test');
-var routes_services = require('./bot/services');
+
+var database_services = require('./bot/database_services');
 
 var botWebhooks = require('./bot/components/routes/incoming_webhooks');
 
@@ -51,7 +52,7 @@ passport.use(new CiscoSparkStrategy({
     ]
   },
   function (accessToken, refreshToken, profile, done) {
-    routes_services.userLoggedIn(profile.id, profile.displayName, profile.emails, profile._json.orgId).then(user => {
+    database_services.userLoggedIn(profile.id, profile.displayName, profile.emails, profile._json.orgId).then(user => {
       var sessionUser = {id: user.id, name: user.name, avatar: profile._json.avatar, spark_token: accessToken};
       return done(null, sessionUser);
     }, err => {
@@ -123,7 +124,7 @@ if (bot) {
     require("./bot/components/routes/" + file)(app, bot);
   });
 } else {
-  console.log("Warning: bot is not defined; did you import it?");
+  console.log('Warning: bot is not defined; did you import it?');
 }
 
 // catch 404 and forward to error handler

@@ -12,6 +12,9 @@ router.get('/', ensureAuthenticated, function (req, res, next) {
       title: 'Onboarding manager',
       flows: flows,
     });
+  }, err => {
+    console.error("Error fetching the flows:");
+    console.error(err);
   });
 });
 
@@ -30,6 +33,9 @@ router.get('/flow/:id', ensureAuthenticated, function (req, res, next) {
       flowId: req.params.id,
       stepTypes: values[0]
     });
+  }, err => {
+    console.error("Error fetching the step types or flow:");
+    console.error(err);
   });
 });
 
@@ -63,6 +69,9 @@ router.post('/api/saveToken', ensureAuthenticated, function (req, res, next) {
       botKey: req.body.token
     }).then(function () {
       res.send('OK, saved token ' + token);
+    }, err => {
+      console.error("Error saving the token:");
+      console.error(err);
     });
   } else {
     res.send('No token provided')
@@ -77,12 +86,18 @@ router.get('/api/flow/:id', ensureAuthenticated, function (req, res, next) {
     // TODO filter the user; add attributes [] to filter columns
     models.step.findAll({
       where: {flowId: req.params.id},
-      order: '"stepOrder"'
+      order: '"stepOrder"',
+      include: [
+        {model: models.step_choice}
+      ]
     }).then(steps => {
       res.send({
         flowId: req.params.id,
         steps: steps
       });
+    }, err => {
+      console.error("Error fetching the flow steps:");
+      console.error(err);
     });
   } else {
     // Dummy data
@@ -102,23 +117,39 @@ router.get('/api/flow/:id', ensureAuthenticated, function (req, res, next) {
 });
 
 router.post('/api/flow/save', ensureAuthenticated, function (req, res, next) {
-  console.log("Got");
+  console.log('Got');
   console.log(req.body);
   // TODO check this steps belongs to this flow and this flow belongs to the user requesting this
   req.body.steps.forEach(step => {
-    let stepId = step.id;
-    let stepText = step.text;
     models.step
-      .update({
-        text: stepText,
-        where: {id: stepId}
-      })
+      .update(
+        {
+          text: step.text,
+        }, {where: {id: step.id}}
+      )
       .then(result => {
-
-      })
-      .catch(err => {
-        console.log("Error:");
-        console.log(err);
+        if (step.step_type === 4) {
+          // Multiple choice
+          // TODO: what if the user removed options? etc.
+          step.step_choices.forEach(choice => {
+            models.step_choice
+              .update({
+                  text: choice.text,
+                  choiceOrder: choice.choiceOrder,
+                }, {where: {id: choice.id}}
+              )
+              .then(result => {
+                //
+              }, err => {
+                console.error("Error saving the step choice:");
+                console.error(err);
+              });
+          });
+        }
+        // TODO: answer back
+      }, err => {
+        console.error("Error saving the step:");
+        console.error(err);
       })
   });
 });

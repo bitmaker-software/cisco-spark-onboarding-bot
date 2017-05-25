@@ -61,6 +61,7 @@ require(__dirname + '/components/subscribe_events.js')(controller);
 // Enable Dashbot.io plugin
 // require(__dirname + '/components/plugin_dashbot.js')(controller);
 
+// Load bot skills
 var normalizedPath = require("path").join(__dirname, "skills");
 require("fs").readdirSync(normalizedPath).forEach(function (file) {
   require("./skills/" + file)(controller);

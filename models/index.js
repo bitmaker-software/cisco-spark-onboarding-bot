@@ -38,7 +38,13 @@ Object.keys(db).forEach(function (modelName) {
 
 // describe relationships
 (function (m) {
-  console.log("Describe relationships");
+  console.log('Describe relationships');
+
+  //
+  //
+  // .belongsTo: 1:1
+  //
+  //
 
   // - Tenant
 
@@ -53,11 +59,11 @@ Object.keys(db).forEach(function (modelName) {
   // - Step
   m.step.belongsTo(m.flow);
   m.step.belongsTo(m.step_type);
+  m.step.hasMany(m.step_choice);
 
   // - Step Type
 
   // - Step Choice
-  m.step_choice.belongsTo(m.step);
 
   // - Document Store
   m.document_store.belongsTo(m.tenant);

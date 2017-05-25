@@ -1,5 +1,7 @@
 "use strict";
 
+var database_services = require('../database_services');
+
 module.exports = function (controller) {
 
   controller.hears(['cisco'], 'direct_message,direct_mention', function (bot, message) {
@@ -10,29 +12,35 @@ module.exports = function (controller) {
    */
   function buildConversationFromCurrentFlow(bot, message) {
     //get the flow from the database
-    var flow = retrieveCurrentFlowFromDb(bot);
+    retrieveCurrentFlowFromDb(bot).then(flow => {
+      var thread = 'default';
+      //create the conversation
+      bot.createConversation(message, function (err, convo) {
+        flow.steps.forEach(function (step) {
+          switch (step.stepTypeId) {
+            // case "announcement":
+            case 1:
+              addAnnouncementStep(bot, convo, step, flow.respondent_flow_id, thread);
+              break;
+            // case "free_text":
+            case 2:
+              addFreeTextStep(bot, convo, step, flow.respondent_flow_id, thread);
+              break;
+            // case "multiple_choice":
+            case 4:
+              addMultipleChoiceStep(bot, convo, step, flow.respondent_flow_id, thread);
+              break;
+            default:
+              break;
+          }
+        });
 
-    var thread = 'default';
-    //create the conversation
-    bot.createConversation(message, function (err, convo) {
-      flow.steps.forEach(function (step) {
-        switch (step.step_type) {
-          case "announcement":
-            addAnnouncementStep(bot, convo, step, flow.respondent_flow_id, thread);
-            break;
-          case "free_text":
-            addFreeTextStep(bot, convo, step, flow.respondent_flow_id, thread);
-            break;
-          case "multiple_choice":
-            addMultipleChoiceStep(bot, convo, step, flow.respondent_flow_id, thread);
-            break;
-          default:
-            break;
-        }
+        convo.activate();
+
       });
-
-      convo.activate();
-
+    }, err => {
+      console.error("Error fetching the flow:");
+      console.error(err);
     });
   }
 
@@ -90,21 +98,26 @@ module.exports = function (controller) {
     var text = step.text + '\n\n';
 
     var patternsAndCallbacks = [];
-    step.choices.forEach(function (choice) {
+    if (!step.step_choices) {
+      console.error("The multiple choice step has no choices!");
+    } else {
+      step.step_choices.forEach(function (choice) {
 
-      text += choice.choice_order + '. ' + choice.text + '\n\n';
+        text += choice.choiceOrder + '. ' + choice.text + '\n\n';
 
-      patternsAndCallbacks.push({
-        "pattern": "^" + choice.choice_order + "$",
-        "callback": function (response, convo) {
-          //save response
-          saveMultipleChoiceAnswer(bot, step, respondent_flow_id, choice.step_choice_id);
-          //go to next
-          convo.next();
-        }
+        patternsAndCallbacks.push({
+          "pattern": "^" + choice.choiceOrder + "$",
+          "callback": function (response, convo) {
+            // TODO: check the option is valid! repeat the question if not
+            //save response
+            saveMultipleChoiceAnswer(bot, step, respondent_flow_id, choice.id);
+            //go to next
+            convo.next();
+          }
+        });
+
       });
-
-    });
+    }
 
     //add the default option
     patternsAndCallbacks.push({
@@ -135,51 +148,65 @@ module.exports = function (controller) {
   }
 
   function retrieveCurrentFlowFromDb(bot) {
-    var flow = {
-      "respondent_flow_id": 345,
-      "flow_id": 123,
-      "name": "HR onboarding",
-      "status": "running",
-      "steps": [
-        {
-          "step_id": 51,
-          "step_type": "announcement",
-          "text": "Welcome to bitmaker! I will ask you some questions. Please provide accurate answers."
-        },
-        {
-          "step_id": 52,
-          "step_type": "free_text",
-          "text": "Please provide a brief description about you."
-        },
-        {
-          "step_id": 53,
-          "step_type": "multiple_choice",
-          "text": "How many years of experience do you have",
-          "choices": [
-            {
-              "step_choice_id": 91,
-              "choice_order": 1,
-              "text": "none"
-            },
-            {
-              "step_choice_id": 92,
-              "choice_order": 2,
-              "text": "less than 2 years"
-            },
-            {
-              "step_choice_id": 93,
-              "choice_order": 3,
-              "text": "between 2 and 5 years"
-            },
-            {
-              "step_choice_id": 94,
-              "choice_order": 4,
-              "text": "more than 5 years"
-            }
-          ]
+    const SEND_DUMMY = false;
+    if (!SEND_DUMMY) {
+      // Get from the database
+      // TODO: which flow id?
+      let id = 1;
+      return database_services.getFlow(id);
+    } else {
+      return new Promise(
+        function (resolve, reject) {
+          resolve({
+            "respondent_flow_id": 345,
+            "flow_id": 123,
+            "name": "HR onboarding",
+            "status": "running",
+            "steps": [
+              {
+                "step_id": 51,
+                // "step_type": "announcement",
+                "stepTypeId": 1,
+                "text": "Welcome to bitmaker! I will ask you some questions. Please provide accurate answers."
+              },
+              {
+                "step_id": 52,
+                // "step_type": "free_text",
+                "stepTypeId": 2,
+                "text": "Please provide a brief description about you."
+              },
+              {
+                "step_id": 53,
+                // "step_type": "multiple_choice",
+                "stepTypeId": 4,
+                "text": "How many years of experience do you have",
+                "step_choices": [
+                  {
+                    "id": 91,
+                    "choiceOrder": 1,
+                    "text": "none"
+                  },
+                  {
+                    "id": 92,
+                    "choiceOrder": 2,
+                    "text": "less than 2 years"
+                  },
+                  {
+                    "id": 93,
+                    "choiceOrder": 3,
+                    "text": "between 2 and 5 years"
+                  },
+                  {
+                    "id": 94,
+                    "choiceOrder": 4,
+                    "text": "more than 5 years"
+                  }
+                ]
+              }
+            ]
+          });
         }
-      ]
-    };
-    return flow;
+      );
+    }
   }
 };
