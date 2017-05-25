@@ -12,7 +12,8 @@ module.exports = function (sequelize, DataTypes) {
         type: DataTypes.STRING
       },
       sparkId: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+          unique: true
       },
     },
     {});

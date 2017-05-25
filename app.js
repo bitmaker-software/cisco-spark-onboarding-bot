@@ -51,7 +51,7 @@ passport.use(new CiscoSparkStrategy({
       ]
     },
     function(accessToken, refreshToken, profile, done) {
-      services.userLoggedIn(profile.id, profile.displayName, profile.emails, profile._json.orgId).then(user => {
+      routes_services.userLoggedIn(profile.id, profile.displayName, profile.emails, profile._json.orgId).then(user => {
         var sessionUser = { id: user.id, name: user.name, avatar: profile._json.avatar, spark_token: accessToken };
         return done(null, sessionUser);
       }, err => {

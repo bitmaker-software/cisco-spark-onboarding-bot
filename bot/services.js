@@ -9,7 +9,7 @@ module.exports = {
         Check if the tenant and the user already exists, and create them if not
      */
     userLoggedIn: function(id, displayName, emails, orgId){
-        return new Promise(function(resolve, reject){
+        return new Promise((resolve, reject) => {
             models.tenant.findOrCreate({
                 where: {
                     orgId: orgId
@@ -28,7 +28,7 @@ module.exports = {
                         sparkId: id
                     },
                     defaults: {
-                        tenant: tenant,
+                        tenantId: tenant.id,
                         name: displayName,
                         email: email
                     }
@@ -40,6 +40,12 @@ module.exports = {
             }, err => {
                 reject(err);
             });
+        });
+    },
+
+    getGoogleDriveCredentials: function(userId, storeId){
+        return new Promise((resolve, reject) => {
+            models.sequelize.query('select * from ﻿document_stores');
         });
     }
 

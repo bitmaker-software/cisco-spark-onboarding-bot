@@ -5,8 +5,11 @@ module.exports = function (sequelize, DataTypes) {
       name: {
         type: DataTypes.STRING
       },
-      googleDriveToken: {
-        type: DataTypes.STRING
+      googleDriveClientId: {
+          type: DataTypes.STRING
+      },
+      googleDriveDeveloperKey: {
+          type: DataTypes.STRING
       },
       googleDriveUserAccount: {
         type: DataTypes.STRING
