@@ -17,7 +17,7 @@ $(function () {
       switch (step.step_type) {
         case 0:
           // Announcement
-          stepHtml += '<input type="text" />';
+          stepHtml += '<input type="text" value="' + step.text + '"/>';
           break;
         case 1:
           // Question
@@ -30,10 +30,12 @@ $(function () {
         case 3:
           // Multiple Choice
           stepHtml += '<div>' +
-            '<label>Label</label><input type="text" />' +
-            '<label>Label</label><input type="text" />' +
-            '<label>Label</label><input type="text" />' +
-            '<label>Label</label><input type="text" />' +
+            '<div><label>Title</label><input type="text" /></div>' +
+            '<div><label>Question</label><input type="text" /> remove</div>' +
+            '<div><label>Question</label><input type="text" /> remove</div>' +
+            '<div><label>Question</label><input type="text" /> remove</div>' +
+            '<div><label>Question</label><input type="text" /> remove</div>' +
+            'add question' +
             '</div>';
           break;
         case 4:

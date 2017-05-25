@@ -1,7 +1,3 @@
-body {
-  margin: 0;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif; }
-
 .banner-blue {
   width: 100%;
   height: 12px;
@@ -18,17 +14,7 @@ a {
 label.blue {
   color: #00B7FF; }
 
-input {
-  text-align: center;
-  height: 40px;
-  font-size: 1em;
-  border-radius: 8px; }
-  input [type='text'] {
-    width: 500px; }
-
 #flow-container {
-  width: 60%;
-  float: right;
   background-color: lightsteelblue; }
   #flow-container .step {
     border: 1px solid #cccccc; }
@@ -39,17 +25,8 @@ input {
     padding-top: 10px; }
 
 .steps-container {
-  background-color: lightsalmon;
-  width: 40%;
-  float: left; }
+  background-color: lightsalmon; }
   .steps-container .step {
     padding-top: 10px; }
-
-.top-right-button {
-  float: right;
-  padding: 10px;
-  border: 1px solid black;
-  color: #000;
-  text-decoration: none; }
 
 /*# sourceMappingURL=style.css.map */

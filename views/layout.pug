@@ -1,20 +1,73 @@
 doctype html
-html
+html(lang='en')
   head
     title= title
+    // Required meta tags
+    meta(charset='utf-8')
+    meta(name="viewport", content="width=device-width, initial-scale=1, shrink-to-fit=no")
+    // Bootstrap CSS
+    link(rel='stylesheet', href='/javascripts/libs/bootstrap-4.0.0-alpha.6-dist/css/bootstrap.min.css', integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ")
+    style(type='text/css').
+      body {
+        padding-top: 5rem;
+      }
+
+      /*.starter-template {*/
+      /*padding: 3rem 1.5rem;*/
+      /*text-align: center;*/
+      /*}*/
+    link(rel='stylesheet', href='/javascripts/libs/bootstrap-4.0.0-alpha.6-dist/css/bootstrap-responsive.min.css')
+    // Custom
     link(rel='stylesheet', href='/stylesheets/style.css')
+    // Material Icons
+    link(rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons")
   body
-    div(class='banner-blue')
-    div(class='content')
-      //| User: #{locals.user.isAuthenticated}, #{locals.siteTitle}
-      if locals.user && locals.user.isAuthenticated
-        a.top-right-button(href="/auth/logout") Logout
-        a.top-right-button(href="/settings") Settings
-      else
-        a.top-right-button(href="/auth/spark") Sign up with Cisco Spark
-      block content
+    //div.banner-blue
+    nav.navbar.navbar-toggleable-md.navbar-inverse.bg-inverse.fixed-top
+      button.navbar-toggler.navbar-toggler-right(type="button", data-toggle="collapse" data-target="#navbarsExampleDefault")
+        span.navbar-toggler-icon
+      a.navbar-brand(href='#') Cisco Spark Onboarding Bot
+      div#navbarsExampleDefault.collapse.navbar-collapse
+        ul.navbar-nav.mr-auto
+          li.nav-item.active
+            a.nav-link(href='/') Home
+              span.sr-only (current)
+          li.nav-item
+            a.nav-link(href='#') Link
+          li.nav-item
+            a.nav-link.disabled(href='#') Disabled
+          li.nav-item.dropdown
+            a.nav-link.dropdown-toggle(href='#', data-toggle='dropdown') Dropdown
+            div.dropdown-menu
+              a.dropdown-item(href='#') Action
+              a.dropdown-item(href='#') Another action
+              a.dropdown-item(href='#') Something else here
+        ul.navbar-nav
+          li.nav-item
+          if locals.user && locals.user.isAuthenticated
+            span.navbar-text Logged in as
+            a.navbar-text.nav-link(href='#') Username
+            | |
+            a.navbar-text.nav-link(href="/settings") Settings
+            | |
+            a.navbar-text.nav-link(href="/auth/logout") Logout
+          else
+            a.navbar-text.nav-link(href="/auth/spark") Sign up with Cisco Spark
+
+    div.container-fluid
+      div.starter-template
+        block content
+      hr
+      footer
+        p © Cisco Systems, Inc. 2017
+
+
     //script(src='https://unpkg.com/react@15/dist/react.js')
     //script(src='https://unpkg.com/react-dom@15/dist/react-dom.js')
     //script(src='https://unpkg.com/react-router/umd/react-router.min.js')
     //script(src='https://unpkg.com/history/umd/history.min.js')
-    script(src='/javascripts/jquery-3.2.1.js')
+
+    // jQuery first, then Tether, then Bootstrap JS.
+    script(src='/javascripts/libs/jquery-3.2.1/jquery-3.2.1.js')
+    script(src='/javascripts/libs/tether-1.4.0/js/tether.min.js')
+    script(src='/javascripts/libs/bootstrap-4.0.0-alpha.6-dist/js/bootstrap.js')

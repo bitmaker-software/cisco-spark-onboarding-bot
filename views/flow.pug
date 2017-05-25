@@ -1,22 +1,28 @@
 extends layout
 
 block content
-  a(href='/manager') Back
-  h1= title
-  div#flow-container
-    h3 Steps
-    div#steps
-      // will be populated after the AJAX call
-    input#save-steps(
-    type='button'
-    value='Save'
-    )
+  div.row
+    div.col-md-12
+      a(href='/manager') Back
+      h1= title
 
-  div.steps-container
-    h3 Available step types do be added to the flow
-    each stepType in stepTypes
-      div.stepType
-        h4= '--- ' + stepType.description
+  div.row
+    div.col-md-3.steps-container
+      //div.well.sidebar-nav
+      h3 Available step types do be added to the flow
+      each stepType in stepTypes
+        div.stepType
+          h4= '--- ' + stepType.description
+
+    div.col-md-9#flow-container
+      h3 Steps
+      div#steps
+        // will be populated after the AJAX call
+      input#save-steps(
+      type='button'
+      value='Save'
+      )
+
 
   script.
     var stepTypes = !{JSON.stringify(stepTypes).replace(/<\//g, '<\\/')};

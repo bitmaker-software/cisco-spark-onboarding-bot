@@ -33,9 +33,9 @@ $(function () {
   });
 
   function sendFlow() {
-    $.post('/test/send_flow/1/' + $(this).data('sparkid'), {}, res =>{
+    $.post('/test/send_flow/1/' + $(this).data('sparkid'), {}, res => {
       alert(res);
-    }).fail( error => {
+    }).fail(error => {
       if (error.status === 401) {
         window.location.replace('/auth/login');
       }
