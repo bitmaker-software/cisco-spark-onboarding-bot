@@ -14,7 +14,8 @@ var routes_manager = require('./routes/manager');
 var routes_webhooks = require('./routes/webhooks');
 var routes_auth = require('./routes/auth');
 var routes_test = require('./routes/test');
-var routes_services = require('./bot/services');
+
+var database_services = require('./bot/database_services');
 
 var botWebhooks = require('./bot/components/routes/incoming_webhooks');
 
@@ -33,33 +34,33 @@ env(__dirname + '/bot/.env');
 
 
 // Passport configuration
-passport.serializeUser(function(user, done) {
+passport.serializeUser(function (user, done) {
   done(null, user);
 });
 
-passport.deserializeUser(function(obj, done){
+passport.deserializeUser(function (obj, done) {
   done(null, obj);
 });
 
 //use the SparkStrategy within passport
 passport.use(new CiscoSparkStrategy({
-      clientID: process.env.cisco_spark_client_id,
-      clientSecret: process.env.cisco_spark_client_secret,
-      callbackURL: "/auth/spark/callback",
-      scope: [
-        'spark:all'
-      ]
-    },
-    function(accessToken, refreshToken, profile, done) {
-      routes_services.userLoggedIn(profile.id, profile.displayName, profile.emails, profile._json.orgId).then(user => {
-        var sessionUser = { id: user.id, name: user.name, avatar: profile._json.avatar, spark_token: accessToken };
-        return done(null, sessionUser);
-      }, err => {
-        return done(err);
-      });
+    clientID: process.env.cisco_spark_client_id,
+    clientSecret: process.env.cisco_spark_client_secret,
+    callbackURL: "/auth/spark/callback",
+    scope: [
+      'spark:all'
+    ]
+  },
+  function (accessToken, refreshToken, profile, done) {
+    database_services.userLoggedIn(profile.id, profile.displayName, profile.emails, profile._json.orgId).then(user => {
+      var sessionUser = {id: user.id, name: user.name, avatar: profile._json.avatar, spark_token: accessToken};
+      return done(null, sessionUser);
+    }, err => {
+      return done(err);
+    });
 
 
-    }
+  }
 ));
 
 var app = express();
@@ -72,7 +73,7 @@ app.set('view engine', 'pug');
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(sassMiddleware({
   src: path.join(__dirname, 'public'),
@@ -82,7 +83,12 @@ app.use(sassMiddleware({
 }));
 
 //setup session & passport
-app.use(session({ secret: process.env.session_secret, resave: false, saveUninitialized: false, store: new SequelizeStore({db: sequelize}) }));
+app.use(session({
+  secret: process.env.session_secret,
+  resave: false,
+  saveUninitialized: false,
+  store: new SequelizeStore({db: sequelize})
+}));
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -97,11 +103,6 @@ const middleware = {
       // author: "Cory Gross",
       // description: "My app's description",
     };
-    console.log("xxxxx")
-    console.log("xxxxx")
-    console.log(res.locals.user.isAuthenticated);
-    console.log("xxxxx")
-    console.log("xxxxx")
     next();
   },
 };
@@ -123,18 +124,18 @@ if (bot) {
     require("./bot/components/routes/" + file)(app, bot);
   });
 } else {
-  console.log("Warning: bot is not defined; did you import it?");
+  console.log('Warning: bot is not defined; did you import it?');
 }
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   var err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

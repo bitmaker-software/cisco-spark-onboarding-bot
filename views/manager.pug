@@ -4,17 +4,24 @@ block content
   h1= title
 
   div.flows-container
-    | Your flows
+    h4 Your flows
     if flows.length === 0
-      | You have no flows yet.
+      h5 You have no flows yet.
     else
       each flow in flows
         div
           | #{flow.name} | #{flow.status}
-          | |&nbsp;
-          a.flow(href='/manager/flow/' + flow.id) edit
+          | |
+          =" "
+          a.flow(href='/manager/flow/' + flow.id)
+            | edit
+            =" "
+            i.material-icons(style='font-size:16px;') edit
     div
-      a(href='/manager/flow/new') add flow
+      a(href='/manager/flow/new')
+        | add flow
+        =" "
+        i.material-icons(style='font-size:16px;') add
 
 
 
