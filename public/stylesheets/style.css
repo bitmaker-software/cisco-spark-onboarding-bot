@@ -1,23 +1,9 @@
-.banner-blue {
-  width: 100%;
-  height: 12px;
-  background-color: #07c1e4;
-  z-index: 5; }
-
-.content {
-  background-color: antiquewhite;
-  padding: 40px; }
-
-a {
-  color: #00B7FF; }
-
-label.blue {
-  color: #00B7FF; }
-
 #flow-container {
   background-color: lightsteelblue; }
   #flow-container .step {
-    border: 1px solid #cccccc; }
+    border: 1px solid #bd4147;
+    padding: 10px;
+    margin: 10px; }
 
 .flows-container {
   background-color: aquamarine; }

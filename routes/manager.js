@@ -101,6 +101,28 @@ router.get('/api/flow/:id', ensureAuthenticated, function (req, res, next) {
   }
 });
 
+router.post('/api/flow/save', ensureAuthenticated, function (req, res, next) {
+  console.log("Got");
+  console.log(req.body);
+  // TODO check this steps belongs to this flow and this flow belongs to the user requesting this
+  req.body.steps.forEach(step => {
+    let stepId = step.id;
+    let stepText = step.text;
+    models.step
+      .update({
+        text: stepText,
+        where: {id: stepId}
+      })
+      .then(result => {
+
+      })
+      .catch(err => {
+        console.log("Error:");
+        console.log(err);
+      })
+  });
+});
+
 // router.get('/api/flows', ensureAuthenticated, function (req, res, next) {
 //   res.send(['first flow', 'second flow', 'third flow', 'fourth flow']);
 // });
