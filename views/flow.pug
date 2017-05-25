@@ -26,5 +26,6 @@ block content
 
   script.
     var stepTypes = !{JSON.stringify(stepTypes).replace(/<\//g, '<\\/')};
+    var flowId = !{flowId}; // used on AJAX requests
 
   script(src='/javascripts/flow.js' defer)

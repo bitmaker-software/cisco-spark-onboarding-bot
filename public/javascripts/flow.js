@@ -4,17 +4,17 @@ $(function () {
   //
   // Get data
   //
-  $.get('/manager/api/flow/12345', {}, function (flow) {
+  $.get('/manager/api/flow/' + flowId, {}, function (flow) {
     flow.steps.forEach(function (step) {
       const stepsContainer = $('#steps');
 
       let stepHtml = '<div class="step">' +
-        '<h3>' + getStepTypeNameFromId(step.step_type).description + '</h3>' +
+        '<h3>' + getStepTypeNameFromId(step.stepTypeId).description + '</h3>' +
         '<div>Step ID: ' + step.id + '</div>' +
         '<div>Step text: ' + step.text + '</div>';
 
       // TODO: refactor; do not use the ID to switch
-      switch (step.step_type) {
+      switch (step.stepTypeId) {
         case 0:
           // Announcement
           stepHtml += '<input type="text" value="' + step.text + '"/>';

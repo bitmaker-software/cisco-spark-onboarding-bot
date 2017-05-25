@@ -7,9 +7,11 @@ var ensureAuthenticated = require('./auth_middleware');
 
 /* GET manager. */
 router.get('/', ensureAuthenticated, function (req, res, next) {
-  res.render('manager', {
-    title: 'Onboarding manager',
-    flows: getFlows(),
+  getFlows().then(flows => {
+    res.render('manager', {
+      title: 'Onboarding manager',
+      flows: flows,
+    });
   });
 });
 
@@ -18,58 +20,39 @@ router.get('/flow/new', ensureAuthenticated, function (req, res, next) {
 });
 
 router.get('/flow/:id', ensureAuthenticated, function (req, res, next) {
-  const flow = getFlow(req.params.id);
-  res.render('flow', {
-    title: flow.name,
-    flows: getFlows(),
-    stepTypes: getStepTypes()
+  let promises = [
+    getStepTypes(),
+    getFlow(req.params.id)
+  ];
+  Promise.all(promises).then(values => {
+    res.render('flow', {
+      title: values[1][0].name,
+      flowId: req.params.id,
+      stepTypes: values[0]
+    });
   });
 });
 
-function getFlows() {
+function getFlows(id) {
   // Returns flows for the logged in tenant
-  // TODO
-
-  // Dummy data
-  return [
-    {id: 0, name: 'First flow', status: 'The status'},
-    {id: 1, name: 'Second flow', status: 'The status'},
-    {id: 2, name: 'Third flow', status: 'The status'},
-    {id: 3, name: 'Fourth flow', status: 'The status'}
-  ];
+  let config = {
+    where: {
+      // TODO filter by logged in user !!!
+      //   ownerId: 1
+    }
+  };
+  if (id) {
+    config.where.id = id;
+  }
+  return models.flow.findAll(config);
 }
 
 function getFlow(id) {
-  return getFlows()[id]; // TODO
+  return getFlows(id);
 }
 
 function getStepTypes() {
-  // Returns step types
-  // TODO
-
-  // Dummy data
-  return [
-    {
-      id: 0,
-      description: 'Announcement Message (no response from the user to move the next step)'
-    },
-    {
-      id: 1,
-      description: 'Question Step (owner must enter a question and the confirmation word that the user must enter to move on in the Flow)'
-    },
-    {
-      id: 2,
-      description: 'Document Step (owner specifies some instructions and the end user must upload a document to complete the step)'
-    },
-    {
-      id: 3,
-      description: 'Multiple Choice Step (owner specifies a list of possible options, end user replies with 1,2,3 or 4 etc)'
-    },
-    {
-      id: 4,
-      description: 'Docusign Step (owner specifies a document which will trigger a document to be sent to Docusign for the end user to digitally sign)'
-    }
-  ];
+  return models.step_type.findAll({order: 'id'});
 }
 
 router.post('/api/saveToken', ensureAuthenticated, function (req, res, next) {
@@ -88,21 +71,34 @@ router.post('/api/saveToken', ensureAuthenticated, function (req, res, next) {
 
 router.get('/api/flow/:id', ensureAuthenticated, function (req, res, next) {
   // Returns the flow steps
-  // TODO
+  const SEND_DUMMY = false;
 
-  // Dummy data
-  res.send({
-    flow_id: req.params.id,
-    steps: [
-      {id: '0', step_order: '1', text: 'Step number one', step_type: 0},
-      {id: '1', step_order: '2', text: 'Step number two', step_type: 1},
-      {id: '2', step_order: '3', text: 'Step number three', step_type: 0},
-      {id: '3', step_order: '4', text: 'Step number four', step_type: 2},
-      {id: '4', step_order: '5', text: 'Step number five', step_type: 1},
-      {id: '5', step_order: '6', text: 'Step number six', step_type: 3},
-      {id: '6', step_order: '7', text: 'Step number seven', step_type: 4}
-    ]
-  });
+  if (!SEND_DUMMY) {
+    // TODO filter the user; add attributes [] to filter columns
+    models.step.findAll({
+      where: {flowId: req.params.id},
+      order: '"stepOrder"'
+    }).then(steps => {
+      res.send({
+        flowId: req.params.id,
+        steps: steps
+      });
+    });
+  } else {
+    // Dummy data
+    res.send({
+      flowId: req.params.id,
+      steps: [
+        {id: '0', step_order: '1', text: 'Step number one', step_type: 0},
+        {id: '1', step_order: '2', text: 'Step number two', step_type: 1},
+        {id: '2', step_order: '3', text: 'Step number three', step_type: 0},
+        {id: '3', step_order: '4', text: 'Step number four', step_type: 2},
+        {id: '4', step_order: '5', text: 'Step number five', step_type: 1},
+        {id: '5', step_order: '6', text: 'Step number six', step_type: 3},
+        {id: '6', step_order: '7', text: 'Step number seven', step_type: 4}
+      ]
+    });
+  }
 });
 
 // router.get('/api/flows', ensureAuthenticated, function (req, res, next) {
