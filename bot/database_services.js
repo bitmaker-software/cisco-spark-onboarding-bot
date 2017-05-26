@@ -17,7 +17,8 @@ module.exports = {
         defaults: {
           name: 'auto'
         }
-      }).then(tenant => {
+      }).spread((tenant, tenantCreated) => {
+
         //check the user
         var email = null;
         if (emails && emails.length > 0) {
@@ -28,11 +29,11 @@ module.exports = {
             sparkId: id
           },
           defaults: {
-            tenant: tenant,
+            tenantId: tenant.id,
             name: displayName,
             email: email
           }
-        }).then(user => {
+        }).spread((user, userCreated) => {
           resolve(user);
         }, err => {
           console.error("Error fetching the user:");

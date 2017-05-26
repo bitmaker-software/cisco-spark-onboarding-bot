@@ -47,10 +47,10 @@ Object.keys(db).forEach(function (modelName) {
   //
 
   // - Tenant
+  //m.tenant.hasMany(m.user);
 
   // - User
   m.user.belongsTo(m.tenant);
-
   // - Flow
   m.flow.belongsTo(m.tenant);
   m.flow.belongsTo(m.user, {as: 'owner'});
@@ -137,7 +137,7 @@ function importFixture() {
   }
 }
 // Start importing
-importFixture(fileIdx);
+//importFixture(fileIdx);
 
 //Export the db Object
 db.sequelize = sequelize;
