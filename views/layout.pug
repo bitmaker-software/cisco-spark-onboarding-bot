@@ -32,15 +32,15 @@ html(lang='en')
             a.nav-link(href='/') Home
               span.sr-only (current)
           li.nav-item
-            a.nav-link(href='#') Link
-          li.nav-item
-            a.nav-link.disabled(href='#') Disabled
+            a.nav-link(href='/manager') Manager
+          //li.nav-item
+          //  a.nav-link.disabled(href='#') Disabled
           li.nav-item.dropdown
-            a.nav-link.dropdown-toggle(href='#', data-toggle='dropdown') Dropdown
+            a.nav-link.dropdown-toggle(href='#', data-toggle='dropdown') Tests/Sandbox
             div.dropdown-menu
-              a.dropdown-item(href='#') Action
-              a.dropdown-item(href='#') Another action
-              a.dropdown-item(href='#') Something else here
+              a.dropdown-item(href='/test') Search Spark by user
+              //a.dropdown-item(href='#') Another action
+              //a.dropdown-item(href='#') Something else here
         ul.navbar-nav
           li.nav-item
           if locals.user && locals.user.isAuthenticated

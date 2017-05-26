@@ -8,27 +8,26 @@ block content
     if flows.length === 0
       h5 You have no flows yet.
     else
-      each flow in flows
-        div
-          | #{flow.name} | #{flow.status}
-          | |
-          =" "
-          a.btn.btn-primary(href='/manager/flow/' + flow.id, role="button")
-            | edit
-            =" "
-            i.material-icons(style='font-size:16px;') edit
+      table.table.table-striped
+        thead
+          tr
+            th Flow name
+            th Flow Status
+            th
+        tbody
+          each flow in flows
+            tr
+              td= flow.name
+              td= flow.status
+              td
+                a.btn.btn-primary(href='/manager/flow/' + flow.id, role="button")
+                  | edit
+                  =" "
+                  i.material-icons(style='font-size:16px;') edit
     div
       a.btn.btn-primary(href='/manager/flow/new', role="button")
         | add flow
         =" "
         i.material-icons(style='font-size:16px;') add
-
-
-
-
-  h3(style='margin-top:50px') Tests/Sandbox:
-
-  div
-    a(href='/test') Test search by user
 
   script(src='/javascripts/manager.js' defer)
