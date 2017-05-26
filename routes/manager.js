@@ -40,6 +40,7 @@ router.get('/flow/:id', ensureAuthenticated, function (req, res, next) {
 });
 
 function getFlows(id) {
+  console.log('getFlows(' + id + ')');
   // Returns flows for the logged in tenant
   let config = {
     where: {
@@ -86,10 +87,11 @@ router.get('/api/flow/:id', ensureAuthenticated, function (req, res, next) {
     // TODO filter the user; add attributes [] to filter columns
     models.step.findAll({
       where: {flowId: req.params.id},
-      order: '"stepOrder"',
       include: [
         {model: models.step_choice}
-      ]
+      ],
+      order: [[models.Sequelize.col('"stepOrder"'), 'ASC'],
+        [models.step_choice, '"choiceOrder', 'ASC']],
     }).then(steps => {
       res.send({
         flowId: req.params.id,
