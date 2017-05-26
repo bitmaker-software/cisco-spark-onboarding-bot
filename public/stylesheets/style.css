@@ -15,4 +15,18 @@
   .steps-container .step {
     padding-top: 10px; }
 
+.drag-handle {
+  margin-right: 10px;
+  font: bold 20px Sans-Serif;
+  color: #5F9EDF;
+  display: inline-block;
+  cursor: move;
+  cursor: -webkit-grabbing; }
+
+.hidden {
+  display: none; }
+
+.sortable-ghost {
+  background-color: #dddddd; }
+
 /*# sourceMappingURL=style.css.map */

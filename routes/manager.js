@@ -125,6 +125,7 @@ router.post('/api/flow/save', ensureAuthenticated, function (req, res, next) {
       .update(
         {
           text: step.text,
+          stepOrder: step.stepOrder,
         }, {where: {id: step.id}}
       )
       .then(result => {

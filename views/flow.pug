@@ -16,9 +16,18 @@ block content
 
     div.col-md-9#flow-container
       h3 Steps
-      div#steps
+      div#empty-flow.hidden
+        h4 You have no steps yet. Start by adding one!
+        | * missing button *
+      div#steps.list-group
         // will be populated after the AJAX call
-      input#save-steps(
+
+      input#add-step.btn.btn-primary(
+      type='button'
+      value='Add step'
+      )
+
+      input#save-steps.btn.btn-primary.hidden(
       type='button'
       value='Save'
       )
@@ -27,5 +36,5 @@ block content
   script.
     var stepTypes = !{JSON.stringify(stepTypes).replace(/<\//g, '<\\/')};
     var flowId = !{flowId}; // used on AJAX requests
-
+  script(src='/javascripts/libs/Sortable-1.5.1/Sortable.js')
   script(src='/javascripts/flow.js' defer)
