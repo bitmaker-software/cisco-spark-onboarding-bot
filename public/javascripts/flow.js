@@ -1,14 +1,26 @@
 "use strict";
 
 $(function () {
+  // Sortable
+  // List with handle
+  Sortable.create(document.getElementById('steps'), {
+    handle: '.drag-handle-step',
+    animation: 150
+  });
   //
   // Get data
   //
   $.get('/manager/api/flow/' + flowId, {}, function (flow) {
+    if (flow.steps.length === 0) {
+      $('#empty-flow').removeClass('hidden');
+    } else {
+      $('#save-steps').removeClass('hidden');
+    }
     flow.steps.forEach(function (step) {
       const stepsContainer = $('#steps');
 
-      let stepHtml = '<div class="step" id="step-' + step.id + '" data-step-id="' + step.stepTypeId + '" data-step-type="' + step.stepTypeId + '">' +
+      let stepHtml = '<div class="list-group-item" id="step-' + step.id + '" data-step-id="' + step.id + '" data-step-type="' + step.stepTypeId + '">' +
+        '<span class="drag-handle drag-handle-step">☰</span>' +
         '<h5>' + getStepTypeNameFromId(step.stepTypeId).description + '</h5>';// +
       // '<div>Step ID: ' + step.id + '</div>' +
       // '<div>Step text: ' + step.text + '</div>';
@@ -17,35 +29,54 @@ $(function () {
       switch (step.stepTypeId) {
         case 1:
           // Announcement
-          stepHtml += '<input type="text" value="' + step.text + '" class="question form-control" />';
+          stepHtml += '<div class="input-group"><input type="text" value="' + step.text + '" class="question form-control" /></div>';
           break;
         case 2:
           // Question
-          stepHtml += '<input type="text" value="' + step.text + '" class="question form-control" />';
+          stepHtml += '<div class="input-group"><input type="text" value="' + step.text + '" class="question form-control" /></div>';
           break;
         case 3:
           // Document
-          stepHtml += '<input type="text" value="' + step.text + '" class="question form-control" />';
-          stepHtml += '<input type="file" />';
+          stepHtml += '<div class="input-group"><input type="text" value="' + step.text + '" class="question form-control" /></div>';
+          stepHtml += '<div class="input-group"><input type="file" /></div>';
           break;
         case 4:
           // Multiple Choice
-          stepHtml += '<div>' +
-            '<div class="input-group"><label>Title</label><input type="text" class="question form-control" value="' + step.text + '" /></div>';
-          step.step_choices.forEach(choice => {
-            stepHtml += '<div class="input-group"><label>Question</label><input type="text" class="answer form-control" value="' + choice.text + '" data-id="' + choice.id + '" data-choice-order="' + choice.choiceOrder + '"/><span class="input-group-addon">remove</span></div>';
-          });
-          stepHtml += 'add question' +
+
+          // Title
+          stepHtml += '<div class="input-group">' +
+            '<label>Title</label>' +
+            '<input type="text" class="question form-control" value="' + step.text + '" />' +
             '</div>';
+          // Choices
+          stepHtml += '<div class="multiple-choice">';
+          step.step_choices.forEach(choice => {
+            stepHtml += '<div class="input-group">' +
+              '<span class="drag-handle drag-handle-multiple-choice">☰</span>' +
+              '<label>Question</label>' +
+              '<input type="text" class="answer form-control" value="' + choice.text + '" data-id="' + choice.id + '" data-choice-order="' + choice.choiceOrder + '"/>' +
+              '<span class="input-group-addon">remove</span>' +
+              '</div>';
+          });
+          stepHtml += '<div>add question</div>';
+          stepHtml += '</div>';
           break;
         case 5:
           // Docusign
-          stepHtml += '<input type="text" value="' + step.text + '" class="question form-control" />';
+          stepHtml += '<div class="input-group"><input type="text" value="' + step.text + '" class="question form-control" /></div>';
           break;
       }
 
       stepHtml += '</div>';
       stepsContainer.append(stepHtml);
+    });
+
+    // Create a Sortable for each multiple choice question
+    $('#steps').find('.multiple-choice').each((idx, multipleChoiceElement) => {
+      Sortable.create(multipleChoiceElement, {
+        handle: '.drag-handle-multiple-choice',
+        animation: 150
+      });
     });
   });
 
@@ -60,13 +91,15 @@ $(function () {
   $('#save-steps').click(() => {
     console.log('Clicked save steps');
     let steps = [];
+    let currentStepOrder = 1;
     $('#steps').children().each((idx, step) => {
       step = $(step);
       let stepType = parseInt(step.attr('data-step-type'));
       let currentStep = {
         id: parseInt(step.attr('data-step-id')),
         text: step.find('input.question').val(),
-        step_type: stepType
+        step_type: stepType,
+        stepOrder: currentStepOrder++
       };
       switch (stepType) {
         case 1:
@@ -81,10 +114,12 @@ $(function () {
         case 4:
           // Multiple Choice
           currentStep.step_choices = [];
+          let currentChoiceOrder = 1;
           step.find('input.answer').each((idx, answer) => {
             currentStep.step_choices.push({
               id: parseInt(answer.getAttribute('data-id')),
-              choiceOrder: parseInt(answer.getAttribute('data-choice-order')),
+              // choiceOrder: parseInt(answer.getAttribute('data-choice-order')),
+              choiceOrder: currentChoiceOrder++,
               text: answer.value
             });
           });

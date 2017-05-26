@@ -20,7 +20,7 @@ var database_services = require('./bot/database_services');
 var botWebhooks = require('./bot/components/routes/incoming_webhooks');
 
 var bot;
-bot = require('./bot/bot'); // comment to avoid registering with Spark
+// bot = require('./bot/bot'); // comment to avoid registering with Spark
 
 var passport = require('passport');
 var CiscoSparkStrategy = require('passport-cisco-spark').Strategy;

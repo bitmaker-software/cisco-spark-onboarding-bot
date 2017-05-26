@@ -13,12 +13,12 @@ block content
           | #{flow.name} | #{flow.status}
           | |
           =" "
-          a.flow(href='/manager/flow/' + flow.id)
+          a.btn.btn-primary(href='/manager/flow/' + flow.id, role="button")
             | edit
             =" "
             i.material-icons(style='font-size:16px;') edit
     div
-      a(href='/manager/flow/new')
+      a.btn.btn-primary(href='/manager/flow/new', role="button")
         | add flow
         =" "
         i.material-icons(style='font-size:16px;') add

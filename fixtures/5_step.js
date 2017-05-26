@@ -36,5 +36,12 @@ module.exports = {
       flowId: 1,
       stepTypeId: 5
     },
+    {
+      id: 6,
+      stepOrder: 6,
+      text: "Another multiple-choice question",
+      flowId: 1,
+      stepTypeId: 4
+    },
   ]
 };
