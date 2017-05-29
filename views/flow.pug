@@ -8,29 +8,41 @@ block content
   div.row
     div.col-md-3.steps-container
       //div.well.sidebar-nav
-      h3 Available step types do be added to the flow
+      h4 Available step types do be added to the flow
       each stepType in stepTypes
         div.stepType
-          h4= '--- ' + stepType.description
+          h5= '- ' + stepType.description
 
     div.col-md-9#flow-container
       h3 Steps
       div#empty-flow.hidden
         h4 You have no steps yet. Start by adding one!
-        | * missing button *
+
       div#steps.list-group
         // will be populated after the AJAX call
 
-      input#add-step.btn.btn-primary(
-      type='button'
-      value='Add step'
-      )
+      // Trigger the modal with a button
+      button.btn.btn-info.btn-lg(type="button", data-toggle="modal", data-target="#myModal") Add step
 
-      input#save-steps.btn.btn-primary.hidden(
-      type='button'
-      value='Save'
-      )
+      button#save-steps.btn.btn-primary.hidden(type="button") Save
 
+  // Modal
+  div#myModal.modal.fade(role="dialog")
+    div.modal-dialog
+      // Modal content
+      div.modal-content
+        div.modal-header
+          button.close(type="button" data-dismiss="modal") &times;
+          h4.modal-title Modal Header
+        div.modal-body
+          div.form-group
+            label(for="new-step-selector") Select list:
+            select#new-step-selector.form-control
+              each stepType in stepTypes
+                option(value=stepType.id)= stepType.description
+        div.modal-footer
+          button#modal-add-step.btn.btn-primary(type="button") Add step
+          button.btn.btn-secondary(type="button" data-dismiss="modal") Close
 
   script.
     var stepTypes = !{JSON.stringify(stepTypes).replace(/<\//g, '<\\/')};

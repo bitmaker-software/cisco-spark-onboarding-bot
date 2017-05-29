@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = function (sequelize, DataTypes) {
-  return sequelize.define('user', {
+  return sequelize.define('manager', {
       name: {
         type: DataTypes.STRING
       },
@@ -11,7 +11,7 @@ module.exports = function (sequelize, DataTypes) {
       password: {
         type: DataTypes.STRING
       },
-      sparkId: {
+      spark_id: {
         type: DataTypes.STRING,
           unique: true
       },

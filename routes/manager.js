@@ -67,7 +67,7 @@ router.post('/api/saveToken', ensureAuthenticated, function (req, res, next) {
   if (token) {
     models.tenant.create({
       name: 'auto',
-      botKey: req.body.token
+      bot_key: req.body.token
     }).then(function () {
       res.send('OK, saved token ' + token);
     }, err => {
@@ -79,6 +79,20 @@ router.post('/api/saveToken', ensureAuthenticated, function (req, res, next) {
   }
 });
 
+router.post('/api/flow', ensureAuthenticated, function (req, res, next) {
+  // New flow
+  console.log("Got a request to create a new flow");
+  console.log(req.body);
+  models.flow.create({
+    name: req.body.name,
+  }).then(function () {
+    res.send('OK, saved flow');
+  }, err => {
+    console.error("Error creating the flow");
+    console.error(err);
+  });
+});
+
 router.get('/api/flow/:id', ensureAuthenticated, function (req, res, next) {
   // Returns the flow steps
   const SEND_DUMMY = false;
@@ -86,12 +100,12 @@ router.get('/api/flow/:id', ensureAuthenticated, function (req, res, next) {
   if (!SEND_DUMMY) {
     // TODO filter the user; add attributes [] to filter columns
     models.step.findAll({
-      where: {flowId: req.params.id},
+      where: {flow_id: req.params.id},
       include: [
         {model: models.step_choice}
       ],
-      order: [[models.Sequelize.col('"stepOrder"'), 'ASC'],
-        [models.step_choice, '"choiceOrder', 'ASC']],
+      order: [[models.Sequelize.col('"step_order"'), 'ASC'],
+        [models.step_choice, '"choice_order"', 'ASC']],
     }).then(steps => {
       res.send({
         flowId: req.params.id,
@@ -118,42 +132,76 @@ router.get('/api/flow/:id', ensureAuthenticated, function (req, res, next) {
   }
 });
 
-router.post('/api/flow/save', ensureAuthenticated, function (req, res, next) {
-  console.log('Got');
+router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
+  console.log('Update flow, got:');
   console.log(req.body);
-  // TODO check this steps belongs to this flow and this flow belongs to the user requesting this
+  // TODO check this steps belongs to this flow and this flow belongs to the user requesting this !!!!!!!!!!
   req.body.steps.forEach(step => {
-    models.step
-      .update(
+    if (step.id === undefined) {
+      // New step
+      models.step.create(
         {
           text: step.text,
-          stepOrder: step.stepOrder,
+          step_order: step.step_order,
+          flow_id: req.body.flow_id,
+          step_type_id: step.step_type,
+        }
+      ).then(result => {
+        if (step.step_type === 4) {
+          // Multiple choice
+          console.log("step.step_choices:");
+          console.log(step.step_choices);
+          step.step_choices.forEach(choice => {
+            models.step_choice.create(
+              {
+                text: choice.text,
+                choice_order: choice.choice_order,
+                step_id: result.id, // the new step id
+              }
+            ).then(result => {
+              //
+            }, err => {
+              console.error("Error saving the step choice:");
+              console.error(err);
+              res.send(err);
+            });
+          });
+        } // if step type === 4
+        res.send(200); // TODO: send here? there are multiple promises
+      });
+      // end of creating new step
+    } else {
+      models.step.update(
+        {
+          text: step.text,
+          step_order: step.step_order,
         }, {where: {id: step.id}}
-      )
-      .then(result => {
+      ).then(result => {
         if (step.step_type === 4) {
           // Multiple choice
           // TODO: what if the user removed options? etc.
           step.step_choices.forEach(choice => {
-            models.step_choice
-              .update({
-                  text: choice.text,
-                  choiceOrder: choice.choiceOrder,
-                }, {where: {id: choice.id}}
-              )
-              .then(result => {
-                //
-              }, err => {
-                console.error("Error saving the step choice:");
-                console.error(err);
-              });
+            models.step_choice.update({
+                text: choice.text,
+                choice_order: choice.choice_order,
+              }, {where: {id: choice.id}}
+            ).then(result => {
+              //
+            }, err => {
+              console.error("Error saving the step choice:");
+              console.error(err);
+              res.send(err);
+            });
           });
         }
-        // TODO: answer back
+        res.send(200); // TODO: send here? there are multiple promises
       }, err => {
         console.error("Error saving the step:");
         console.error(err);
+        res.send(err);
       })
+      // end of updating existing step
+    }
   });
 });
 

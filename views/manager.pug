@@ -25,9 +25,25 @@ block content
                   =" "
                   i.material-icons(style='font-size:16px;') edit
     div
-      a.btn.btn-primary(href='/manager/flow/new', role="button")
-        | add flow
+      // Trigger the modal with a button
+      button.btn.btn-info.btn-lg(type="button", data-toggle="modal", data-target="#myModal") add flow
         =" "
         i.material-icons(style='font-size:16px;') add
+
+  // Modal
+  div#myModal.modal.fade(role="dialog")
+    div.modal-dialog
+      // Modal content
+      div.modal-content
+        div.modal-header
+          button.close(type="button" data-dismiss="modal") &times;
+          h4.modal-title Modal Header
+        div.modal-body
+          div.form-group
+            label(for="name") Flow name:
+            input#name
+        div.modal-footer
+          button#modal-add-flow.btn.btn-primary(type="button") Add flow
+          button.btn.btn-secondary(type="button" data-dismiss="modal") Close
 
   script(src='/javascripts/manager.js' defer)

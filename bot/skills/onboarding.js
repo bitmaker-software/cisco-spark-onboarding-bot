@@ -103,10 +103,10 @@ module.exports = function (controller) {
     } else {
       step.step_choices.forEach(function (choice) {
 
-        text += choice.choiceOrder + '. ' + choice.text + '\n\n';
+        text += choice.choice_order + '. ' + choice.text + '\n\n';
 
         patternsAndCallbacks.push({
-          "pattern": "^" + choice.choiceOrder + "$",
+          "pattern": "^" + choice.choice_order + "$",
           "callback": function (response, convo) {
             // TODO: check the option is valid! repeat the question if not
             //save response
@@ -183,22 +183,22 @@ module.exports = function (controller) {
                 "step_choices": [
                   {
                     "id": 91,
-                    "choiceOrder": 1,
+                    "choice_order": 1,
                     "text": "none"
                   },
                   {
                     "id": 92,
-                    "choiceOrder": 2,
+                    "choice_order": 2,
                     "text": "less than 2 years"
                   },
                   {
                     "id": 93,
-                    "choiceOrder": 3,
+                    "choice_order": 3,
                     "text": "between 2 and 5 years"
                   },
                   {
                     "id": 94,
-                    "choiceOrder": 4,
+                    "choice_order": 4,
                     "text": "more than 5 years"
                   }
                 ]

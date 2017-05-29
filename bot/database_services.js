@@ -12,7 +12,7 @@ module.exports = {
     return new Promise(function (resolve, reject) {
       models.tenant.findOrCreate({
         where: {
-          orgId: orgId
+          org_id: orgId
         },
         defaults: {
           name: 'auto'
@@ -24,12 +24,12 @@ module.exports = {
         if (emails && emails.length > 0) {
           email = emails[0];
         }
-        models.user.findOrCreate({
+        models.manager.findOrCreate({
           where: {
-            sparkId: id
+            spark_id: id
           },
           defaults: {
-            tenantId: tenant.id,
+            tenant_id: tenant.id,
             name: displayName,
             email: email
           }
@@ -48,14 +48,14 @@ module.exports = {
     });
   },
 
-  getFlow: flowId => {
+  getFlow: flow_id => {
     return new Promise(function (resolve, reject) {
       // TODO: check security
       // Get flow
-      models.flow.find({where: {id: flowId}}).then(flow => {
+      models.flow.find({where: {id: flow_id}}).then(flow => {
         models.step.findAll({
-          where: {flowId: flow.id},
-          order: '"stepOrder"',
+          where: {flow_id: flow.id},
+          order: '"step_order"',
           include: [
             {model: models.step_choice}
           ]
@@ -64,7 +64,7 @@ module.exports = {
             // respondent_flow_id: 345,
             flowId: flow.id,
             name: flow.name,
-            status: flow.flowStatusId,
+            status: flow.flow_status_id,
             steps: steps
           })
         }, err => {

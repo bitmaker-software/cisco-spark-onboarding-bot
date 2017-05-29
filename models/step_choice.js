@@ -2,7 +2,7 @@
 
 module.exports = function (sequelize, DataTypes) {
   return sequelize.define('step_choice', {
-      choiceOrder: {
+      choice_order: {
         type: DataTypes.INTEGER
       },
       text: {

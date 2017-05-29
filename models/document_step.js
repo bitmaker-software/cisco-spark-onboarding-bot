@@ -2,10 +2,10 @@
 
 module.exports = function (sequelize, DataTypes) {
   return sequelize.define('document_step', {
-      documentUrl: {
+      document_url: {
         type: DataTypes.STRING
       },
-      uploadDir: {
+      upload_dir: {
         type: DataTypes.STRING
       },
     },

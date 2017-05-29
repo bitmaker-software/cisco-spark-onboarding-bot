@@ -46,7 +46,7 @@ router.get('/search_users/:user', ensureAuthenticated, (req, res, next) => {
   });
 });
 
-router.post('/send_flow/:flowid/:sparkuserid', ensureAuthenticated, (req, res, next) => {
+router.post('/send_flow/:flow_id/:spark_id', ensureAuthenticated, (req, res, next) => {
   request({
     url: 'https://api.ciscospark.com/v1/messages',
     method: 'POST',
@@ -56,7 +56,7 @@ router.post('/send_flow/:flowid/:sparkuserid', ensureAuthenticated, (req, res, n
       bearer: process.env.access_token
     },
     json: true,
-    body: {toPersonId: req.params.sparkuserid, text: 'Hello. I am the onboarding bot!'}
+    body: {toPersonId: req.params.spark_id, text: 'Hello. I am the onboarding bot!'}
   }, (error, response, body) => {
     if (!error && response.statusCode == 200) {
       res.send("flow sent!")

@@ -1,5 +1,5 @@
 module.exports = {
-  model: 'user',
+  model: 'manager',
   data: [
     {
       id: 1,

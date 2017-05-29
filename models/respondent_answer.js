@@ -8,13 +8,13 @@ module.exports = function (sequelize, DataTypes) {
       status: {
         type: DataTypes.STRING
       },
-      documentUrl: {
+      document_url: {
         type: DataTypes.STRING
       },
-      questionDate: {
+      question_date: {
         type: DataTypes.DATE
       },
-      answerDate: {
+      answer_date: {
         type: DataTypes.DATE
       },
     },

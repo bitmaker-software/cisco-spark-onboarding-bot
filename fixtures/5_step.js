@@ -3,45 +3,45 @@ module.exports = {
   data: [
     {
       id: 1,
-      stepOrder: 1,
+      step_order: 1,
       text: "Welcome to bitmaker! I will ask you some questions. Please provide accurate answers.",
-      flowId: 1,
-      stepTypeId: 1
+      flow_id: 1,
+      step_type_id: 1
     },
     {
       id: 2,
-      stepOrder: 4,
+      step_order: 4,
       text: "Please provide a brief description about you.",
-      flowId: 1,
-      stepTypeId: 2
+      flow_id: 1,
+      step_type_id: 2
     },
     {
       id: 3,
-      stepOrder: 3,
+      step_order: 3,
       text: "Please download this document and read it",
-      flowId: 1,
-      stepTypeId: 3
+      flow_id: 1,
+      step_type_id: 3
     },
     {
       id: 4,
-      stepOrder: 2,
+      step_order: 2,
       text: "How many years of experience do you have",
-      flowId: 1,
-      stepTypeId: 4
+      flow_id: 1,
+      step_type_id: 4
     },
     {
       id: 5,
-      stepOrder: 5,
+      step_order: 5,
       text: "Please go to x and do y",
-      flowId: 1,
-      stepTypeId: 5
+      flow_id: 1,
+      step_type_id: 5
     },
     {
       id: 6,
-      stepOrder: 6,
+      step_order: 6,
       text: "Another multiple-choice question",
-      flowId: 1,
-      stepTypeId: 4
+      flow_id: 1,
+      step_type_id: 4
     },
   ]
 };

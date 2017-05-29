@@ -13,7 +13,16 @@ env(__dirname + '/../bot/.env');
 var sequelize = new Sequelize(process.env.db_db, process.env.db_user, process.env.db_pass, {
   host: process.env.db_host,
   port: process.env.db_port,
-  dialect: 'postgres'
+  dialect: 'postgres',
+  define: {
+    // don't use camelcase for automatically added attributes but underscore style
+    // so updatedAt will be updated_at
+    underscored: true,
+    // disable the modification of tablenames; By default, sequelize will automatically
+    // transform all passed model names (first parameter of define) into plural.
+    // if you don't want that, set the following
+    freezeTableName: true, // we need to update the sequences after inserting IDs manually, and it's hard with mixed plural names!
+  }
 });
 
 //Load all the models
@@ -25,7 +34,7 @@ fs
   .forEach(function (file) {
     var model = sequelize.import(__dirname + '/' + file);
     // var model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
-
+    console.log('Imported model ' + model);
     db[model.name] = model;
   });
 
@@ -38,7 +47,7 @@ Object.keys(db).forEach(function (modelName) {
 
 // describe relationships
 (function (m) {
-  console.log('Describe relationships');
+  console.log('\nSetting up models relationships');
 
   //
   //
@@ -47,13 +56,13 @@ Object.keys(db).forEach(function (modelName) {
   //
 
   // - Tenant
-  //m.tenant.hasMany(m.user);
+  //m.tenant.hasMany(m.manager);
 
-  // - User
-  m.user.belongsTo(m.tenant);
+  // - Manager
+  m.manager.belongsTo(m.tenant);
   // - Flow
   m.flow.belongsTo(m.tenant);
-  m.flow.belongsTo(m.user, {as: 'owner'});
+  m.flow.belongsTo(m.manager, {as: 'owner'});
   m.flow.belongsTo(m.flow_status);
 
   // - Step
@@ -78,7 +87,7 @@ Object.keys(db).forEach(function (modelName) {
   m.respondent.belongsTo(m.tenant);
 
   // - Respondent Flow
-  m.respondent_flow.belongsTo(m.user, {as: 'assigner'});
+  m.respondent_flow.belongsTo(m.manager, {as: 'assigner'});
   m.respondent_flow.belongsTo(m.respondent);
   m.respondent_flow.belongsTo(m.step, {as: 'current_step'});
   m.respondent_flow.belongsTo(m.flow);
@@ -102,14 +111,18 @@ let listOfFixtures = require("fs").readdirSync(normalizedPath)
 let fileIdx = 0;
 function importFixture() {
   if (!listOfFixtures.length || fileIdx >= listOfFixtures.length) {
+    console.log('Ended loading the fixtures');
     return;
   }
   let file = listOfFixtures[fileIdx];
-  console.log(`Importing fixtures ${file}`);
+  console.log(`\nImporting fixtures ${file}\n`);
   let fixture = require("../fixtures/" + file);
   let modelName = fixture.model;
+  let sequelizeModel = db[modelName];
+  // Wait for all insertions
+  let done = 0;
   fixture.data.forEach(item => {
-    db[modelName].findOrCreate({
+    sequelizeModel.findOrCreate({
       where: {
         id: item.id
       },
@@ -126,21 +139,26 @@ function importFixture() {
       tryToContinue();
     });
   });
-  // Wait for all insertions
-  let done = 0;
 
   function tryToContinue() {
     done++;
     if (done === fixture.data.length) {
-      importFixture(fileIdx++);
+      // Set PostgreSQL correct value for the sequence (as we inserted IDs manually)
+      let updateSequence = "select setval('" + fixture.model + "_id_seq', (select max(id) from " + fixture.model + "));";
+      console.log(updateSequence);
+      sequelize.query(updateSequence).spread((results, metadata) => {
+        // Results will be an empty array and metadata will contain the number of affected rows.
+        // Continue
+        fileIdx++;
+        importFixture();
+      });
     }
   }
 }
-// Start importing
-//importFixture(fileIdx);
 
 //Export the db Object
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
+db.startLoadingDatabaseFixtures = importFixture;
 
 module.exports = db;

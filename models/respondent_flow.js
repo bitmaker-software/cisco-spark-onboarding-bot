@@ -2,13 +2,13 @@
 
 module.exports = function (sequelize, DataTypes) {
   return sequelize.define('respondent_flow', {
-      assignDate: {
+      assign_date: {
         type: DataTypes.DATE
       },
-      startDate: {
+      start_date: {
         type: DataTypes.DATE
       },
-      endDate: {
+      end_date: {
         type: DataTypes.DATE
       },
     },
