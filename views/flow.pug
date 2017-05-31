@@ -33,10 +33,10 @@ block content
       div.modal-content
         div.modal-header
           button.close(type="button" data-dismiss="modal") &times;
-          h4.modal-title Modal Header
+          h4.modal-title New step
         div.modal-body
           div.form-group
-            label(for="new-step-selector") Select list:
+            label(for="new-step-selector") Type
             select#new-step-selector.form-control
               each stepType in stepTypes
                 option(value=stepType.id)= stepType.description
@@ -45,7 +45,12 @@ block content
           button.btn.btn-secondary(type="button" data-dismiss="modal") Close
 
   script.
-    var stepTypes = !{JSON.stringify(stepTypes).replace(/<\//g, '<\\/')};
+    var stepTypesArray = !{JSON.stringify(stepTypes).replace(/<\//g, '<\\/')};
+    var stepTypesObj = {};
+    stepTypesArray.forEach(function (element) {
+      stepTypesObj[element.id] = element;
+    });
+    console.log(stepTypesObj);
     var flowId = !{flowId}; // used on AJAX requests
   script(src='/javascripts/libs/Sortable-1.5.1/Sortable.js')
   script(src='/javascripts/flow.js' defer)

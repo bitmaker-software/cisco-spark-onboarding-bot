@@ -33,11 +33,30 @@ $(function () {
     });
   });
 
-  function getStepTypeNameFromId(stepId) {
-    for (var i = 0; i < stepTypes.length; i++) {
-      if (stepTypes[i].id === stepId) {
-        return stepTypes[i];
-      }
+  function getStepTypeFromTypeId(typeId) {
+    if (stepTypesObj[typeId]) {
+      return stepTypesObj[typeId];
+    }
+    return {description: "Unknown step type"};
+  }
+
+  function getStepTypeIconFromTypeId(typeId) {
+    switch (typeId) {
+      case 1:
+        // Announcement
+        return "record_voice_over";
+      case 2:
+        // Question
+        return "help_outline";
+      case 3:
+        // Document
+        return "description";
+      case 4:
+        // Multiple Choice
+        return "format_list_bulleted";
+      case 5:
+        // Docusign
+        return "edit";
     }
   }
 
@@ -76,37 +95,41 @@ $(function () {
     // Do not add the ID if it is a new step
     return '<div class="list-group-item"' + (step.id ? ( 'id="step-' + step.id + '" data-step-id="' + step.id + '"') : '') + ' data-step-type="' + step.step_type_id + '">' +
       '<span class="drag-handle drag-handle-step">☰</span>' +
-      '<h5>' + getStepTypeNameFromId(step.step_type_id).description + '</h5>';
+      '<span class="small" style="margin-left: 10px;">(' + getStepTypeFromTypeId(step.step_type_id).description + ')</span>';
+  }
+
+  function getHtmlStepTypeIconPlusTextInput(step) {
+    return '<div class="input-group">' +
+      '<div class="input-group-addon"><i class="material-icons step-type">' + getStepTypeIconFromTypeId(step.step_type_id) + '</i></div>' +
+      '<input type="text" value="' + step.text + '" class="question form-control" />' +
+      '</div>';
   }
 
   function getHtmlStepAnnouncement(step) {
-    return '<div class="input-group"><input type="text" value="' + step.text + '" class="question form-control" /></div>';
+    return getHtmlStepTypeIconPlusTextInput(step);
   }
 
   function getHtmlStepQuestion(step) {
-    return '<div class="input-group"><input type="text" value="' + step.text + '" class="question form-control" /></div>';
+    return getHtmlStepTypeIconPlusTextInput(step);
   }
 
   function getHtmlStepDocument(step) {
-    return '<div class="input-group"><input type="text" value="' + step.text + '" class="question form-control" /></div>' +
+    return getHtmlStepTypeIconPlusTextInput(step) +
       '<div class="input-group"><input type="file" /></div>';
   }
 
   function getHtmlStepMultipleChoice(step) {
     // Title
-    let stepHtml = '<div class="input-group">' +
-      '<label>Title</label>' +
-      '<input type="text" class="question form-control" value="' + step.text + '" />' +
-      '</div>';
+    let stepHtml = getHtmlStepTypeIconPlusTextInput(step);
     // Choices
     stepHtml += '<div class="multiple-choice">';
     if (step.step_choices) {
       step.step_choices.forEach(choice => {
         stepHtml += '<div class="input-group">' +
           '<span class="drag-handle drag-handle-multiple-choice">☰</span>' +
-          '<label>Question</label>' +
+          '<label></label>' +
           '<input type="text" class="answer form-control" value="' + choice.text + '" data-id="' + choice.id + '" data-choice-order="' + choice.choice_order + '"/>' +
-          '<span class="input-group-addon">remove</span>' +
+          '<span class="input-group-addon delete-answer"><i class="material-icons">delete</i></span>' +
           '</div>';
       });
     } else {
@@ -125,13 +148,13 @@ $(function () {
         '</div>';
     }
     // TODO: activate the drag and drop on the new elements
-    stepHtml += '<div>add question</div>';
+    stepHtml += '<button class="btn btn-secondary" type="button">Add answer <i class="material-icons">add</i></button>';
     stepHtml += '</div>';
     return stepHtml;
   }
 
   function getHtmlStepDocusign(step) {
-    return '<div class="input-group"><input type="text" value="' + step.text + '" class="question form-control" /></div>';
+    return getHtmlStepTypeIconPlusTextInput(step);
   }
 
   function getHtmlStepEnd() {
