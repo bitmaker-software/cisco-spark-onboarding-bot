@@ -18,7 +18,7 @@ block content
           each flow in flows
             tr
               td= flow.name
-              td= flow.status
+              td= flow.flow_status.description
               td
                 a.btn.btn-primary(href='/manager/flow/' + flow.id, role="button")
                   | edit
@@ -37,13 +37,13 @@ block content
       div.modal-content
         div.modal-header
           button.close(type="button" data-dismiss="modal") &times;
-          h4.modal-title Modal Header
+          h4.modal-title New flow
         div.modal-body
           div.form-group
-            label(for="name") Flow name:
+            label(for="name") Name
             input#name
         div.modal-footer
           button#modal-add-flow.btn.btn-primary(type="button") Add flow
           button.btn.btn-secondary(type="button" data-dismiss="modal") Close
 
-  script(src='/javascripts/manager.js' defer)
+  script(src='/javascripts/manager_flows.js' defer)

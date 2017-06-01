@@ -3,7 +3,7 @@ module.exports = {
   data: [
     {
       id: 1,
-      description: 'Status 1'
+      description: 'Status 1',
     },
     {
       id: 2,

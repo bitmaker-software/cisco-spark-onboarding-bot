@@ -9,7 +9,7 @@ html(lang='en')
     link(rel='stylesheet', href='/javascripts/libs/bootstrap-4.0.0-alpha.6-dist/css/bootstrap.min.css', integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ")
     style(type='text/css').
       body {
-        padding-top: 5rem;
+        padding-top: 112px; /* top bar + nav bar */
       }
 
       /*.starter-template {*/
@@ -22,7 +22,9 @@ html(lang='en')
     // Material Icons
     link(rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons")
   body
-    nav.navbar.navbar-toggleable-md.navbar-inverse.bg-inverse.fixed-top
+    nav.top-bar.fixed-top
+      img.logo(src="/images/cisco-white_130h.png")
+    nav.navbar.navbar-toggleable-md.navbar-inverse.bg-inverse.fixed-top.below-top-bar
       button.navbar-toggler.navbar-toggler-right(type="button", data-toggle="collapse" data-target="#navbarsExampleDefault")
         span.navbar-toggler-icon
       a.navbar-brand(href='#') Cisco Spark Onboarding Bot
@@ -64,3 +66,7 @@ html(lang='en')
     script(src='/javascripts/libs/jquery-3.2.1/jquery-3.2.1.js')
     script(src='/javascripts/libs/tether-1.4.0/js/tether.min.js')
     script(src='/javascripts/libs/bootstrap-4.0.0-alpha.6-dist/js/bootstrap.js')
+
+    script(src='/javascripts/libs/vue-2.3.3/vue.js')
+
+    block pageScripts

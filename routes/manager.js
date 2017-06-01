@@ -5,79 +5,28 @@ var express = require('express');
 var router = express.Router();
 var ensureAuthenticated = require('./auth_middleware');
 
-/* GET manager. */
+//
+//
+// Main manager page (list of flows)
+//
+//
 router.get('/', ensureAuthenticated, function (req, res, next) {
   getFlows().then(flows => {
-    res.render('manager', {
+    res.render('manager_flows', {
       title: 'Onboarding manager',
       flows: flows,
     });
+    console.log('........');
+    console.log(flows);
   }, err => {
     console.error("Error fetching the flows:");
     console.error(err);
   });
 });
 
-router.get('/flow/new', ensureAuthenticated, function (req, res, next) {
-  res.send('To be implemented');
-});
-
-router.get('/flow/:id', ensureAuthenticated, function (req, res, next) {
-  let promises = [
-    getStepTypes(),
-    getFlow(req.params.id)
-  ];
-  Promise.all(promises).then(values => {
-    res.render('flow', {
-      title: values[1][0].name,
-      flowId: req.params.id,
-      stepTypes: values[0]
-    });
-  }, err => {
-    console.error("Error fetching the step types or flow:");
-    console.error(err);
-  });
-});
-
-function getFlows(id) {
-  console.log('getFlows(' + id + ')');
-  // Returns flows for the logged in tenant
-  let config = {
-    where: {
-      // TODO filter by logged in user !!!
-      //   ownerId: 1
-    }
-  };
-  if (id) {
-    config.where.id = id;
-  }
-  return models.flow.findAll(config);
-}
-
-function getFlow(id) {
-  return getFlows(id);
-}
-
-function getStepTypes() {
-  return models.step_type.findAll({order: 'id'});
-}
-
-router.post('/api/saveToken', ensureAuthenticated, function (req, res, next) {
-  var token = req.body.token;
-  if (token) {
-    models.tenant.create({
-      name: 'auto',
-      bot_key: req.body.token
-    }).then(function () {
-      res.send('OK, saved token ' + token);
-    }, err => {
-      console.error("Error saving the token:");
-      console.error(err);
-    });
-  } else {
-    res.send('No token provided')
-  }
-});
+// router.get('/flow/new', ensureAuthenticated, function (req, res, next) {
+//   res.send('To be implemented');
+// });
 
 router.post('/api/flow', ensureAuthenticated, function (req, res, next) {
   // New flow
@@ -86,9 +35,32 @@ router.post('/api/flow', ensureAuthenticated, function (req, res, next) {
   models.flow.create({
     name: req.body.name,
   }).then(function () {
-    res.send('OK, saved flow');
+    return res.send('OK, saved flow');
   }, err => {
     console.error("Error creating the flow");
+    console.error(err);
+  });
+});
+
+
+//
+//
+// Flow page (list of steps)
+//
+//
+router.get('/flow/:id', ensureAuthenticated, function (req, res, next) {
+  let promises = [
+    getStepTypes(),
+    getFlow(req.params.id)
+  ];
+  Promise.all(promises).then(values => {
+    res.render('manager_flow_steps', {
+      title: values[1][0].name,
+      flowId: req.params.id,
+      stepTypes: values[0]
+    });
+  }, err => {
+    console.error("Error fetching the step types or flow:");
     console.error(err);
   });
 });
@@ -107,7 +79,7 @@ router.get('/api/flow/:id', ensureAuthenticated, function (req, res, next) {
       order: [[models.Sequelize.col('"step_order"'), 'ASC'],
         [models.step_choice, '"choice_order"', 'ASC']],
     }).then(steps => {
-      res.send({
+      return res.send({
         flowId: req.params.id,
         steps: steps
       });
@@ -117,7 +89,7 @@ router.get('/api/flow/:id', ensureAuthenticated, function (req, res, next) {
     });
   } else {
     // Dummy data
-    res.send({
+    return res.send({
       flowId: req.params.id,
       steps: [
         {id: '0', step_order: '1', text: 'Step number one', step_type: 0},
@@ -136,6 +108,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
   console.log('Update flow, got:');
   console.log(req.body);
   // TODO check this steps belongs to this flow and this flow belongs to the user requesting this !!!!!!!!!!
+  // TODO handle multiple db queries and send response only when finished!
   req.body.steps.forEach(step => {
     if (step.id === undefined) {
       // New step
@@ -151,7 +124,8 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
           // Multiple choice
           console.log("step.step_choices:");
           console.log(step.step_choices);
-          step.step_choices.forEach(choice => {
+          step.step_choices.forEach((choice, index) => {
+            console.log("Step index: " + index);
             models.step_choice.create(
               {
                 text: choice.text,
@@ -163,11 +137,11 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
             }, err => {
               console.error("Error saving the step choice:");
               console.error(err);
-              res.send(err);
+              return res.send(err);
             });
           });
         } // if step type === 4
-        res.send(200); // TODO: send here? there are multiple promises
+        return res.sendStatus(200); // TODO: send here? there are multiple promises
       });
       // end of creating new step
     } else {
@@ -180,7 +154,8 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
         if (step.step_type === 4) {
           // Multiple choice
           // TODO: what if the user removed options? etc.
-          step.step_choices.forEach(choice => {
+          step.step_choices.forEach((choice, index) => {
+            console.log("Choice index: " + index);
             models.step_choice.update({
                 text: choice.text,
                 choice_order: choice.choice_order,
@@ -190,23 +165,47 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
             }, err => {
               console.error("Error saving the step choice:");
               console.error(err);
-              res.send(err);
+              return res.send(err);
             });
           });
         }
-        res.send(200); // TODO: send here? there are multiple promises
+        return res.sendStatus(200); // TODO: send here? there are multiple promises
       }, err => {
         console.error("Error saving the step:");
         console.error(err);
-        res.send(err);
+        return res.send(err);
       })
       // end of updating existing step
     }
   });
 });
 
-// router.get('/api/flows', ensureAuthenticated, function (req, res, next) {
-//   res.send(['first flow', 'second flow', 'third flow', 'fourth flow']);
-// });
+
+function getFlows(id) {
+  console.log('getFlows(' + id + ')');
+  // Returns flows for the logged in tenant
+  let config = {
+    attributes: ['id', 'name'],
+    where: {
+      // TODO filter by logged in user !!!
+      //   ownerId: 1
+    },
+    include: [
+      {model: models.flow_status, attributes: ['description']}
+    ],
+  };
+  if (id) {
+    config.where.id = id;
+  }
+  return models.flow.findAll(config);
+}
+
+function getFlow(id) {
+  return getFlows(id);
+}
+
+function getStepTypes() {
+  return models.step_type.findAll({order: 'id'});
+}
 
 module.exports = router;
