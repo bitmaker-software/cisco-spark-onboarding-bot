@@ -17,7 +17,7 @@ $(function () {
     }
     changeButtonToSaving();
     var token = $('#bot-token').val();
-    $.post('/manager/api/saveToken', {token: token}, function (data) {
+    $.post('/settings/api/saveToken', {token: token}, function (data) {
       $('#results').html(data);
       changeButtonToSaved();
     });

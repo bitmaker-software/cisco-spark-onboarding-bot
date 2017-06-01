@@ -22,6 +22,12 @@ var sequelize = new Sequelize(process.env.db_db, process.env.db_user, process.en
     // transform all passed model names (first parameter of define) into plural.
     // if you don't want that, set the following
     freezeTableName: true, // we need to update the sequences after inserting IDs manually, and it's hard with mixed plural names!
+    // defaultScope: {
+    // attributes: {
+    // // Setting this will disable the related tables attributes :(
+    // exclude: ['created_at', 'updated_at']
+    // }
+    // }
   }
 });
 
