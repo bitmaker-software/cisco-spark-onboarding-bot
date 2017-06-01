@@ -4,13 +4,20 @@ var express = require('express');
 var request = require('request');
 var router = express.Router();
 var ensureAuthenticated = require('./auth_middleware');
+var database_services = require('../bot/database_services');
 var env = require('node-env-file');
 env(__dirname + '/../bot/.env');
 
+var gdrive_client_id = process.env.gdrive_client_id;
+var gdrive_developer_key = process.env.gdrive_developer_key;
 
 router.get('/', ensureAuthenticated, (req, res, next) => {
   res.render('test', {
-    title: 'Onboarding manager test page'
+    title: 'Onboarding manager test page',
+    gdrive_client_id: gdrive_client_id,
+    gdrive_developer_key: gdrive_developer_key,
+    //gdrive_share_to: ''
+    gdrive_share_to: 'spark-drive@testdriveintegration-167213.iam.gserviceaccount.com'
   });
 });
 
@@ -64,6 +71,12 @@ router.post('/send_flow/:flow_id/:spark_id', ensureAuthenticated, (req, res, nex
       res.send("flow not sent: " + error)
     }
   });
+});
+
+router.get('/document_stores', ensureAuthenticated, (req, res, next) => {
+  database_services.getGoogleDriveCredentials(2, 1).then(models => {
+    res.send(models);
+  }, err => res.send(err));
 });
 
 module.exports = router;
