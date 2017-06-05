@@ -17,6 +17,9 @@ PORT=...
 
 ### How do I get set up? ###
 
+* Download https://www.postgresql.org/ftp/pgadmin 
+* create user - talk to @andrefv
+
 * npm install / yarn
 * You can create a .env file on the bot dir (/bot/.env) - talk to @andrefv
 * npm start
