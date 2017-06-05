@@ -11,7 +11,6 @@ studio_token=...
 PORT=...
 
 
-
 ### What is this repository for? ###
 
 * Cisco Onboarding Bot by Bitmaker
