@@ -2,7 +2,7 @@
 
 This project uses BotKit
 
-You can create a .env file on the bot dir (code/bot/.env) with:
+You can create a .env file on the bot dir (/bot/.env) with:
 
 access_token=...
 public_address=...
@@ -14,26 +14,14 @@ PORT=...
 
 ### What is this repository for? ###
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+* Cisco Onboarding Bot by Bitmaker
 
 ### How do I get set up? ###
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
+* npm install / yarn
+* You can create a .env file on the bot dir (/bot/.env) - talk to @andrefv
+* npm start
 
 ### Who do I talk to? ###
 
-* Repo owner or admin
-* Other community or team contact
+* @andrefv, @tiagofernandes
