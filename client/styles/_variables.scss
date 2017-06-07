@@ -1,6 +1,9 @@
 // Reassign color vars to semantic color scheme
+// Cisco spark blue
 $brand-primary:             #049fd9;
 
+// Cisco spark gray
+$gray-light:                #aeaeaf;
 $gray-lighter:              #f2f5f7;
 
 // Fonts
@@ -10,9 +13,16 @@ $gray-lighter:              #f2f5f7;
 $font-family-sans-serif: "Open Sans", -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 $headings-font-weight:  300;
 
+// Shadows
+$shadow-lg:         0 14px 26px 0 rgba(205, 212, 217, .65);
+
 // Buttons
 //
 // For each of Bootstrap's buttons, define text, background and border color.
 
 $btn-padding-x:                  2rem;
 $btn-padding-y:                  1rem;
+
+$btn-font-weight:                300;
+
+$btn-border-radius:              25px;
