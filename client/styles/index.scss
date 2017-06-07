@@ -1,4 +1,11 @@
+// Import Open Sans Google font
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,700');
+
+@import 'variables';
+
+// Import boostrap after variables so that our variables file overwrites theirs
 @import '../../node_modules/bootstrap/scss/bootstrap';
+
 @import 'layout';
 @import 'header';
 @import 'footer';

@@ -1,29 +1,60 @@
-html, body {
-  height: 100%;
-}
+.login {
+  // Login display flex to center the content
+  align-items: center;
+  background-color: $gray-lighter;
+  display: flex;
+  height: 100vh;
+  justify-content: center;
 
-body {
-  padding-top: 112px; /* top bar + nav bar */
-}
+  // add shadow to the card and remove border -- maybe sit should be done in variables??
+  .card {
+    border: 0;
+    box-shadow: 0 14px 26px 0 rgba(205, 212, 217, .65);
 
-//.header {
-//  position: fixed;
-//  top: 0;
-//  left: 0;
-//  right: 0;
-//  z-index: 2;
-//}
-//
-//.content {
-//  min-height: 100%;
-//  padding-bottom: 48px;
-//  margin-bottom: -48px;
-//}
-//
-//.footer {
-//  height: 48px;
-//}
-//
-//.material-icons {
-//  vertical-align: middle;
-//}
+    &-block {
+      flex: 0;
+      padding: 50px;
+      text-align: center;
+    }
+  }
+
+  // Login black also flex to align the content center
+  &-block {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  // Spark imahge to give brand recognition
+  .bg-image {
+    background-image: url('../images/login.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    border-bottom-right-radius: $border-radius;
+    border-top-right-radius: $border-radius;
+    min-height: 580px;
+  }
+
+  h1,
+  .lead {
+    margin-bottom: 30px;
+  }
+
+  h1 {
+    font-size: 3rem;
+  }
+
+  .btn {
+    box-shadow: 0 14px 26px 0 rgba(205, 212, 217, .65);
+    text-transform: uppercase;
+  }
+
+  // using image as backgroun because I can't get the path to work
+  .logo {
+    background-image: url('../images/logo.png');
+    background-size: cover;
+    margin: 10px auto;
+    height: 80px;
+    width: 80px;
+  }
+}

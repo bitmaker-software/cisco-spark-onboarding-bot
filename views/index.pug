@@ -1,7 +1,34 @@
-extends layout
+doctype html
+html(lang='en')
+  head
+    title= title
+    // Required meta tags
+    meta(charset='utf-8')
+    meta(name="viewport", content="width=device-width, initial-scale=1, shrink-to-fit=no")
 
+    // Material Icons
+    link(rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons")
+
+    // Bundled stylesheet
+    //link(rel='stylesheet', href=static.root + '/css/index.css@' + static.suffix)
+    link(rel='stylesheet', href=static.root + '/css/index.css')
+  body
+    
 block content
-  h1= title
-  p Welcome to #{title}
+  .login
+    .container
+      .row
+        .col
+          
+          .card
+            .row.no-gutters
+              .col.bg-image
+              .col.login-block
+                .card-block   
+                  .logo
+                  h1.text-primary Onboarding
+                  p.lead.text-muted Welcome to #{title}
 
-  a(href="/auth/spark") Sign up with Cisco Spark
+                  a(href="/auth/spark").btn.btn-primary Sign up with Cisco Spark
+              
+              
