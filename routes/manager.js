@@ -34,6 +34,7 @@ router.post('/api/flow', ensureAuthenticated, function (req, res, next) {
   console.log(req.body);
   models.flow.create({
     name: req.body.name,
+    flow_status_id: 1
   }).then(function () {
     return res.send('OK, saved flow');
   }, err => {

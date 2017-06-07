@@ -1,6 +1,12 @@
 bot/.env
 dist
 node_modules
+.DS_Store
+*.log
+node_modules
+public/js
+public/css
+db.json
 
 # All IntelliJ files
 .idea/

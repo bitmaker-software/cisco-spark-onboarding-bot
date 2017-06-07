@@ -11,7 +11,7 @@ module.exports = function ensureAuthenticated(req, res, next) {
   }
   if (req.header('X-Requested-With') === 'XMLHttpRequest') {
     // AJAX call, do not redirect, return 401 Unauthorized
-    res.send(401);
+    res.sendStatus(401);
   } else {
     res.redirect('/auth/login')
   }

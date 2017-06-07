@@ -95,13 +95,10 @@ block content
             button.btn.btn-primary(type="button" v-on:click="addStep(newStepTypeSelected)") Add step
             button.btn.btn-secondary(type="button" data-dismiss="modal") Close
 
-    p Debug steps
+    p(@click="click1()") Debug steps {{steps}}
     div(v-for="step in steps") {{ step }}
 
   block pageScripts
-    // In this order: Vue, Sortable, Vue.Draggable
-    script(src='/javascripts/libs/Sortable-1.5.1/Sortable.js')
-    script(src='/javascripts/libs/vue.draggable/vuedraggable.js')
     script.
       var stepTypesArray = !{JSON.stringify(stepTypes).replace(/<\//g, '<\\/')};
       var stepTypesObj = {};
@@ -110,4 +107,4 @@ block content
       });
       console.log(stepTypesObj);
       var flowId = !{flowId}; // used on AJAX requests
-    script(src='/javascripts/manager_flow_steps.js')
+    script(src=static.root + '/js/manager_flow_steps.js')

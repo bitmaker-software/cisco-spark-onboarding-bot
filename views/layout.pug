@@ -5,22 +5,13 @@ html(lang='en')
     // Required meta tags
     meta(charset='utf-8')
     meta(name="viewport", content="width=device-width, initial-scale=1, shrink-to-fit=no")
-    // Bootstrap CSS
-    link(rel='stylesheet', href='/javascripts/libs/bootstrap-4.0.0-alpha.6-dist/css/bootstrap.min.css', integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ")
-    style(type='text/css').
-      body {
-        padding-top: 112px; /* top bar + nav bar */
-      }
 
-      /*.starter-template {*/
-      /*padding: 3rem 1.5rem;*/
-      /*text-align: center;*/
-      /*}*/
-    link(rel='stylesheet', href='/javascripts/libs/bootstrap-4.0.0-alpha.6-dist/css/bootstrap.min.css')
-    // Custom
-    link(rel='stylesheet', href='/stylesheets/style.css')
     // Material Icons
     link(rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons")
+
+    // Bundled stylesheet
+    //link(rel='stylesheet', href=static.root + '/css/index.css@' + static.suffix)
+    link(rel='stylesheet', href=static.root + '/css/index.css')
   body
     nav.top-bar.fixed-top
       img.logo(src="/images/cisco-white_130h.png")
@@ -62,11 +53,7 @@ html(lang='en')
       footer
         p © Cisco Systems, Inc. 2017
 
-    // jQuery first, then Tether, then Bootstrap JS.
-    script(src='/javascripts/libs/jquery-3.2.1/jquery-3.2.1.js')
-    script(src='/javascripts/libs/tether-1.4.0/js/tether.min.js')
-    script(src='/javascripts/libs/bootstrap-4.0.0-alpha.6-dist/js/bootstrap.js')
-
-    script(src='/javascripts/libs/vue-2.3.3/vue.js')
+    //script(src=static.root + '/js/main.js@' + static.suffix)
+    script(src=static.root + '/js/main.js')
 
     block pageScripts

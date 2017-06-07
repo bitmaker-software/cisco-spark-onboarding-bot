@@ -1,0 +1,37 @@
+parser: babel-eslint
+extends:
+  - eslint:recommended
+  - plugin:react/recommended
+plugins:
+  - react
+env:
+  browser: true
+  node: true
+rules:
+  quotes:
+    - warn
+    - single
+    - allowTemplateLiterals: true
+  yoda: warn
+  no-shadow: warn
+  array-bracket-spacing: warn
+  comma-style: warn
+  indent:
+    - warn
+    - 2
+    - VariableDeclarator:
+        var: 2
+        let: 2
+        const: 3
+  max-len:
+    - warn
+    - 120
+    -
+      ignoreComments: true
+      ignoreUrls: true
+      ignoreStrings: true
+      ignoreTemplateLiterals: true
+  no-console: warn
+  react/require-render-return: error
+  react/display-name: off
+  react/prop-types: off

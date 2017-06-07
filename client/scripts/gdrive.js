@@ -55,7 +55,7 @@ function GDriver(clientId, developerKey, shareTo) {
         if (authResult && !authResult.error) {
             self.oauthToken = authResult.access_token;
             //check if we are selecting a file, should call createPicker
-            if(self.selectMode != 'none'){
+            if(self.selectMode !== 'none'){
                 self.createPicker();
             }
         }
@@ -93,7 +93,7 @@ function GDriver(clientId, developerKey, shareTo) {
                 var view = new google.picker.DocsView(google.picker.ViewId.DOCS);
                 view.setIncludeFolders(true);
 
-                if(self.selectMode == 'folder'){
+                if(self.selectMode === 'folder'){
                     view.setMimeTypes('application/vnd.google-apps.folder');
                     view.setSelectFolderEnabled(true);
                 }
@@ -113,12 +113,12 @@ function GDriver(clientId, developerKey, shareTo) {
     self.pickerCallback = function(data){
         var url = 'nothing';
         var docid = '';
-        if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
+        if (data[google.picker.Response.ACTION] === google.picker.Action.PICKED) {
             var doc = data[google.picker.Response.DOCUMENTS][0];
             url = doc[google.picker.Document.URL];
             docid = doc[google.picker.Document.ID];
             self.shareFile(docid);
-        } else if(data[google.picker.Response.ACTION] == google.picker.Action.CANCEL) {
+        } else if(data[google.picker.Response.ACTION] === google.picker.Action.CANCEL) {
             self.selectMode = 'none';
         }
         var message = 'You picked: ' + url + ' (' + docid + ')';
@@ -127,7 +127,7 @@ function GDriver(clientId, developerKey, shareTo) {
 
     self.shareFile = function(fileId){
         if(self.driveShareLoaded) {
-            var role = self.selectMode == 'file' ? 'reader' : 'writer';
+            var role = self.selectMode === 'file' ? 'reader' : 'writer';
             var req = gapi.client.drive.permissions.create({
                 'fileId': fileId,
                 'sendNotificationEmail': false,
@@ -140,7 +140,7 @@ function GDriver(clientId, developerKey, shareTo) {
 
             req.execute(function (resp) {
                 console.log(resp);
-                if(resp.kind && resp.kind == 'drive#permission'){
+                if(resp.kind && resp.kind === 'drive#permission'){
                     //share ok
                     self.afterSelectionCallback(fileId);
                 }
@@ -157,11 +157,11 @@ function GDriver(clientId, developerKey, shareTo) {
         self.afterSelectionCallback = callback;
         self.selectMode = 'file';
         self.createPicker();
-    }
+    };
 
     self.selectFolder = function(callback) {
         self.afterSelectionCallback = callback;
         self.selectMode = 'folder';
         self.createPicker();
-    }
+    };
 }

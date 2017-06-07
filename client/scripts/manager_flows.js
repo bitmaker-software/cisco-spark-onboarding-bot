@@ -1,5 +1,7 @@
 "use strict";
 
+global.$ = global.jQuery = require('jquery');
+
 $(function () {
   $('#myModal').on('shown.bs.modal', function () {
     $('#myInput').focus()

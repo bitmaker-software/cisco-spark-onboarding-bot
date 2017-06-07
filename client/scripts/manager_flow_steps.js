@@ -1,8 +1,18 @@
 "use strict";
 
-(function () {
+import $ from 'jquery';
+// In this order: Vue, Sortable, Vue.Draggable
+// script(src='/javascripts/libs/Sortable-1.5.1/Sortable.js')
+// script(src='/javascripts/libs/vue.draggable/vuedraggable.js')
+import Vue from 'vue/dist/vue';
+// require('sortablejs');
+import draggable from 'vuedraggable';
 
-  var app = new Vue({
+
+$(function () {
+  console.log("manager_flow_steps.js");
+
+  let app = new Vue({
     el: '#root',
     // app initial state
     data: {
@@ -19,6 +29,13 @@
     methods: {
       addStep: stepType => addNewStep(stepType),
       saveSteps: saveSteps,
+      click1: () => {
+        console.log("clicked");
+        this.steps = [1, 2, 3];
+      }
+    },
+    components: {
+      draggable
     }
   });
 
@@ -37,14 +54,14 @@
     app.newStepTypeSelected = 1;
   };
 
-  //
-  // Get data
-  //
+//
+// Get data
+//
   function fetchSteps() {
     $.get('/manager/api/flow/' + flowId, {}, function (flow) {
-      console.log("Raw flow steps from the server:");
-      console.log(flow.steps);
-      console.log("Flow steps curated to be handled by Vue:"); // TODO: do it on server-side?
+      // console.log("Raw flow steps from the server:");
+      // console.log(flow.steps);
+      // console.log("Flow steps curated to be handled by Vue:"); // TODO: do it on server-side?
       app.steps = flow.steps.map(step => {
         let curatedStep = {
           id: step.id,
@@ -55,6 +72,10 @@
         };
         return curatedStep;
       });
+
+      console.log('Steps');
+      console.log(app.steps);
+
       if (flow.steps.length === 0) {
         // TODO: do it on Vue, template side
         $('#empty-flow').removeClass('hidden');
@@ -97,5 +118,4 @@
       }
     });
   }
-
-})();
+});

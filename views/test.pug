@@ -18,14 +18,16 @@ block content
     input(type='button', value='select file', onclick='gdriver.selectFile(function(r){ alert("fileId: " + r);})')
     input(type='button', value='select dir', onclick='gdriver.selectFolder(function(r){ alert("folderId: " + r);})')
 
-  script(src='/javascripts/test.js' defer)
-  script(src='/javascripts/gdrive.js')
+  //script(src=static.root + '/js/test.js@' + static.suffix)
+  script(src=static.root + '/js/test.js')
+  //script(src=static.root + '/js/gdrive.js@' + static.suffix)
+  script(src=static.root + '/js/gdrive.js')
 
   script.
-      var gdriver = new GDriver('!{gdrive_client_id}', '!{gdrive_developer_key}', '!{gdrive_share_to}');
-      function onGoogleApiLoaded(){
-        gdriver.onApiLoaded();
-      }
+    var gdriver = new GDriver('!{gdrive_client_id}', '!{gdrive_developer_key}', '!{gdrive_share_to}');
+    function onGoogleApiLoaded() {
+      gdriver.onApiLoaded();
+    }
 
 
   script(src='https://apis.google.com/js/api.js?onload=onGoogleApiLoaded' defer)

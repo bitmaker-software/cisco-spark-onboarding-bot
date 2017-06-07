@@ -1,12 +1,16 @@
 "use strict";
 
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var sassMiddleware = require('node-sass-middleware');
+import express        from 'express';
+import path           from 'path';
+import favicon        from 'serve-favicon';
+import logger         from 'morgan';
+import compression    from 'compression';
+import cookieParser   from 'cookie-parser';
+import bodyParser     from 'body-parser';
+import mime           from 'mime';
+// var sassMiddleware = require('node-sass-middleware');
+
+import config from './app.config';
 
 var routes_index = require('./routes/index');
 var routes_settings = require('./routes/settings');
@@ -33,7 +37,9 @@ var env = require('node-env-file');
 env(__dirname + '/bot/.env');
 
 
+//
 // Passport configuration
+//
 passport.serializeUser(function (user, done) {
   done(null, user);
 });
@@ -42,7 +48,7 @@ passport.deserializeUser(function (obj, done) {
   done(null, obj);
 });
 
-//use the SparkStrategy within passport
+// Use the SparkStrategy within passport
 passport.use(new CiscoSparkStrategy({
     clientID: process.env.cisco_spark_client_id,
     clientSecret: process.env.cisco_spark_client_secret,
@@ -58,31 +64,46 @@ passport.use(new CiscoSparkStrategy({
     }, err => {
       return done(err);
     });
-
-
   }
 ));
 
 var app = express();
 
+app.locals.static = config.static;
+
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', `${__dirname}/views`);
 app.set('view engine', 'pug');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
+
+// app.use(express.static(path.join(__dirname, 'public')));
+app.use(config.static.root, express.static(`${__dirname}/public`, {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.gz')) {
+      res.set('Content-Encoding', 'gzip');
+      res.type(mime.lookup(path.slice(0, -3)));
+    }
+  }
+}));
+
+app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
-app.use(sassMiddleware({
-  src: path.join(__dirname, 'public'),
-  dest: path.join(__dirname, 'public'),
-  indentedSyntax: true, // true = .sass and false = .scss
-  sourceMap: true
-}));
 
-//setup session & passport
+// app.use(sassMiddleware({
+//   src: path.join(__dirname, 'public'),
+//   dest: path.join(__dirname, 'public'),
+//   indentedSyntax: true, // true = .sass and false = .scss
+//   sourceMap: true
+// }));
+
+//
+// Setup session & passport
+//
 app.use(session({
   secret: process.env.session_secret,
   resave: false,
@@ -92,7 +113,6 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(express.static(path.join(__dirname, 'public')));
 
 const middleware = {
   globalLocals: function (req, res, next) {
@@ -106,7 +126,6 @@ const middleware = {
     next();
   },
 };
-
 app.use(middleware.globalLocals);
 
 app.use('/', routes_index);
@@ -143,6 +162,10 @@ app.use(function (err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
+});
+
+app.listen(config.port, config.host, () => {
+  console.log(`Application listening on ${config.host}:${config.port}...`);
 });
 
 module.exports = app;
