@@ -1,0 +1,18 @@
+.sidenav {
+  border-right: 1px solid $gray-lighter;
+  text-align: center;
+  width: 60px;
+
+  .nav-item {
+    margin: 10px 0;
+  }
+
+  .nav-link {
+    color: $gray-light;
+    font-size: 20px;
+
+    &.active {
+      color: $brand-primary;
+    }
+  }
+}

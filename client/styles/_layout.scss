@@ -6,8 +6,9 @@
   background-repeat: no-repeat;
   background-size: cover;
   display: flex;
+  flex-direction: column;
   height: 100vh;
-  justify-content: center;
+  justify-content: space-around;
 
   // add shadow to the card and remove border -- maybe sit should be done in variables??
   .card {

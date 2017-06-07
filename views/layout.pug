@@ -13,42 +13,41 @@ html(lang='en')
     //link(rel='stylesheet', href=static.root + '/css/index.css@' + static.suffix)
     link(rel='stylesheet', href=static.root + '/css/index.css')
   body
-    nav.top-bar.fixed-top
-      img.logo(src="/images/cisco-white_130h.png")
-    nav.navbar.navbar-toggleable-md.navbar-inverse.bg-inverse.fixed-top.below-top-bar
+    nav.navbar.navbar-toggleable-md.sticky-top
       button.navbar-toggler.navbar-toggler-right(type="button", data-toggle="collapse" data-target="#navbarsExampleDefault")
         span.navbar-toggler-icon
-      a.navbar-brand(href='#') Cisco Spark Onboarding Bot
+      a.navbar-brand(href='#')
+        //- Add icon image
+        .navbar-brand-icon
       div#navbarsExampleDefault.collapse.navbar-collapse
-        ul.navbar-nav.mr-auto
-          li.nav-item.active
-            a.nav-link(href='/') Home
-              span.sr-only (current)
-          li.nav-item
-            a.nav-link(href='/manager') Manager
-          //li.nav-item
-          //  a.nav-link.disabled(href='#') Disabled
-          li.nav-item.dropdown
-            a.nav-link.dropdown-toggle(href='#', data-toggle='dropdown') Tests/Sandbox
-            div.dropdown-menu
-              a.dropdown-item(href='/test') Search Spark by user
-              //a.dropdown-item(href='#') Another action
-              //a.dropdown-item(href='#') Something else here
-        ul.navbar-nav
+        ul.navbar-nav.ml-auto
           li.nav-item
           if locals.user && locals.user.isAuthenticated
-            span.navbar-text Logged in as
-            a.navbar-text.nav-link(href='#') Username
-            | |
-            a.navbar-text.nav-link(href="/settings") Settings
-            | |
-            a.navbar-text.nav-link(href="/auth/logout") Logout
+            a.nav-link(href='#') Username
+            a.nav-link(href="/auth/logout")
+              i.fa.fa-power-off
           else
-            a.navbar-text.nav-link(href="/auth/spark") Sign up with Cisco Spark
+            a.nav-link(href="/auth/spark") Sign up with Cisco Spark
 
-    div.container-fluid
-      div.starter-template
-        block content
+    .container-fluid
+      .row
+        .sidenav
+          ul.nav.flex-column
+            li.nav-item
+              a.nav-link(href='/') 
+                i.fa.fa-home
+                span.sr-only (current)
+            li.nav-item
+              a.nav-link.active(href='/manager')
+                i.fa.fa-tasks
+            li.nav-item
+              a.nav-link(href='/test')
+                i.fa.fa-search
+            li.nav-item
+              a.nav-link(href="/settings")
+                i.fa.fa-cog
+        .col
+          block content
       hr
       footer
         p © Cisco Systems, Inc. 2017

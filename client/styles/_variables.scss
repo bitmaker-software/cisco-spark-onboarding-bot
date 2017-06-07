@@ -1,10 +1,12 @@
 // Reassign color vars to semantic color scheme
 // Cisco spark blue
-$brand-primary:             #049fd9;
+$brand-primary:             #00ccea;
 
 // Cisco spark gray
-$gray-light:                #aeaeaf;
-$gray-lighter:              #f2f5f7;
+$gray-dark:                 #4e4e50;
+$gray:                      #aeaeaf;
+$gray-lighter:              #e6e6e6;
+$gray-lightest:             #f2f5f7;
 
 // Fonts
 //
@@ -12,6 +14,10 @@ $gray-lighter:              #f2f5f7;
 
 $font-family-sans-serif: "Open Sans", -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 $headings-font-weight:  300;
+
+$font-size-base: 0.85rem;
+
+$text-muted: $gray;
 
 // Shadows
 $shadow-lg:         0 14px 26px 0 rgba(205, 212, 217, .65);
