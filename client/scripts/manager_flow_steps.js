@@ -1,6 +1,5 @@
 "use strict";
 
-import $ from 'jquery';
 // In this order: Vue, Sortable, Vue.Draggable
 // script(src='/javascripts/libs/Sortable-1.5.1/Sortable.js')
 // script(src='/javascripts/libs/vue.draggable/vuedraggable.js')

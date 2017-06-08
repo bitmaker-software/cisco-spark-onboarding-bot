@@ -41,7 +41,20 @@ module.exports = env => {
       }],
     },
 
+    // plugins: [
+    //  //dev and prod
+    //
+    // ].concat(dev ? [
+
     plugins: dev ? [
+      new webpack.ProvidePlugin({
+        // $: 'jquery',
+        // jQuery: 'jquery',
+        // 'window.$': 'jquery',
+        // vue: 'vue/dist/vue',
+        // draggable: 'draggable',
+        // bootstrap: 'bootstrap'
+      }),
       new webpack.HotModuleReplacementPlugin(),
       new webpack.NamedModulesPlugin()
     ] : [
@@ -49,7 +62,6 @@ module.exports = env => {
       new webpack.optimize.UglifyJsPlugin({
         compress: {warnings: false}, output: {comments: false}, sourceMap: true
       })
-    ]
-
+    ]//)
   };
 };

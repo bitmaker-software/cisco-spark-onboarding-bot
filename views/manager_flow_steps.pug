@@ -61,10 +61,10 @@ block content
                       span.drag-handle.drag-handle-multiple-choice ☰
                       //label
                       input.form-control.answer(type="text" v-model="item.text")
-                      span.input-group-addon.delete-answer(v-on:click="step.step_choices.splice(index, 1)")
+                      span.input-group-addon.delete-answer(@click="step.step_choices.splice(index, 1)")
                         i.material-icons delete
                     // TODO: add empty choices if the list is empty?
-                  button.btn.btn-secondary(type="button", v-on:click="step.step_choices.push({})") Add answer
+                  button.btn.btn-secondary(type="button", @click="step.step_choices.push({})") Add answer
                     i.material-icons add
 
               template(v-if="step.step_type_id === 5")
@@ -75,7 +75,7 @@ block content
         // Trigger the modal with a button
         button.btn.btn-info.btn-lg(type="button", data-toggle="modal", data-target="#myModal") Add step
 
-        button#save-steps.btn.btn-primary.hidden(type="button", v-on:click="saveSteps") Save
+        button#save-steps.btn.btn-primary.hidden(type="button", @click="saveSteps") Save
 
     // Modal
     div#myModal.modal.fade(role="dialog")
@@ -92,7 +92,7 @@ block content
                 each stepType in stepTypes
                   option(value=stepType.id)= stepType.description
           div.modal-footer
-            button.btn.btn-primary(type="button" v-on:click="addStep(newStepTypeSelected)") Add step
+            button.btn.btn-primary(type="button", @click="addStep(newStepTypeSelected)") Add step
             button.btn.btn-secondary(type="button" data-dismiss="modal") Close
 
     p(@click="click1()") Debug steps {{steps}}
