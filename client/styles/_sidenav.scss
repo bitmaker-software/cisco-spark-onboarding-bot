@@ -11,8 +11,24 @@
     color: $gray-light;
     font-size: 20px;
 
+    .icon {
+      fill: $white;
+      height: 24px;
+      stroke: $gray-light;
+      width: 24px;
+
+      &:hover {
+        stroke: $brand-primary;
+      }
+    }
+
     &.active {
       color: $brand-primary;
+
+      .icon {
+        fill: $brand-primary;
+        stroke: transparent;
+      }
     }
   }
 }

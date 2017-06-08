@@ -1,9 +1,6 @@
 // Import Open Sans Google font
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,700');
 
-// Import Font Awesome icons
-@import '../../node_modules/font-awesome/scss/font-awesome';
-
 @import 'variables';
 
 // Import boostrap after variables so that our variables file overwrites theirs

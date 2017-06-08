@@ -1,4 +1,12 @@
 footer {
   border-top: 1px solid $gray-lighter;
   padding: 20px 0;
+
+  .logo {
+    display: block;
+    fill: $gray-light;
+    height: 24px;
+    margin: 10px auto;
+    vertical-align: middle;
+  }
 }

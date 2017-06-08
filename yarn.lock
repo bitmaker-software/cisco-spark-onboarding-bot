@@ -3342,6 +3342,15 @@ gulp-sourcemaps@^2.6.0:
     through2 "2.X"
     vinyl "1.X"
 
+gulp-svg-sprite@^1.3.7:
+  version "1.3.7"
+  resolved "https://registry.yarnpkg.com/gulp-svg-sprite/-/gulp-svg-sprite-1.3.7.tgz#cdf7fb359cdd8beb9fcd3d2d6affe61e54fca69e"
+  dependencies:
+    gulp-util "^3.0.8"
+    svg-sprite "~1.3.7"
+    through2 "^2.0.3"
+    vinyl "^2.0.2"
+
 gulp-util@^3.0, gulp-util@^3.0.0, gulp-util@^3.0.8:
   version "3.0.8"
   resolved "https://registry.yarnpkg.com/gulp-util/-/gulp-util-3.0.8.tgz#0054e1e744502e27c04c187c3ecc505dd54bbb4f"
@@ -6911,7 +6920,7 @@ supports-color@^3.1.0, supports-color@^3.2.3:
   dependencies:
     has-flag "^1.0.0"
 
-svg-sprite@^1.3.7:
+svg-sprite@^1.3.7, svg-sprite@~1.3.7:
   version "1.3.7"
   resolved "https://registry.yarnpkg.com/svg-sprite/-/svg-sprite-1.3.7.tgz#7ade036000e8794a3f814402a808aae290ecd1f3"
   dependencies:

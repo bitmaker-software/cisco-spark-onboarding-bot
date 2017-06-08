@@ -52,10 +52,10 @@ gulp.task('scss:watch', () => {
 gulp.task('sprite-page', function() {
   return gulp.src('client/svg/**/*.svg')
     .pipe(svgSprite(config))
-    .pipe(gulp.dest('.'));
+    .pipe(gulp.dest('client/'));
 });
 
 gulp.task('sprite-shortcut', function() {
-  return gulp.src('public/sprite/sprite.svg')
-    .pipe(gulp.dest('.'));
+  return gulp.src('client/sprite/sprite.svg')
+    .pipe(gulp.dest('public/'));
 });

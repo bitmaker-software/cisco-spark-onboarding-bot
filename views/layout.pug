@@ -13,21 +13,25 @@ html(lang='en')
     //link(rel='stylesheet', href=static.root + '/css/index.css@' + static.suffix)
     link(rel='stylesheet', href=static.root + '/css/index.css')
   body
-    nav.navbar.navbar-toggleable-md.sticky-top
+    nav.navbar.navbar-toggleable-md.navbar-light.sticky-top
       button.navbar-toggler.navbar-toggler-right(type="button", data-toggle="collapse" data-target="#navbarsExampleDefault")
         span.navbar-toggler-icon
       a.navbar-brand(href='#')
         //- Add icon image
         .navbar-brand-icon
+        span= title
       div#navbarsExampleDefault.collapse.navbar-collapse
         ul.navbar-nav.ml-auto
-          li.nav-item
           if locals.user && locals.user.isAuthenticated
-            a.nav-link(href='#') Username
-            a.nav-link(href="/auth/logout")
-              i.fa.fa-power-off
+            li.nav-item
+              a.nav-link(href='#') Username
+            li.nav-item
+              a.nav-link(href="/auth/logout")
+                svg.icon
+                  use(xlink:href=static.root + "/sprite.svg#power")
           else
-            a.nav-link(href="/auth/spark") Sign up with Cisco Spark
+            li.nav-item
+              a.nav-link(href="/auth/spark") Sign up with Cisco Spark
 
     .container-fluid
       .row
@@ -35,23 +39,28 @@ html(lang='en')
           ul.nav.flex-column
             li.nav-item
               a.nav-link(href='/') 
-                i.material-icons home
-                span.sr-only (current)
+                svg.icon
+                  use(xlink:href=static.root + "/sprite.svg#home")
             li.nav-item
               a.nav-link.active(href='/manager')
-                i.fa.fa-tasks
+                svg.icon
+                  use(xlink:href=static.root + "/sprite.svg#manager")
             li.nav-item
               a.nav-link(href='/test')
-                i.fa.fa-search
+                svg.icon
+                  use(xlink:href=static.root + "/sprite.svg#search")
             li.nav-item
               a.nav-link(href="/settings")
-                i.fa.fa-cog
+                svg.icon
+                  use(xlink:href=static.root + "/sprite.svg#settings")
         main.col
           block content
     footer
       .container-fluid
         .row
           .col.text-center
+            svg.logo
+              use(xlink:href=static.root + "/sprite.svg#logo")
             small.text-muted © Cisco Systems, Inc. 2017
 
     //script(src=static.root + '/js/main.js@' + static.suffix)

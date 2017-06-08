@@ -1,10 +1,11 @@
 // Reassign color vars to semantic color scheme
 // Cisco spark blue
-$brand-primary:             #00ccea;
+// $brand-primary:             #00ccea;
+$brand-primary:             #049fd9;
 
 // Cisco spark gray
 $gray-dark:                 #4e4e50;
-$gray:                      #aeaeaf;
+$gray-light:                #aeaeaf;
 $gray-lighter:              #e6e6e6;
 $gray-lightest:             #f2f5f7;
 
@@ -17,7 +18,7 @@ $headings-font-weight:  300;
 
 $font-size-base: 0.85rem;
 
-$text-muted: $gray;
+$text-muted: $gray-light;
 
 // Shadows
 $shadow-lg:         0 14px 26px 0 rgba(205, 212, 217, .65);
@@ -32,3 +33,9 @@ $btn-padding-y:                  1rem;
 $btn-font-weight:                300;
 
 $btn-border-radius:              25px;
+
+// Navbar
+
+$navbar-light-color:                $gray-light;
+$navbar-light-hover-color:          $brand-primary;
+$navbar-light-active-color:         $brand-primary;

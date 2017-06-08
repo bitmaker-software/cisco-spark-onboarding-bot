@@ -2,19 +2,40 @@
   border-bottom: 1px solid $gray-lighter;
 
   &-brand {
+    font-size: 1rem;
+    font-weight: 300;
 
     &-icon {
       background-image: url('../images/welcome.svg');
       background-size: cover;
-      height: 42px;
-      width: 42px;
+      display: inline-block;
+      height: 32px;
+      margin-right: 10px;
+      vertical-align: middle;
+      width: 32px;
     }
   }
-}
 
-.nav {
-
-  &-link {
-    color: $gray-dark;
+  &-nav {
+    align-items: center;
   }
+
+  .icon {
+    border: 1px solid $gray-lighter;
+    border-radius: 1000px;
+    fill: $gray-light;
+    height: 30px;
+    padding: 5px;
+    vertical-align: middle;
+    width: 30px;
+
+    &:hover {
+      fill: $brand-primary;
+    }
+
+    &:focus {
+      background-color: $brand-primary;
+    }
+  }
+
 }
