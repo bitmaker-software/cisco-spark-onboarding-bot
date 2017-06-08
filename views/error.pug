@@ -1,6 +1,41 @@
-extends layout
+doctype html
+html(lang='en')
+  head
+    title= title
+    // Required meta tags
+    meta(charset='utf-8')
+    meta(name="viewport", content="width=device-width, initial-scale=1, shrink-to-fit=no")
 
+    // Material Icons
+    link(rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons")
+
+    // Bundled stylesheet
+    //link(rel='stylesheet', href=static.root + '/css/index.css@' + static.suffix)
+    link(rel='stylesheet', href=static.root + '/css/index.css')
+  body
+    
 block content
-  h1= message
-  h2= error.status
-  pre #{error.stack}
+  .brand-page
+    .container
+      .row
+        .col
+          
+          .card
+            .row.no-gutters
+              .col.bg-image.error.hidden-md-down
+              .col.login-block
+                .card-block   
+                  .spark-logo
+                  p.lead.text-muted  Cisco Spark
+                  h1.text-primary= message
+                  h2.text-muted= error.status
+                  //- pre #{error.stack}
+                  a(href="/").btn.btn-primary Go back to the homepage
+      
+    footer
+      .container-fluid
+        .row
+          .col.text-center
+            svg.logo
+              use(xlink:href=static.root + "/sprite.svg#logo")
+            small.text-muted © Cisco Systems, Inc. 2017

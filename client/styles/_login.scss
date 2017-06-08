@@ -1,4 +1,4 @@
-.login {
+.brand-page {
   // Login display flex to center the content
   align-items: center;
   background-color: $gray-lighter;
@@ -37,6 +37,11 @@
     border-bottom-left-radius: $border-radius;
     border-top-left-radius: $border-radius;
     min-height: 580px;
+
+    &.error {
+      background-image: url('../images/error.jpg');
+      background-position: center right;
+    }
   }
 
   h1,
