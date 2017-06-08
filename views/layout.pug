@@ -35,7 +35,7 @@ html(lang='en')
           ul.nav.flex-column
             li.nav-item
               a.nav-link(href='/') 
-                i.fa.fa-home
+                i.material-icons home
                 span.sr-only (current)
             li.nav-item
               a.nav-link.active(href='/manager')
@@ -46,11 +46,13 @@ html(lang='en')
             li.nav-item
               a.nav-link(href="/settings")
                 i.fa.fa-cog
-        .col
+        main.col
           block content
-      hr
-      footer
-        p © Cisco Systems, Inc. 2017
+    footer
+      .container-fluid
+        .row
+          .col.text-center
+            small.text-muted © Cisco Systems, Inc. 2017
 
     //script(src=static.root + '/js/main.js@' + static.suffix)
     script(src=static.root + '/js/main.js')

@@ -4,6 +4,22 @@ const postcss      = require('gulp-postcss');
 const autoprefixer = require('autoprefixer');
 const cssnano      = require('cssnano');
 const sourcemaps   = require('gulp-sourcemaps');
+var svgSprite = require('gulp-svg-sprite');
+
+// SVG Config
+var config = {
+  mode: {
+    symbol: { // symbol mode to build the SVG
+      dest: 'sprite', // destination foldeer
+      sprite: 'sprite.svg', //sprite name
+      example: true // Build sample page
+    }
+  },
+  svg: {
+    xmlDeclaration: false, // strip out the XML attribute
+    doctypeDeclaration: false // don't include the !DOCTYPE declaration
+  }
+};
 
 const run = (cb, production) => {
   gulp
@@ -31,4 +47,15 @@ gulp.task('scss:build', cb => {
 gulp.task('scss:watch', () => {
   run();
   return gulp.watch('client/styles/*.scss', run);
+});
+
+gulp.task('sprite-page', function() {
+  return gulp.src('client/svg/**/*.svg')
+    .pipe(svgSprite(config))
+    .pipe(gulp.dest('.'));
+});
+
+gulp.task('sprite-shortcut', function() {
+  return gulp.src('public/sprite/sprite.svg')
+    .pipe(gulp.dest('.'));
 });

@@ -1,0 +1,63 @@
+.login {
+  // Login display flex to center the content
+  align-items: center;
+  background-color: $gray-lighter;
+  background-image: url('../images/Spaceballs_BG.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  justify-content: space-around;
+
+  // add shadow to the card and remove border -- maybe sit should be done in variables??
+  .card {
+    border: 0;
+    box-shadow: $shadow-lg;
+
+    &-block {
+      flex: 0;
+      padding: 50px;
+      text-align: center;
+    }
+  }
+
+  // Login black also flex to align the content center
+  &-block {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  // Spark imahge to give brand recognition
+  .bg-image {
+    background-image: url('../images/login.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    border-bottom-left-radius: $border-radius;
+    border-top-left-radius: $border-radius;
+    min-height: 580px;
+  }
+
+  h1,
+  .lead {
+    margin-bottom: 30px;
+  }
+
+  h1 {
+    font-size: 3rem;
+  }
+
+  .btn {
+    box-shadow: $shadow-lg;
+  }
+
+  // using image as backgroun because I can't get the path to work
+  .logo {
+    background-image: url('../images/logo.png');
+    background-size: cover;
+    margin: 10px auto;
+    height: 80px;
+    width: 80px;
+  }
+}
