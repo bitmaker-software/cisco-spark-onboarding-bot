@@ -1,4 +1,29 @@
-main {
+main.content {
+  min-height: 80vh;
   padding-bottom: 30px;
   padding-top: 30px;
+}
+
+footer {
+  height: 10vh;
+}
+
+// responsive sidenav
+@include media-breakpoint-only(xs) {
+  .sidenav {
+    @include transition(transform);
+    box-shadow: $shadow-md;
+    height: 100%;
+    position: absolute;
+    transform: translateX(-300px);
+    z-index: 1;
+
+    &.expanded {
+      transform: translateX(0);
+    }
+
+    .nav-link {
+      padding: 20px 0;
+    }
+  }
 }

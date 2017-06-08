@@ -1,24 +1,40 @@
 .sidenav {
+  background-color: $white;
   border-right: 1px solid $gray-lighter;
-  text-align: center;
-  width: 60px;
 
   .nav-item {
-    margin: 10px 0;
+    margin-left: -($grid-gutter-width-base / 2);
+    margin-right: -($grid-gutter-width-base / 2);
+    height: 60px;
+
+    &:hover {
+      background-color: $gray-lightest;
+      @include transition(all);
+
+      .nav-link {
+        color: $brand-primary;
+      }
+
+      .icon {
+        stroke: $brand-primary;
+      }
+    }
   }
 
   .nav-link {
-    color: $gray-light;
-    font-size: 20px;
+    color: $gray;
+    font-size: 14px;
+    padding: 20px;
 
     .icon {
-      fill: $white;
+      fill: none;
       height: 24px;
       stroke: $gray-light;
+      vertical-align: middle;
       width: 24px;
 
-      &:hover {
-        stroke: $brand-primary;
+      @include media-breakpoint-up(lg) {
+        margin-right: 10px;
       }
     }
 
@@ -29,6 +45,16 @@
         fill: $brand-primary;
         stroke: transparent;
       }
+    }
+  }
+
+  // align items center on tablet
+  @include media-breakpoint-down(md) {
+    text-align: center;
+
+    // Hide text on tablet and down
+    span {
+      display: none;
     }
   }
 }

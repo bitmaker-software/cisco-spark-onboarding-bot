@@ -1,0 +1,3 @@
+@mixin transition($attr) {
+  transition: $attr .3s cubic-bezier(.65, .05, .36, 1);
+}

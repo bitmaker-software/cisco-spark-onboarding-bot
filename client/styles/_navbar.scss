@@ -1,10 +1,16 @@
 .navbar {
+  align-items: center;
+  background-color: $white;
   border-bottom: 1px solid $gray-lighter;
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
 
   &-brand {
     font-size: 1rem;
     font-weight: 300;
 
+    // logo icon
     &-icon {
       background-image: url('../images/welcome.svg');
       background-size: cover;
@@ -20,6 +26,7 @@
     align-items: center;
   }
 
+  // List item icon
   .icon {
     border: 1px solid $gray-lighter;
     border-radius: 1000px;
@@ -30,11 +37,28 @@
     width: 30px;
 
     &:hover {
+      @include transition(all);
+      border-color: $brand-primary;
       fill: $brand-primary;
     }
 
     &:focus {
       background-color: $brand-primary;
+    }
+  }
+
+  // Icon inside nav-link
+  .nav-link {
+    .icon {
+      margin-left: 10px;
+    }
+
+    &:hover {
+      .icon {
+        @include transition(all);
+        border-color: $brand-primary;
+        fill: $brand-primary;
+      }
     }
   }
 

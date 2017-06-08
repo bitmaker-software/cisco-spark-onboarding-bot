@@ -6,6 +6,8 @@
 // Import boostrap after variables so that our variables file overwrites theirs
 @import '../../node_modules/bootstrap/scss/bootstrap';
 
+@import 'mixins';
+
 @import 'layout';
 @import 'header';
 @import 'footer';

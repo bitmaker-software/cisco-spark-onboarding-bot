@@ -1,13 +1,24 @@
+// Start with assigning color names to specific hex values.
+$white:  #fff !default;
+$black:  #000 !default;
+$red:    #d9534f !default;
+$orange: #f0ad4e !default;
+$yellow: #ffd500 !default;
+$green:  #5cb85c !default;
+$blue:   #0275d8 !default;
+$teal:   #5bc0de !default;
+$pink:   #ff5b77 !default;
+$purple: #613d7c !default;
+
 // Reassign color vars to semantic color scheme
 // Cisco spark blue
-// $brand-primary:             #00ccea;
-$brand-primary:             #049fd9;
+$brand-primary:             #07c1e4;
 
 // Cisco spark gray
 $gray-dark:                 #4e4e50;
 $gray-light:                #aeaeaf;
-$gray-lighter:              #e6e6e6;
-$gray-lightest:             #f2f5f7;
+$gray-lighter:              #ececed;
+$gray-lightest:             #f2f5f6;
 
 // Fonts
 //
@@ -22,6 +33,7 @@ $text-muted: $gray-light;
 
 // Shadows
 $shadow-lg:         0 14px 26px 0 rgba(205, 212, 217, .65);
+$shadow-md:         0 0 10px 0 rgba(205, 212, 217, .65);
 
 // Buttons
 //

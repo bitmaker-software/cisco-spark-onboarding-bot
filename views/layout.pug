@@ -13,47 +13,50 @@ html(lang='en')
     //link(rel='stylesheet', href=static.root + '/css/index.css@' + static.suffix)
     link(rel='stylesheet', href=static.root + '/css/index.css')
   body
-    nav.navbar.navbar-toggleable-md.navbar-light.sticky-top
-      button.navbar-toggler.navbar-toggler-right(type="button", data-toggle="collapse" data-target="#navbarsExampleDefault")
-        span.navbar-toggler-icon
+    nav.navbar.navbar-light.sticky-top
       a.navbar-brand(href='#')
         //- Add icon image
         .navbar-brand-icon
         span= title
-      div#navbarsExampleDefault.collapse.navbar-collapse
-        ul.navbar-nav.ml-auto
-          if locals.user && locals.user.isAuthenticated
-            li.nav-item
-              a.nav-link(href='#') Username
-            li.nav-item
-              a.nav-link(href="/auth/logout")
-                svg.icon
-                  use(xlink:href=static.root + "/sprite.svg#power")
-          else
-            li.nav-item
-              a.nav-link(href="/auth/spark") Sign up with Cisco Spark
+      ul.navbar-nav.ml-auto
+        if locals.user && locals.user.isAuthenticated
+          li.nav-item
+            a.nav-link(href='#') Username
+          li.nav-item
+            a.nav-link(href="/auth/logout")
+              svg.icon
+                use(xlink:href=static.root + "/sprite.svg#power")
+        else
+          li.nav-item
+            a.nav-link(href="/auth/spark") Sign up with Cisco Spark
+              svg.icon
+                use(xlink:href=static.root + "/sprite.svg#lock")
 
     .container-fluid
       .row
-        .sidenav
+        .col-2.sidenav#sidenav
           ul.nav.flex-column
             li.nav-item
-              a.nav-link(href='/') 
+              a.nav-link(href='/')
                 svg.icon
                   use(xlink:href=static.root + "/sprite.svg#home")
+                span Home
             li.nav-item
               a.nav-link.active(href='/manager')
                 svg.icon
                   use(xlink:href=static.root + "/sprite.svg#manager")
+                span Manager
             li.nav-item
               a.nav-link(href='/test')
                 svg.icon
                   use(xlink:href=static.root + "/sprite.svg#search")
+                span Search user
             li.nav-item
               a.nav-link(href="/settings")
                 svg.icon
                   use(xlink:href=static.root + "/sprite.svg#settings")
-        main.col
+                span Settings
+        main.content.col-12.col-md-10
           block content
     footer
       .container-fluid
@@ -64,6 +67,7 @@ html(lang='en')
             small.text-muted © Cisco Systems, Inc. 2017
 
     //script(src=static.root + '/js/main.js@' + static.suffix)
-    script(src=static.root + '/js/main.js')
+    script(src=static.root + '/javascripts/libs/jquery-3.2.1/jquery-3.2.1.js')
+    script(src=static.root + '/javascripts/main.js')
 
     block pageScripts

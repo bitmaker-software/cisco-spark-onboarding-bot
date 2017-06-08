@@ -21,6 +21,7 @@ They might well be outsourced to an external stylesheet of course.
 <style type="text/css">
 	.svg-drag-dims { width: 24px; height: 24px; }
 	.svg-home-dims { width: 24px; height: 24px; }
+	.svg-lock-dims { width: 24px; height: 24px; }
 	.svg-logo-dims { width: 79px; height: 41.9px; }
 	.svg-manager-dims { width: 24px; height: 24px; }
 	.svg-order-dims { width: 24px; height: 24px; }
@@ -51,6 +52,7 @@ for further details on how to create this embeddable sprite variant.
 <svg width="0" height="0" style="position:absolute">
 		<symbol viewBox="0 0 24 24" id="drag" xmlns="http://www.w3.org/2000/svg"><defs><path d="M0 0h24v24H0V0z" id="aa"/></defs><clipPath id="ab"><use overflow="visible" xlink:href="#aa"/></clipPath><path clip-path="url(#ab)" d="M20 9H4v2h16V9zM4 15h16v-2H4v2z"/></symbol>
 		<symbol viewBox="0 0 24 24" id="home" xmlns="http://www.w3.org/2000/svg"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5z"/></symbol>
+		<symbol viewBox="0 0 24 24" id="lock" xmlns="http://www.w3.org/2000/svg"><defs><path d="M0 0h24v24H0V0z" id="ca"/></defs><clipPath id="cb"><use overflow="visible" xlink:href="#ca"/></clipPath><path clip-path="url(#cb)" d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM8.9 6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2H8.9V6zM18 20H6V10h12v10z"/></symbol>
 		<symbol viewBox="0 0 79 41.9" id="logo" xmlns="http://www.w3.org/2000/svg"><title>Cisco</title><path d="M79 12.95c0-.95-.77-1.72-1.714-1.72a1.72 1.72 0 0 0-1.717 1.72v3.613c0 .953.77 1.723 1.716 1.723a1.72 1.72 0 0 0 1.714-1.723V12.95zm-9.43-4.744c0-.948-.77-1.718-1.737-1.718-.947 0-1.715.77-1.715 1.718v8.357c0 .953.768 1.723 1.715 1.723.968 0 1.736-.77 1.736-1.723V8.206zm-9.452-6.488a1.716 1.716 0 1 0-3.429 0v18.278c0 .955.766 1.724 1.714 1.724.947 0 1.714-.77 1.714-1.724V1.718zm-9.453 6.488c0-.948-.767-1.718-1.714-1.718-.944 0-1.714.77-1.714 1.718v8.357c0 .953.77 1.723 1.715 1.723.948 0 1.715-.77 1.715-1.723V8.206zm-9.45 4.743c0-.95-.768-1.72-1.71-1.72-.947 0-1.72.77-1.72 1.72v3.613c0 .953.773 1.723 1.72 1.723.942 0 1.71-.77 1.71-1.723V12.95zm-9.436-4.744a1.72 1.72 0 0 0-3.44 0v8.357c0 .953.772 1.723 1.72 1.723.946 0 1.72-.77 1.72-1.723V8.206zM22.33 1.718a1.72 1.72 0 0 0-3.44 0v18.278c0 .955.774 1.724 1.72 1.724.948 0 1.72-.77 1.72-1.724V1.718zm-9.446 6.488c0-.948-.773-1.718-1.72-1.718s-1.72.77-1.72 1.718v8.357c0 .953.773 1.723 1.72 1.723s1.72-.77 1.72-1.723V8.206zM3.44 12.95c0-.95-.773-1.72-1.72-1.72C.774 11.23 0 12 0 12.95v3.613c0 .953.774 1.723 1.72 1.723.947 0 1.72-.77 1.72-1.723V12.95zm35.503 14.98c-.103-.028-1.69-.438-3.376-.438-3.193 0-5.116 1.728-5.116 4.303 0 2.28 1.608 3.415 3.538 4.027.214.07.53.17.74.24.86.27 1.545.673 1.545 1.37 0 .78-.793 1.285-2.516 1.285-1.515 0-2.967-.435-3.273-.512v3.167c.17.037 1.896.376 3.74.376 2.65 0 5.682-1.16 5.682-4.618 0-1.677-1.025-3.22-3.273-3.938l-.956-.305c-.57-.18-1.587-.473-1.587-1.31 0-.663.754-1.13 2.143-1.13 1.198 0 2.657.404 2.708.42v-2.938zm29.274 6.69c0 2.003-1.53 3.624-3.582 3.624-2.056 0-3.58-1.62-3.58-3.623 0-2 1.524-3.62 3.58-3.62 2.052 0 3.582 1.62 3.582 3.62zm-3.581-7.12c-4.223 0-7.25 3.193-7.25 7.125 0 3.937 3.027 7.128 7.25 7.128 4.22 0 7.254-3.19 7.254-7.127 0-3.932-3.033-7.125-7.254-7.125zm-47.055.493c-.324-.096-1.528-.492-3.157-.492-4.216 0-7.31 3.014-7.31 7.125 0 4.434 3.416 7.128 7.31 7.128 1.547 0 2.728-.366 3.158-.49V37.57c-.148.083-1.28.73-2.91.73-2.307 0-3.795-1.628-3.795-3.673 0-2.108 1.553-3.672 3.796-3.672 1.658 0 2.772.663 2.91.736V27.99zm36.158 0c-.328-.096-1.532-.492-3.156-.492-4.222 0-7.317 3.014-7.317 7.125 0 4.434 3.42 7.128 7.317 7.128 1.538 0 2.72-.366 3.156-.49V37.57c-.152.083-1.286.73-2.914.73-2.306 0-3.793-1.628-3.793-3.673 0-2.108 1.554-3.672 3.794-3.672 1.656 0 2.773.663 2.914.736V27.99zm-27.93 13.516h-3.465V27.742h3.464v13.764z"/></symbol>
 		<symbol viewBox="0 0 24 24" id="manager" xmlns="http://www.w3.org/2000/svg"><path d="M2 21h19v-3H2v3zM20 8H3c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h17c.55 0 1-.45 1-1V9c0-.55-.45-1-1-1zM2 3v3h19V3H2z"/></symbol>
 		<symbol viewBox="0 0 24 24" id="order" xmlns="http://www.w3.org/2000/svg"><path d="M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3 3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"/></symbol>
@@ -107,6 +109,17 @@ embedded above. They may be styled via CSS.
 						
 					</div>
 					<h2>home</h2>
+				</li>
+				<li title="lock">
+					<div class="icon-box">
+						
+						<!-- lock -->
+						<svg class="svg-lock-dims">
+							<use xlink:href="#lock"></use>
+						</svg>
+						
+					</div>
+					<h2>lock</h2>
 				</li>
 				<li title="logo">
 					<div class="icon-box">
@@ -217,6 +230,17 @@ SVG sprite. They may be styled via CSS. (IE 9-11 with polyfill only)
 					</div>
 					<h2>home</h2>
 				</li>
+				<li title="lock">
+					<div class="icon-box">
+						
+						<!-- lock -->
+						<svg class="svg-lock-dims">
+							<use xlink:href="sprite.svg#lock"></use>
+						</svg>
+						
+					</div>
+					<h2>lock</h2>
+				</li>
 				<li title="logo">
 					<div class="icon-box">
 						
@@ -291,7 +315,7 @@ SVG sprite. They may be styled via CSS. (IE 9-11 with polyfill only)
 
 		</section>
 		<footer>
-			<p>Generated at Thu, 08 Jun 2017 10:35:22 GMT by <a href="https://github.com/jkphl/svg-sprite" target="_blank">svg-sprite</a>.</p>
+			<p>Generated at Thu, 08 Jun 2017 12:52:13 GMT by <a href="https://github.com/jkphl/svg-sprite" target="_blank">svg-sprite</a>.</p>
 		</footer>
 	</body>
 </html>
