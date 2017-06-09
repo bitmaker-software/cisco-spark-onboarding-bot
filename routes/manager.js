@@ -106,79 +106,138 @@ router.get('/api/flow/:id', ensureAuthenticated, function (req, res, next) {
 });
 
 router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
+  console.log('————————————————————————————————————————————————————————————————————————————————————————————————————');
   console.log('Update flow, got:');
   console.log(req.body);
+  console.log('————————————————————————————————————————————————————————————————————————————————————————————————————');
   // TODO check this steps belongs to this flow and this flow belongs to the user requesting this !!!!!!!!!!
   // TODO handle multiple db queries and send response only when finished!
-  req.body.steps.forEach(step => {
+
+  let promiseArray = [];
+
+  req.body.steps.forEach((step, index) => {
     if (step.id === undefined) {
-      // New step
-      models.step.create(
-        {
-          text: step.text,
-          step_order: step.step_order,
-          flow_id: req.body.flow_id,
-          step_type_id: step.step_type,
-        }
-      ).then(result => {
-        if (step.step_type === 4) {
-          // Multiple choice
-          console.log("step.step_choices:");
-          console.log(step.step_choices);
-          step.step_choices.forEach((choice, index) => {
-            console.log("Step index: " + index);
-            models.step_choice.create(
-              {
-                text: choice.text,
-                choice_order: choice.choice_order,
-                step_id: result.id, // the new step id
-              }
-            ).then(result => {
-              //
-            }, err => {
-              console.error("Error saving the step choice:");
-              console.error(err);
-              return res.send(err);
-            });
-          });
-        } // if step type === 4
-        return res.sendStatus(200); // TODO: send here? there are multiple promises
-      });
-      // end of creating new step
+      // Create step
+      promiseArray.push(
+        models.step
+          .create(
+            {
+              text: step.text,
+              step_order: index + 1,
+              flow_id: req.body.flow_id,
+              step_type_id: step.step_type,
+            }
+          )
+          .then(result => {
+            console.log("Result from new step");
+            console.log(result);
+
+            if (step.step_type_id === 4) {
+              // Multiple choice
+              console.log("step.step_choices:");
+              console.log(step.step_choices);
+              step.step_choices.forEach((choice, index) => {
+                console.log("Step index: " + index);
+                models.step_choice.create(
+                  {
+                    text: choice.text,
+                    choice_order: index + 1,
+                    step_id: result.id, // the new step id
+                  }
+                ).then(result => {
+                  //
+                }, err => {
+                  console.error("Error saving the step choice:");
+                  console.error(err);
+                  return res.send(err);
+                });
+              });
+            } // if step type === 4
+
+          })
+      )
     } else {
-      models.step.update(
-        {
-          text: step.text,
-          step_order: step.step_order,
-        }, {where: {id: step.id}}
-      ).then(result => {
-        if (step.step_type === 4) {
-          // Multiple choice
-          // TODO: what if the user removed options? etc.
-          step.step_choices.forEach((choice, index) => {
-            console.log("Choice index: " + index);
-            models.step_choice.update({
-                text: choice.text,
-                choice_order: choice.choice_order,
-              }, {where: {id: choice.id}}
-            ).then(result => {
-              //
-            }, err => {
-              console.error("Error saving the step choice:");
-              console.error(err);
-              return res.send(err);
-            });
-          });
-        }
-        return res.sendStatus(200); // TODO: send here? there are multiple promises
-      }, err => {
-        console.error("Error saving the step:");
-        console.error(err);
-        return res.send(err);
-      })
-      // end of updating existing step
+      // Update step
+      promiseArray.push(
+        models.step
+          .update(
+            {
+              text: step.text,
+              step_order: index + 1,
+            }, {where: {id: step.id}}
+          )
+          .then(result => {
+            let affectedCount = result[0];
+            // let affectedRows = result[1]; // only supported in postgres with options.returning = true
+
+            console.log("Result from updated step");
+            console.log(affectedCount);
+            // console.log(affectedRows);
+
+            if (affectedCount === 1) {
+              // Check if is multiple choice
+              console.log("Step updated (type = " + step.step_type_id + ")");
+              if (step.step_type_id === 4) {
+                // Multiple choice
+                // TODO: what if the user removed options? etc.
+                step.step_choices.forEach((choice, index) => {
+                  console.log("Choice index: " + index);
+                  if (choice.id === undefined) {
+                    // Create choice
+                    models.step_choice.create(
+                      {
+                        text: choice.text,
+                        choice_order: index + 1,
+                        step_id: step.id,
+                      }
+                    ).then(result => {
+                      //
+                    }, err => {
+                      console.error("Error saving the step choice:");
+                      console.error(err);
+                      return res.send(err);
+                    });
+                  } else {
+                    // Update choice
+                    models.step_choice.update({
+                        text: choice.text,
+                        choice_order: index + 1,
+                      }, {where: {id: choice.id}}
+                    ).then(result => {
+                      //
+                    }, err => {
+                      console.error("Error saving the step choice:");
+                      console.error(err);
+                      return res.send(err);
+                    });
+                  }
+                });
+              }
+            }
+          })
+      )
     }
   });
+
+  models.Sequelize.Promise
+    .each(
+      promiseArray, function (result, index) {
+        console.log("Processed step:");
+        console.log(result);
+        console.log(index);
+        console.log('—————');
+        // console.log(result[1]);
+      })
+    .then(function () {
+      console.log("All steps processed.");
+      return res.status(200).send();
+
+
+      // console.error("Error saving the step:");
+      // console.error(err);
+      // return res.send(err);
+
+    });
 });
 
 
