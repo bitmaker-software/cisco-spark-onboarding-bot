@@ -18,7 +18,7 @@ $brand-primary:             #07c1e4;
 $gray-dark:                 #4e4e50;
 $gray-light:                #aeaeaf;
 $gray-lighter:              #ececed;
-$gray-lightest:             #f2f5f6;
+$gray-lightest:             #f5f5f6;
 
 // Fonts
 //
@@ -39,12 +39,11 @@ $shadow-md:         0 0 10px 0 rgba(205, 212, 217, .65);
 //
 // For each of Bootstrap's buttons, define text, background and border color.
 
-$btn-padding-x:                  2rem;
-$btn-padding-y:                  1rem;
-
 $btn-font-weight:                300;
 
-$btn-border-radius:              25px;
+$btn-secondary-color:            $gray-dark;
+$btn-secondary-bg:               $white;
+$btn-secondary-border:           $gray-lighter;
 
 // Navbar
 

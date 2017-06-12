@@ -54,7 +54,9 @@
   }
 
   .btn {
+    border-radius: 25px;
     box-shadow: $shadow-lg;
+    padding: 2rem 1rem;
   }
 
   // using image as backgroun because I can't get the path to work

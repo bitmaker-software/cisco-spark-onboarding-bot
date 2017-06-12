@@ -1,11 +1,11 @@
 .sidenav {
   background-color: $white;
   border-right: 1px solid $gray-lighter;
+  width: 68px;
 
   .nav-item {
-    margin-left: -($grid-gutter-width-base / 2);
-    margin-right: -($grid-gutter-width-base / 2);
     height: 60px;
+    text-align: center;
 
     &:hover {
       background-color: $gray-lightest;
@@ -32,10 +32,6 @@
       stroke: $gray-light;
       vertical-align: middle;
       width: 24px;
-
-      @include media-breakpoint-up(lg) {
-        margin-right: 10px;
-      }
     }
 
     &.active {

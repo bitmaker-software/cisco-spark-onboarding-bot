@@ -1,0 +1,44 @@
+.step {
+  &-container {
+    background-color: $gray-lightest;
+    border-right: 1px solid $gray-lighter;
+    padding: 20px;
+    text-align: center;
+
+    .btn-secondary {
+      &:hover,
+      &:active,
+      &:focus {
+        background-color: $brand-primary;
+        border-color: $brand-primary;
+        color: $white;
+        cursor: pointer;
+
+        .step-icon {
+          fill: $white;
+        }
+      }
+    }
+  }
+
+  &-type {
+    margin-bottom: 20px;
+  }
+
+  &-icon {
+    fill: $btn-secondary-color;
+    height: 20px;
+    margin-right: 10px;
+    vertical-align: middle;
+    width: 20px;
+  }
+}
+
+.title {
+  background-color: $white;
+  border-bottom: 1px solid $gray-lighter;
+  font-size: 1.2rem;
+  margin: -20px -20px 20px -20px;
+  padding: 20px;
+  text-align: center;
+}

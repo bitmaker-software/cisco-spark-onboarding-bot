@@ -17,11 +17,11 @@ $(function () {
     data: {
       steps: [],
       stepTypeIcons: {
-        1: "record_voice_over", // Announcement
-        2: "help_outline",  // Question
-        3: "description", // Document
-        4: "format_list_bulleted", // Multiple Choice
-        5: "edit", // Docusign
+        1: "announcement", // Announcement
+        2: "question",  // Question
+        3: "document", // Document
+        4: "multiplechoice", // Multiple Choice
+        5: "signature", // Docusign
       },
       newStepTypeSelected: 1,
     },

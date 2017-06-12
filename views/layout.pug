@@ -34,29 +34,29 @@ html(lang='en')
 
     .container-fluid
       .row
-        .col-2.sidenav#sidenav
+        .sidenav#sidenav
           ul.nav.flex-column
             li.nav-item
               a.nav-link(href='/')
                 svg.icon
                   use(xlink:href=static.root + "/sprite.svg#home")
-                span Home
+                span.sr-only Home
             li.nav-item
               a.nav-link.active(href='/manager')
                 svg.icon
                   use(xlink:href=static.root + "/sprite.svg#manager")
-                span Manager
+                span.sr-only Manager
             li.nav-item
               a.nav-link(href='/test')
                 svg.icon
                   use(xlink:href=static.root + "/sprite.svg#search")
-                span Search user
+                span.sr-only Search user
             li.nav-item
               a.nav-link(href="/settings")
                 svg.icon
                   use(xlink:href=static.root + "/sprite.svg#settings")
-                span Settings
-        main.content.col-12.col-md-10
+                span.sr-only Settings
+        main.content.col
           block content
     footer
       .container-fluid

@@ -24,6 +24,7 @@
 
   &-nav {
     align-items: center;
+    flex-direction: row;
   }
 
   // List item icon
@@ -61,5 +62,4 @@
       }
     }
   }
-
 }

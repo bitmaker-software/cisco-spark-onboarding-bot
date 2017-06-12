@@ -2,20 +2,19 @@ extends layout
 
 block content
   div#root
-
+        
     div.row
-      div.col-md-12
-        h1= title
-
-    div.row
-      div.col-md-3.steps-container
-        //div.well.sidebar-nav
-        h4 Available step types do be added to the flow
+      div.col-md-2.step-container
+        h2.title= title
+        p.lead.text-center Available step types do be added to the flow
         each stepType in stepTypes
-          div.stepType
-            h5= '- ' + stepType.description
+          div.step-type
+            div.btn.btn-secondary
+              svg.step-icon
+                use(xlink:href=static.root + "/sprite.svg#announcement")
+              =stepType.description
 
-      div.col-md-9#flow-container
+      div.col-md-10#flow-container
         h3 Steps
         div#empty-flow.hidden
           h4 You have no steps yet. Start by adding one!
