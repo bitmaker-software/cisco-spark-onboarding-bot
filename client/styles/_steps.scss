@@ -6,6 +6,12 @@
     text-align: center;
 
     .btn-secondary {
+
+      span {
+        display: inline-block;
+        margin-left: 10px;
+      }
+      
       &:hover,
       &:active,
       &:focus {
@@ -28,17 +34,7 @@
   &-icon {
     fill: $btn-secondary-color;
     height: 20px;
-    margin-right: 10px;
     vertical-align: middle;
     width: 20px;
   }
-}
-
-.title {
-  background-color: $white;
-  border-bottom: 1px solid $gray-lighter;
-  font-size: 1.2rem;
-  margin: -20px -20px 20px -20px;
-  padding: 20px;
-  text-align: center;
 }

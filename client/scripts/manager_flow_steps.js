@@ -16,6 +16,7 @@ $(function () {
     // app initial state
     data: {
       steps: [],
+      stepTypes: stepTypesObj,
       stepTypeIcons: {
         1: "announcement", // Announcement
         2: "question",  // Question
