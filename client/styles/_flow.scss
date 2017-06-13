@@ -19,13 +19,18 @@
     background-color: $gray-lighter;
   }
 
-  .input-group {
+  .multiple-choice .input-group {
     margin-bottom: 20px;
+    margin-top: 20px;
+  }
+
+  .file-type {
+    margin-top: 20px;
   }
 
   .list-group-item {
     align-items: flex-start;
-    border: 0;
+    margin-bottom: 20px;
 
     &:hover {
       .drag,

@@ -1,7 +1,9 @@
 .content {
   min-height: 80vh;
 
-  > div {
+  > div,
+  > div > div,
+  > div, > div, > div {
     height: 100%;
   }
 }

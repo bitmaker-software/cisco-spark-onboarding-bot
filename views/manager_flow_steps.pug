@@ -55,7 +55,7 @@ block content
                   //
                   // Document, add the file picker
                   //
-                  div.input-group
+                  div.input-group.file-type
                     input.form-control(type="file")
 
                 template(v-if="step.step_type_id === 4")
@@ -81,11 +81,12 @@ block content
                 //
 
         // Trigger the modal with a button
-        div.row.mt-4
-          div.col.text-center
-            button.btn.btn-primary.btn-lg(type="button", data-toggle="modal", data-target="#myModal") Add step
-
-        button#save-steps.btn.btn-primary.hidden(type="button", @click="saveSteps") Save
+        hr
+        div.row
+          div.col
+            button.btn.btn-outline-primary.btn-lg.mr-4(type="button", data-toggle="modal", data-target="#myModal") Add step
+          div.col.text-right
+            button#save-steps.btn.btn-primary.btn-lg.hidden(type="button", @click="saveSteps") Save
 
     // Modal
     div#myModal.modal.fade(role="dialog")
