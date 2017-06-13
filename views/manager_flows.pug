@@ -26,10 +26,14 @@ block content
                   h4.card-title= flow.name
                   div.card-text= flow.flow_status.description
                 div.card-footer.text-right
-                  a.btn.btn-outline-primary(href='/manager/flow/' + flow.id, role="button")
+                  a.btn.btn-outline-primary(href='/manager/flow/' + flow.id + '/edit', role="button")
                     i.material-icons edit
-                  a(href='/manager/flow/' + flow.id + '/send', role="button")
-                    i.material-icons email
+                  a.btn.btn-outline-primary(href='/manager/flow/' + flow.id + '/send', role="button")
+                    i.material-icons send
+                  a.btn.btn-outline-primary(href='/manager/flow/' + flow.id + '/answers', role="button")
+                    i.material-icons question_answer
+                  a.btn.btn-outline-primary(href='/manager/flow/' + flow.id + '/dashboard', role="button")
+                    i.material-icons insert_chart
           // Trigger the modal with a button
           div.text-center
             button.btn.btn-outline-primary.btn-lg.mt-4(type="button", data-toggle="modal", data-target="#myModal") Add flow

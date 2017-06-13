@@ -8,7 +8,7 @@ router.get('/login', function (req, res) {
   if (req.isAuthenticated()) {
     res.redirect('/');
   } else {
-    res.render('login', {user: req.user});
+    res.render('index', {user: req.user});
   }
 });
 
@@ -30,6 +30,12 @@ router.get('/spark',
 //   login page.  Otherwise, the primary route function function will be called,
 //   which, in this example, will redirect the user to the home page.
 router.get('/spark/callback',
+  function (req, res, next) {
+    console.log('\n\n\n\n\nxxxxxxxxxxxxxxxxxxxxxxxxx\nSpark Callback');
+    console.log(req);
+    console.log(res);
+    next();
+  },
   passport.authenticate('cisco-spark', {
     failureRedirect: '/auth/loginFailed',
     successRedirect: '/manager'

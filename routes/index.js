@@ -10,7 +10,8 @@ router.get('/', function (req, res, next) {
   }
   res.render('index', {
     title: 'Cisco Spark Onboarding Bot',
-    manager_url: '/manager'
+    manager_url: '/manager',
+    user: req.user
   });
 });
 

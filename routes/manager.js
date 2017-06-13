@@ -49,30 +49,13 @@ router.post('/api/flow', ensureAuthenticated, function (req, res, next) {
 // Flow page (edit steps, send, see answers, dashboard)
 //
 //
-router.get('/flow/:id', ensureAuthenticated, function (req, res, next) {
-  let promises = [
-    getStepTypes(),
-    getFlow(req.params.id)
-  ];
-  Promise.all(promises).then(values => {
-    res.render('manager_flow_steps', {
-      title: values[1][0].name,
-      flowId: req.params.id,
-      stepTypes: values[0]
-    });
-  }, err => {
-    console.error("Error fetching the step types or flow:");
-    console.error(err);
-  });
-});
-
 router.get('/flow/:id/edit', ensureAuthenticated, function (req, res, next) {
   let promises = [
     getStepTypes(),
     getFlow(req.params.id)
   ];
   Promise.all(promises).then(values => {
-    res.render('manager_flow_steps', {
+    res.render('manager_flow_edit', {
       title: values[1][0].name,
       flowId: req.params.id,
       stepTypes: values[0]
@@ -83,6 +66,65 @@ router.get('/flow/:id/edit', ensureAuthenticated, function (req, res, next) {
   });
 });
 
+router.get('/flow/:id/send', ensureAuthenticated, function (req, res, next) {
+  let promises = [
+    getStepTypes(),
+    getFlow(req.params.id)
+  ];
+  Promise.all(promises).then(values => {
+    res.render('manager_flow_send', {
+      title: values[1][0].name,
+      flowId: req.params.id,
+      stepTypes: values[0]
+    });
+  }, err => {
+    console.error("Error fetching the step types or flow:");
+    console.error(err);
+  });
+});
+
+router.get('/flow/:id/answers', ensureAuthenticated, function (req, res, next) {
+  let promises = [
+    getStepTypes(),
+    getFlow(req.params.id)
+  ];
+  Promise.all(promises).then(values => {
+    res.render('manager_flow_answers', {
+      title: values[1][0].name,
+      flowId: req.params.id,
+      stepTypes: values[0]
+    });
+  }, err => {
+    console.error("Error fetching the step types or flow:");
+    console.error(err);
+  });
+});
+
+router.get('/flow/:id/dashboard', ensureAuthenticated, function (req, res, next) {
+  let promises = [
+    getStepTypes(),
+    getFlow(req.params.id)
+  ];
+  Promise.all(promises).then(values => {
+    res.render('manager_flow_dashboard', {
+      title: values[1][0].name,
+      flowId: req.params.id,
+      stepTypes: values[0]
+    });
+  }, err => {
+    console.error("Error fetching the step types or flow:");
+    console.error(err);
+  });
+});
+
+
+
+
+//
+//
+// API requests
+//
+//
 router.get('/api/flow/:id', ensureAuthenticated, function (req, res, next) {
   // Returns the flow steps
   const SEND_DUMMY = false;
