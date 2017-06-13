@@ -46,10 +46,27 @@ router.post('/api/flow', ensureAuthenticated, function (req, res, next) {
 
 //
 //
-// Flow page (list of steps)
+// Flow page (edit steps, send, see answers, dashboard)
 //
 //
 router.get('/flow/:id', ensureAuthenticated, function (req, res, next) {
+  let promises = [
+    getStepTypes(),
+    getFlow(req.params.id)
+  ];
+  Promise.all(promises).then(values => {
+    res.render('manager_flow_steps', {
+      title: values[1][0].name,
+      flowId: req.params.id,
+      stepTypes: values[0]
+    });
+  }, err => {
+    console.error("Error fetching the step types or flow:");
+    console.error(err);
+  });
+});
+
+router.get('/flow/:id/edit', ensureAuthenticated, function (req, res, next) {
   let promises = [
     getStepTypes(),
     getFlow(req.params.id)
