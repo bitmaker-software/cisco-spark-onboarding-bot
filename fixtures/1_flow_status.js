@@ -3,19 +3,15 @@ module.exports = {
   data: [
     {
       id: 1,
-      description: 'Status 1',
+      description: 'Editing',
     },
     {
       id: 2,
-      description: 'Status 2'
+      description: 'Active'
     },
     {
       id: 3,
-      description: 'Status 3'
-    },
-    {
-      id: 4,
-      description: 'Status 4'
+      description: 'Inactive'
     },
   ]
 };

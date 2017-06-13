@@ -13,6 +13,7 @@ $(function () {
   });
 
   searchButton.click(() => {
+    // TODO: replace with VUE
     const searchString = encodeURIComponent(searchInput.val());
     $.get('/test/search_users/' + searchString, {}, res => {
       $('#result-info').text('Found ' + res.length + ' result(s).');

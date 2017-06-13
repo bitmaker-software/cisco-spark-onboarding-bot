@@ -29,10 +29,12 @@ $(function () {
     methods: {
       addStep: stepType => addNewStep(stepType),
       saveSteps: saveSteps,
-      click1: () => {
-        console.log("clicked");
-        this.steps = [1, 2, 3];
-      }
+      startDraggingStepTypes: () => {
+        console.log("Start dragging");
+      },
+      stopDraggingStepTypes: (x) => {
+        console.log("Stop dragging");
+      },
     },
     components: {
       draggable

@@ -10,7 +10,7 @@ module.exports = {
     },
     {
       id: 2,
-      step_order: 4,
+      step_order: 2,
       text: "Please provide a brief description about you.",
       flow_id: 1,
       step_type_id: 2
@@ -24,7 +24,7 @@ module.exports = {
     },
     {
       id: 4,
-      step_order: 2,
+      step_order: 4,
       text: "How many years of experience do you have",
       flow_id: 1,
       step_type_id: 4
@@ -32,13 +32,6 @@ module.exports = {
     {
       id: 5,
       step_order: 5,
-      text: "Please go to x and do y",
-      flow_id: 1,
-      step_type_id: 5
-    },
-    {
-      id: 6,
-      step_order: 6,
       text: "Another multiple-choice question",
       flow_id: 1,
       step_type_id: 4

@@ -32,19 +32,19 @@ module.exports = {
       id: 5,
       choice_order: 1,
       text: 'First option',
-      step_id: 6
+      step_id: 5
     },
     {
       id: 6,
       choice_order: 2,
       text: 'Second option',
-      step_id: 6
+      step_id: 5
     },
     {
       id: 7,
       choice_order: 3,
       text: 'Third option',
-      step_id: 6
+      step_id: 5
     },
   ]
 };
