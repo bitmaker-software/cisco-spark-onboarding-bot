@@ -1,4 +1,5 @@
 "use strict";
+import $ from 'jquery';
 
 $(function () {
   const searchButton = $('#btn-search-user');

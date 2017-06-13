@@ -13,21 +13,22 @@ block content
     div#result-info
 
     ul#lst-result-user
-  div
-    show picker
-    input(type='button', value='select file', onclick='gdriver.selectFile(function(r){ alert("fileId: " + r);})')
-    input(type='button', value='select dir', onclick='gdriver.selectFolder(function(r){ alert("folderId: " + r);})')
+
+  div(style="background-color: #AFF2FF; padding: 20px;")
+    div Google Drive picker
+    div
+      input(type='button', value='Files', onclick='GDrive.selectFile(function(r){ alert("fileId: " + r);})')
+    div
+      input(type='button', value='Directories', onclick='GDrive.selectFolder(function(r){ alert("folderId: " + r);})')
 
   //script(src=static.root + '/js/test.js@' + static.suffix)
   script(src=static.root + '/js/test.js')
-  //script(src=static.root + '/js/gdrive.js@' + static.suffix)
-  script(src=static.root + '/js/gdrive.js')
 
-  script.
-    var gdriver = new GDriver('!{gdrive_client_id}', '!{gdrive_developer_key}', '!{gdrive_share_to}');
-    function onGoogleApiLoaded() {
-      gdriver.onApiLoaded();
-    }
-
-
-  script(src='https://apis.google.com/js/api.js?onload=onGoogleApiLoaded' defer)
+  //script(id='gdrive', src=static.root + '/js/gdrive.js@' + static.suffix,
+  script(id='gdrive', src=static.root + '/js/gdrive.js',
+  data-gdrive-client-id=gdrive_client_id,
+  data-gdrive-developer-key=gdrive_developer_key,
+  data-gdrive-share-to=gdrive_share_to
+  )
+  script(async, defer, src="https://apis.google.com/js/api.js", onload="GDrive.onApiLoaded()")
+  //onreadystatechange="if (this.readyState === 'complete') this.onload()")

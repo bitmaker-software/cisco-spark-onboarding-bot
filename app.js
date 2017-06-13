@@ -143,7 +143,7 @@ if (bot) {
     require("./bot/components/routes/" + file)(app, bot);
   });
 } else {
-  console.log('Warning: bot is not defined; did you import it?');
+  console.log('WARNING: bot is not defined; did you import it? (OK if you are just testing without needing to register the callbacks with Spark)');
 }
 
 // catch 404 and forward to error handler
