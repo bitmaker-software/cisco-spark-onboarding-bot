@@ -2,7 +2,39 @@
   background-color: $white;
   padding: 20px;
 
+  .drag {
+    background-color: $white;
+    border: 1px solid $input-border-color;
+    border-radius: $border-radius;
+    margin-right: 10px;
+    padding: .5rem .75rem;
+  }
+
+  .drag-handle {
+    cursor: move;
+    cursor: -webkit-grabbing;
+  }
+
+  .sortable-ghost {
+    background-color: $gray-lighter;
+  }
+
+  .input-group {
+    margin-bottom: 20px;
+  }
+
   .list-group-item {
-    box-shadow: $shadow-md;
+    align-items: flex-start;
+    border: 0;
+
+    &:hover {
+      .drag,
+      .form-control,
+      .input-group-addon {
+        border-color: $gray-light;
+        box-shadow: 0px 2px 5px $gray-lighter;
+        cursor: pointer;
+      }
+    }
   }
 }

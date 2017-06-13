@@ -1,5 +1,9 @@
 .content {
   min-height: 80vh;
+
+  > div {
+    height: 100%;
+  }
 }
 
 footer {
@@ -24,4 +28,12 @@ footer {
       padding: 20px 0;
     }
   }
+}
+
+// empty states
+.illustration {
+  display: block;
+  height: 200px;
+  margin: 20px auto;
+  width: 200px;
 }
