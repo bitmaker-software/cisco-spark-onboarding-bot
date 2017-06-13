@@ -29,7 +29,8 @@ var bot;
 var passport = require('passport');
 var CiscoSparkStrategy = require('passport-cisco-spark').Strategy;
 var session = require('express-session');
-var sequelize = require('./models/index.js').sequelize;
+var models = require('./models/index.js');
+var sequelize = models.sequelize;
 var SequelizeStore = require('connect-session-sequelize')(session.Store);
 
 
@@ -101,6 +102,7 @@ app.use(cookieParser());
 //   sourceMap: true
 // }));
 
+
 //
 // Setup session & passport
 //
@@ -164,8 +166,21 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
-app.listen(config.port, config.host, () => {
-  console.log(`Application listening on ${config.host}:${config.port}...`);
+
+// sync() will create all table if they doesn't exist in database
+sequelize.sync({force: true}).then(() => {
+  console.log("Database models synced, will load the fixtures");
+  // Load database fixtures
+  models.startLoadingDatabaseFixtures();
+  // Start the server
+  app.listen(config.port, config.host, () => {
+    console.log(`Application listening on ${config.host}:${config.port}...`);
+  });
+}, err => {
+  console.error("Error on sequelize.sync():");
+  console.error(err);
 });
+
+
 
 module.exports = app;
