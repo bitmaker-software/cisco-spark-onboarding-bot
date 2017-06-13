@@ -14,7 +14,7 @@ block content
               use(v-bind="{'xlink:href':'"+static.root +"/sprite.svg#'+stepTypeIcons[stepType.id]}")
               
               // TODO: workaround for now; add column name to the database?
-              span {{ stepType.description.split(' (')[0] }}
+              span {{ stepType.name }}
               
 
       div.col-md-10.flow-container
