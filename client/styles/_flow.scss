@@ -10,13 +10,24 @@
     padding: .5rem .75rem;
   }
 
+  .icon {
+    fill: $btn-secondary-color;
+    height: 20px;
+    vertical-align: middle;
+    width: 20px;
+  }
+
   .drag-handle {
     cursor: move;
     cursor: -webkit-grabbing;
+
+    .icon {
+      fill: $brand-primary;
+    }
   }
 
   .sortable-ghost {
-    background-color: $gray-lighter;
+    background-color: $gray-lightest;
   }
 
   .multiple-choice .input-group {
@@ -30,6 +41,7 @@
 
   .list-group-item {
     align-items: flex-start;
+    border-radius: $border-radius;
     margin-bottom: 20px;
 
     &:hover {
