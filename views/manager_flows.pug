@@ -2,30 +2,27 @@ extends layout
 
 block content
 
-  div.flows-container
-    h4 Your flows
+  div.flow-manager
+    h4.mb-4 Your flows
     if flows.length === 0
-      h5 You have no flows yet.
+      h5.text-center You have no flows yet.
     else
-      table.table.table-striped
-        thead
-          tr
-            th Flow name
-            th Flow Status
-            th
-        tbody
-          each flow in flows
-            tr
-              td= flow.name
-              td= flow.flow_status.description
-              td
-                a(href='/manager/flow/' + flow.id, role="button")
-                  i.material-icons edit
-    div
-      // Trigger the modal with a button
-      button.btn.btn-info.btn-lg(type="button", data-toggle="modal", data-target="#myModal") add flow
-        =" "
-        i.material-icons(style='font-size:16px;') add
+      div.row
+        div.col
+          div.card-deck
+            each flow in flows
+              div.card
+                div.card-block
+                  h4.card-title= flow.name
+                  div.card-text= flow.flow_status.description
+                div.card-footer.text-right
+                  a.btn.btn-outline-primary(href='/manager/flow/' + flow.id, role="button")
+                    i.material-icons edit
+          // Trigger the modal with a button
+          div.text-center
+            button.btn.btn-outline-primary.btn-lg.mt-4(type="button", data-toggle="modal", data-target="#myModal") Add flow
+              =" "
+              i.material-icons(style='font-size:16px;') add
 
   // Modal
   div#myModal.modal.fade(role="dialog")
