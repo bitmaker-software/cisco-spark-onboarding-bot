@@ -12,12 +12,17 @@ block content
           div.card-deck
             each flow in flows
               div.card
+                div.card-img-top
+                  svg.icon  
+                    use(xlink:href=static.root + "/sprite.svg#flow") 
                 div.card-block
                   h4.card-title= flow.name
                   div.card-text= flow.flow_status.description
-                div.card-footer.text-right
-                  a.btn.btn-outline-primary(href='/manager/flow/' + flow.id, role="button")
-                    i.material-icons edit
+                div.card-footer.text-center
+                  a.btn.btn-outline-dark(href='/manager/flow/' + flow.id, role="button") 
+                    svg.icon  
+                      use(xlink:href=static.root + "/sprite.svg#settings") 
+                    | Edit flow
           // Trigger the modal with a button
           div.text-center
             button.btn.btn-outline-primary.btn-lg.mt-4(type="button", data-toggle="modal", data-target="#myModal") Add flow

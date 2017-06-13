@@ -1,0 +1,37 @@
+.card {
+  box-shadow: 0 1px 1px 0 rgba(31,45,61,.05);
+
+  &-block {
+    .icon {
+      fill: $gray-light;
+      height: 80px;
+      width: 80px;
+    }
+  }
+
+  &-img-top {
+    .icon {
+      fill: $gray-light;
+      height: 80px;
+      position: absolute;
+      right: 20px;
+      width: 80px;
+      z-index: 0;
+    }
+  }
+
+  &:hover {
+    box-shadow: 0 5px 10px 0 rgba(31,45,61,.1);
+    cursor: pointer;
+  }
+
+  &-footer {
+    .icon {
+      fill: none;
+      height: 20px;
+      margin-right: 10px;
+      vertical-align: middle;
+      width: 20px;
+    }
+  }
+}

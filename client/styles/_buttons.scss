@@ -1,0 +1,21 @@
+@mixin btn-outline($bg, $color) {
+  border-color: $bg;
+  color: $bg;
+
+  .icon {
+    stroke: $bg;
+  }
+
+  &:hover {
+    background-color: $bg;
+    color: $color;
+
+    .icon {
+      stroke: $color;
+    }
+  }
+}
+
+.btn-outline-dark {
+  @include btn-outline($gray, $white);
+}
