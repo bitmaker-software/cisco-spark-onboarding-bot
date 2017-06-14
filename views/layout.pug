@@ -13,9 +13,6 @@ html(lang='en')
     //- link(rel='stylesheet', href=static.root + '/css/index.css@' + static.suffix)
     link(rel='stylesheet', href=static.root + '/css/index.css')
 
-    //- Main script, for all pages, before the custom page scripts
-    //- script(src=static.root + '/js/main.js@' + static.suffix)
-    script(src=static.root + '/js/main.js')
   body
     nav.navbar.navbar-light.sticky-top
       a.navbar-brand(href='/')
@@ -60,5 +57,9 @@ html(lang='en')
             svg.logo
               use(xlink:href=static.root + "/sprite.svg#logo")
             small.text-muted © Cisco Systems, Inc. 2017
+
+    //- Main script, for all pages, before the custom page scripts
+    //- script(src=static.root + '/js/main.js@' + static.suffix)
+    script(src=static.root + '/js/main.js')
 
     block pageScripts
