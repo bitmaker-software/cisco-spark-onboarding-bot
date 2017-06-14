@@ -14,10 +14,13 @@ module.exports = function (controller) {
     //get the flow from the database
     retrieveCurrentFlowFromDb(bot).then(flow => {
       var thread = 'default';
+      console.log(flow);
       //create the conversation
       bot.createConversation(message, function (err, convo) {
         flow.steps.forEach(function (step) {
-          switch (step.stepTypeId) {
+          console.log("STEP TYPE ID: ")
+          console.log(step.step_type_id);
+          switch (step.step_type_id) {
             // case "announcement":
             case 1:
               addAnnouncementStep(bot, convo, step, flow.respondent_flow_id, thread);
@@ -45,13 +48,14 @@ module.exports = function (controller) {
   }
 
   function addAnnouncementStep(bot, convo, step, respondent_flow_id, thread) {
-
+    console.log("Adding announcement step: " + step.text);
     var text = step.text + '\n\nPlease type ok to continue';
 
     convo.addQuestion(text, [
       {
         "pattern": "^ok$",
         "callback": function (response, convo) {
+          console.log("OK");
           //save response
           //go to next
           convo.next();
@@ -60,7 +64,9 @@ module.exports = function (controller) {
       {
         "default": true,
         "callback": function (response, convo) {
+          console.log("NOT OK");
           //repeat the question
+          //convo.say("Please type ok to continue");
           convo.repeat();
           convo.next();
         }
@@ -69,6 +75,7 @@ module.exports = function (controller) {
   };
 
   function addFreeTextStep(bot, convo, step, respondent_flow_id, thread) {
+    console.log("Adding free text step: " + step.text);
     var text = step.text + "\n\nYou can write as many lines as you want.\n\nPlease type @end in a single line when you're done";
 
     convo.addQuestion(text, [
@@ -95,6 +102,7 @@ module.exports = function (controller) {
   }
 
   function addMultipleChoiceStep(bot, convo, step, respondent_flow_id, thread) {
+    console.log("Adding multiple choice step: " + step.text);
     var text = step.text + '\n\n';
 
     var patternsAndCallbacks = [];
