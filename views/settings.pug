@@ -1,57 +1,67 @@
 extends layout
 
 block content
-  h1= title
-  div.form-group
-    label(
-    for='bot-token'
-    class='blue'
-    ) Cisco Spark Bot Token
+  div.p-4
+    h4.mb-4= title
+    
+    div.row
+      div.col-6
+        div.form-group
+          label(
+          for='bot-token'
+          class='blue'
+          ) Cisco Spark Bot Token
 
-    input#bot-token.form-control(
-    type='text'
-    name='bot-token'
-    placeholder="Your bot token"
-    )
+          input#bot-token.form-control(
+          type='text'
+          name='bot-token'
+          placeholder="Your bot token"
+          )
 
-    input#save-bot-token.btn.btn-primary(
-    type='button'
-    value='Save'
-    )
-  div.form-group
-    label(
-    for='bot-token'
-    class='blue'
-    ) ...
+        input#save-bot-token.btn.btn-primary(
+        type='button'
+        value='Save'
+        )
+        hr
+    div.row
+      div.col-6
+        div.form-group
+          label(
+          for='bot-token'
+          class='blue'
+          ) ...
 
-    input.form-control(
-    type='text'
-    name='bot-token'
-    placeholder="..."
-    )
+          input.form-control(
+          type='text'
+          name='bot-token'
+          placeholder="..."
+          )
 
-    input.btn.btn-primary(
-    type='button'
-    value='Save'
-    )
-  div.form-group
-    label(
-    for='bot-token'
-    class='blue'
-    ) ...
+        input.btn.btn-primary(
+        type='button'
+        value='Save'
+        )
+        hr
+    div.row
+      div.col-6
+        div.form-group
+          label(
+          for='bot-token'
+          class='blue'
+          ) ...
 
-    input.form-control(
-    type='text'
-    name='bot-token'
-    placeholder="..."
-    )
+          input.form-control(
+          type='text'
+          name='bot-token'
+          placeholder="..."
+          )
 
-    input.btn.btn-primary(
-    type='button'
-    value='Save'
-    )
+        input.btn.btn-primary(
+        type='button'
+        value='Save'
+        )
 
-    h2#results
+      h2#results
 
   //script(src=static.root + '/js/settings.js@' + static.suffix)
   script(src=static.root + '/js/settings.js')
