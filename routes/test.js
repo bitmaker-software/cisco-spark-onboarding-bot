@@ -25,6 +25,7 @@ if (!gdrive_share_to) {
 router.get('/', ensureAuthenticated, (req, res, next) => {
   res.render('test', {
     title: 'Onboarding manager test page',
+    active: 'Search user', // left side bar icon
     gdrive_client_id: gdrive_client_id,
     gdrive_developer_key: gdrive_developer_key,
     gdrive_share_to: gdrive_share_to

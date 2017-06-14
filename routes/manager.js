@@ -15,6 +15,7 @@ router.get('/', ensureAuthenticated, function (req, res, next) {
     res.render('manager_flows', {
       title: 'Onboarding manager',
       flows: flows,
+      active: 'Manager' // left side bar icon
     });
     console.log('........');
     console.log(flows);
@@ -58,7 +59,8 @@ router.get('/flow/:id/edit', ensureAuthenticated, function (req, res, next) {
     res.render('manager_flow_edit', {
       title: values[1][0].name,
       flowId: req.params.id,
-      stepTypes: values[0]
+      stepTypes: values[0],
+      active: 'Manager' // left side bar icon
     });
   }, err => {
     console.error("Error fetching the step types or flow:");
@@ -75,7 +77,8 @@ router.get('/flow/:id/send', ensureAuthenticated, function (req, res, next) {
     res.render('manager_flow_send', {
       title: values[1][0].name,
       flowId: req.params.id,
-      stepTypes: values[0]
+      stepTypes: values[0],
+      active: 'Manager' // left side bar icon
     });
   }, err => {
     console.error("Error fetching the step types or flow:");
@@ -92,7 +95,8 @@ router.get('/flow/:id/answers', ensureAuthenticated, function (req, res, next) {
     res.render('manager_flow_answers', {
       title: values[1][0].name,
       flowId: req.params.id,
-      stepTypes: values[0]
+      stepTypes: values[0],
+      active: 'Manager' // left side bar icon
     });
   }, err => {
     console.error("Error fetching the step types or flow:");
@@ -109,7 +113,8 @@ router.get('/flow/:id/dashboard', ensureAuthenticated, function (req, res, next)
     res.render('manager_flow_dashboard', {
       title: values[1][0].name,
       flowId: req.params.id,
-      stepTypes: values[0]
+      stepTypes: values[0],
+      active: 'Manager' // left side bar icon
     });
   }, err => {
     console.error("Error fetching the step types or flow:");

@@ -1,8 +1,8 @@
 "use strict";
 
-window.$ = window.jQuery = require('jquery'); // "Bootstrap's JavaScript requires jQuery"
-window.Tether = require('tether'); // "Bootstrap tooltips require Tether"
-require('bootstrap');
+// window.$ = window.jQuery = require('jquery'); // "Bootstrap's JavaScript requires jQuery"
+// window.Tether = require('tether'); // "Bootstrap tooltips require Tether"
+// require('bootstrap');
 
 $(function () {
   $('#myModal').on('shown.bs.modal', function () {
