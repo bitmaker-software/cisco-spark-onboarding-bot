@@ -52,16 +52,16 @@ module.exports = function (controller) {
   function addEndConversationHandler(bot, convo){
     convo.on('end', function(convo){
       if(convo.status == 'completed'){
-        bot.reply(convo.source_message, "Thank you for your time!");
+        bot.reply(convo.source_message, "Thank you so much for your time! Have a nice day!");
       }else{
-        bot.reply(convo.source_message, "Something went wrong. Please contact your HR department for more information.");
+        bot.reply(convo.source_message, "Sorry, something went wrong. Please contact your HR department for more information.");
       }
     });
   }
 
   function addAnnouncementStep(bot, convo, step, respondent_flow_id, thread) {
     console.log("Adding announcement step: " + step.text);
-    var text = step.text + '\n\nPlease type ok to continue';
+    var text = step.text + '\n\nPlease type ok to continue.';
 
     convo.addQuestion(text, [
       {
@@ -79,7 +79,7 @@ module.exports = function (controller) {
           console.log("NOT OK");
           //repeat the question
           //convo.say("Please type ok to continue");
-          bot.reply(convo.source_message, "Please type ok to continue");
+          bot.reply(convo.source_message, "Sorry, I didn't get that. Please type ok to continue");
           //convo.repeat();
           //convo.silentRepeat();
           //convo.next();
@@ -90,7 +90,7 @@ module.exports = function (controller) {
 
   function addFreeTextStep(bot, convo, step, respondent_flow_id, thread) {
     console.log("Adding free text step: " + step.text);
-    var text = step.text + "\n\nYou can write as many lines as you want.\n\nPlease type @end in a single line when you're done";
+    var text = step.text + "\n\nYou can write as many lines as you want.\n\nPlease type @end in a single line when you're done!";
 
     convo.addQuestion(text, [
       {
@@ -147,12 +147,12 @@ module.exports = function (controller) {
       "default": true,
       "callback": function (response, convo) {
         //repeat the question
-        bot.reply(convo.source_message, "Invalid option. Please choose one option.");
+        bot.reply(convo.source_message, "Sorry, that's not an option. Please choose one of the available options.");
         //convo.repeat();
         //convo.next();
       }
     });
-    text += 'Please choose one option';
+    text += 'Please choose one of the available options.';
     convo.addQuestion(text, patternsAndCallbacks, {}, thread);
   }
 
