@@ -10,14 +10,24 @@ $(function () {
   });
 
   let confirmAddFlowButton = $('#myModal button#modal-add-flow');
-  confirmAddFlowButton.click(() => {
-    confirmAddFlowButton.text('Adding…');
+  function submitSave() {
+    // TODO: check for empty name (disable button if empty)
     let name = $('input#name').val();
+    if (name.trim() === '') {
+      return;
+    }
+    confirmAddFlowButton.text('Adding…');
     $.post('/manager/api/flow/', {name: name}, function (data) {
       $('#myModal').modal('hide'); // TODO: $(...).modal is not a function
       location.reload(); // refresh the page to show the new flow
     }).fail(err => {
       console.log("Error: " + err);
     });
+  }
+  $('input#name').on('keyup', function (e) {
+    if (e.keyCode === 13) {
+      submitSave();
+    }
   });
+  confirmAddFlowButton.click(submitSave);
 });
