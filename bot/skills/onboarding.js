@@ -38,12 +38,24 @@ module.exports = function (controller) {
           }
         });
 
+        addEndConversationHandler(bot, convo);
+
         convo.activate();
 
       });
     }, err => {
       console.error("Error fetching the flow:");
       console.error(err);
+    });
+  }
+
+  function addEndConversationHandler(bot, convo){
+    convo.on('end', function(convo){
+      if(convo.status == 'completed'){
+        bot.reply(convo.source_message, "Thank you for your time!");
+      }else{
+        bot.reply(convo.source_message, "Something went wrong. Please contact your HR department for more information.");
+      }
     });
   }
 
@@ -67,8 +79,10 @@ module.exports = function (controller) {
           console.log("NOT OK");
           //repeat the question
           //convo.say("Please type ok to continue");
-          convo.repeat();
-          convo.next();
+          bot.reply(convo.source_message, "Please type ok to continue");
+          //convo.repeat();
+          //convo.silentRepeat();
+          //convo.next();
         }
       }
     ], {}, thread);
@@ -83,9 +97,10 @@ module.exports = function (controller) {
         "pattern": "^@end$",
         "callback": function (response, convo) {
           //console.log(convo.extractResponse(step.step_id));
-          var answer = convo.extractResponse(step.step_id);
+          var answer = convo.extractResponse(step.id);
           //remove the terminator
           answer = answer.replace("@end", "");
+          console.log("Answer: " + answer);
           saveTextAnswer(bot, step, respondent_flow_id, answer);
           //save response
           //go to next
@@ -98,7 +113,7 @@ module.exports = function (controller) {
           //do nothing, wait for @end and collect all lines
         }
       }
-    ], {"key": step.step_id, "multiple": true}, thread);
+    ], {"key": step.id, "multiple": true}, thread);
   }
 
   function addMultipleChoiceStep(bot, convo, step, respondent_flow_id, thread) {
@@ -132,8 +147,9 @@ module.exports = function (controller) {
       "default": true,
       "callback": function (response, convo) {
         //repeat the question
-        convo.repeat();
-        convo.next();
+        bot.reply(convo.source_message, "Invalid option. Please choose one option.");
+        //convo.repeat();
+        //convo.next();
       }
     });
     text += 'Please choose one option';
