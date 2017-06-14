@@ -17,14 +17,12 @@ block content
               span {{ stepType.name }}
               span(data-toggle="tooltip", data-placement="top", title, v-bind:title="stepType.description")
                 i.material-icons info              
-          //- div.mt-2 
-            small {{ stepType.description }}
+                
       div.col-md-10.flow-container
         h2.title.text-primary Steps
         div#empty-flow.hidden
           img.illustration(src=static.root + "/images/add.svg")
           h4.text-center You have no steps yet. Start by adding one!
-          div.drag-area Drag & drop questions here or click the button below
 
         // Using Vue here
         div#steps.list-group
