@@ -18,5 +18,5 @@ $('.navbar-brand').click(function() {
 
 $(function () {
   // Bootstrap: initialize all tooltips on a page
-  $('[data-toggle="tooltip"]').tooltip()
+  $('[data-toggle="tooltip"]').tooltip();
 });

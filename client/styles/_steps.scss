@@ -13,6 +13,12 @@
         margin-left: 10px;
       }
 
+      i {
+        color: $gray-light;
+        font-size: 16px;
+        vertical-align: middle;
+      }
+
       &:hover,
       &:active,
       &:focus {
@@ -20,6 +26,10 @@
         border-color: $brand-primary;
         color: $white;
         cursor: pointer;
+
+        i {
+          color: $white;
+        }
 
         .step-icon {
           fill: $white;
@@ -38,4 +48,15 @@
     vertical-align: middle;
     width: 20px;
   }
+}
+
+.drag-area {
+  background-color: $gray-lightest;
+  border: 1px dashed $gray-light;
+  border-radius: $border-radius;
+  font-size: 18px;
+  font-weight: 300;
+  margin: 30px 0;
+  padding: 20px;
+  text-align: center;
 }

@@ -120,4 +120,7 @@ $(function () {
       }
     });
   }
+
+  // Update tooltips
+  $('[data-toggle="tooltip"]').tooltip();
 });
