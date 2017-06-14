@@ -1,8 +1,8 @@
 extends layout
 
 block content
-  div#root
-    h1 Send flow
+  div.p-4#root
+    h1.text-center.mb-4.mt-4 Send flow
       strong  !{title}
       |  to the respondents
 
@@ -22,13 +22,20 @@ block content
           div.col-10
             input.form-control#txt-search-user(type='text', name='search-user', placeholder='Type a username to search', v-model='searchInput', @keyup.enter='doSearch')
           div.col-2
-            input#btn-search-user.btn.btn-block(type='button', name='btn-search-user', value='Search', @click='doSearch')
+            input#btn-search-user.btn.btn-primary.btn-block(type='button', name='btn-search-user', value='Search', @click='doSearch')
 
-          div(v-if='searchResultsInfo') {{ searchResultsInfo }}
-
-          ul
-            li(v-for='user in searchResults') {{ user.displayName }} ({{ user.email }})
-              input(type="button", value="Send", @click="sendFlowToUser(user)")
+        div.row.mt-4
+          div.col(v-if='searchResultsInfo') 
+            h2.mb-4.text-muted {{ searchResultsInfo }}
+        
+        div.row
+          div.col
+            a(v-for='user in searchResults')
+              h5.mb-1 {{ user.displayName }}
+              a(href="#").mb-1 {{ user.email }} 
+          div.col.text-right
+            input.btn.btn-outline-primary(type="button", value="Send", @click="sendFlowToUser(user)")    
+        hr          
 
   block pageScripts
     script.
