@@ -7,6 +7,7 @@ var ensureAuthenticated = require('./auth_middleware');
 router.get('/', ensureAuthenticated, function (req, res, next) {
   res.render('settings', {
     title: 'Settings',
+    active: 'Settings' // left side bar icon
   });
 });
 

@@ -2,19 +2,23 @@ doctype html
 html(lang='en')
   head
     title= title
-    // Required meta tags
+    //- Required meta tags
     meta(charset='utf-8')
     meta(name="viewport", content="width=device-width, initial-scale=1, shrink-to-fit=no")
 
-    // Material Icons
+    //- Material Icons
     link(rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons")
 
-    // Bundled stylesheet
-    //link(rel='stylesheet', href=static.root + '/css/index.css@' + static.suffix)
+    //- Bundled stylesheet
+    //- link(rel='stylesheet', href=static.root + '/css/index.css@' + static.suffix)
     link(rel='stylesheet', href=static.root + '/css/index.css')
+
+    //- Main script, for all pages, before the custom page scripts
+    //- script(src=static.root + '/js/main.js@' + static.suffix)
+    script(src=static.root + '/js/main.js')
   body
     nav.navbar.navbar-light.sticky-top
-      a.navbar-brand(href='#')
+      a.navbar-brand(href='/')
         //- Add icon image
         .navbar-brand-icon
         span= title
@@ -32,30 +36,21 @@ html(lang='en')
               svg.icon
                 use(xlink:href=static.root + "/sprite.svg#lock")
 
+    mixin item(title, url, icon)
+      li.nav-item
+        a.nav-link(href=url, class=active === title ? 'active' : '')
+          svg.icon
+            use(xlink:href=static.root + "/sprite.svg#" + icon)
+          span.sr-only= title
+
     .container-fluid
       .row
         .sidenav#sidenav
           ul.nav.flex-column
-            li.nav-item
-              a.nav-link(href='/')
-                svg.icon
-                  use(xlink:href=static.root + "/sprite.svg#home")
-                span.sr-only Home
-            li.nav-item
-              a.nav-link.active(href='/manager')
-                svg.icon
-                  use(xlink:href=static.root + "/sprite.svg#manager")
-                span.sr-only Manager
-            li.nav-item
-              a.nav-link(href='/test')
-                svg.icon
-                  use(xlink:href=static.root + "/sprite.svg#search")
-                span.sr-only Search user
-            li.nav-item
-              a.nav-link(href="/settings")
-                svg.icon
-                  use(xlink:href=static.root + "/sprite.svg#settings")
-                span.sr-only Settings
+            +item('Home', '/', 'home')
+            +item('Manager', '/manager', 'manager')
+            +item('Search user', '/test', 'search')
+            +item('Settings', '/settings', 'settings')
         main.content.col
           block content
     footer
@@ -65,8 +60,5 @@ html(lang='en')
             svg.logo
               use(xlink:href=static.root + "/sprite.svg#logo")
             small.text-muted © Cisco Systems, Inc. 2017
-
-    //script(src=static.root + '/js/main.js@' + static.suffix)
-    script(src=static.root + '/js/main.js')
 
     block pageScripts

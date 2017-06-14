@@ -12,7 +12,7 @@ block content
 
 
 
-  div.flow-manager
+  div.p-4
     h4.mb-4 Your flows
     if flows.length === 0
       h5.text-center You have no flows yet.
@@ -24,28 +24,33 @@ block content
               div.card
                 div.card-img-top
                   svg.icon  
-                    use(xlink:href=static.root + "/sprite.svg#flow") 
+                    use(xlink:href=static.root + "/sprite.svg#flow-fill") 
                 div.card-block
                   h4.card-title= flow.name
-                  div.card-text= flow.flow_status.description
-                div.card-footer.text-center
-                  a.btn.btn-outline-dark(href='/manager/flow/' + flow.id, role="button") 
-                    svg.icon  
-                      use(xlink:href=static.root + "/sprite.svg#settings") 
-                    | Edit flow
-                  a.btn.btn-outline-primary(href='/manager/flow/' + flow.id + '/edit', role="button")
-                    i.material-icons edit
-                  a.btn.btn-outline-primary(href='/manager/flow/' + flow.id + '/send', role="button")
-                    i.material-icons send
-                  a.btn.btn-outline-primary(href='/manager/flow/' + flow.id + '/answers', role="button")
-                    i.material-icons question_answer
-                  a.btn.btn-outline-primary(href='/manager/flow/' + flow.id + '/dashboard', role="button")
-                    i.material-icons insert_chart
+                  div.card-text
+                    span.badge.badge-pill.badge-primary= flow.flow_status.description
+                div.card-footer
+                  div.row
+                    div.col
+                      a.btn.btn-outline-dark(href='/manager/flow/' + flow.id + '/edit', role="button")
+                        svg.icon.mr-2
+                          use(xlink:href=static.root + "/sprite.svg#settings") 
+                        | Edit flow
+                    div.col.text-right
+                      div.btn-group(role="group")
+                        a.btn.btn-outline-dark(href='/manager/flow/' + flow.id + '/send', role="button", data-toggle="tooltip" data-placement="bottom" title="Send")
+                          svg.icon.send
+                            use(xlink:href=static.root + "/sprite.svg#send") 
+                        a.btn.btn-outline-dark(href='/manager/flow/' + flow.id + '/answers', role="button", data-toggle="tooltip" data-placement="bottom" title="Answers")
+                          svg.icon  
+                            use(xlink:href=static.root + "/sprite.svg#answer") 
+                        a.btn.btn-outline-dark(href='/manager/flow/' + flow.id + '/dashboard', role="button", data-toggle="tooltip" data-placement="bottom" title="Dashboard")
+                          svg.icon  
+                            use(xlink:href=static.root + "/sprite.svg#dashboard") 
           // Trigger the modal with a button
           div.text-center
             button.btn.btn-outline-primary.btn-lg.mt-4(type="button", data-toggle="modal", data-target="#myModal") Add flow
               =" "
-              i.material-icons(style='font-size:16px;') add
 
   // Modal
   div#myModal.modal.fade(role="dialog")
@@ -57,7 +62,7 @@ block content
           button.close(type="button" data-dismiss="modal") &times;
         div.modal-body
           div.form-group
-            label(for="name") Name
+            label(for="name") Flow name
             input.form-control#name
         div.modal-footer
           button#modal-add-flow.btn.btn-primary(type="button") Add flow

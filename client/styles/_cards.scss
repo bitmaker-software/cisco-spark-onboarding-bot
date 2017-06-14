@@ -2,16 +2,20 @@
   box-shadow: 0 1px 1px 0 rgba(31,45,61,.05);
 
   &-block {
+    z-index: 1;
+
     .icon {
-      fill: $gray-light;
-      height: 80px;
-      width: 80px;
+      fill: none;
+      height: 20px;
+      margin-right: 10px;
+      vertical-align: middle;
+      width: 20px;
     }
   }
 
   &-img-top {
     .icon {
-      fill: $gray-light;
+      fill: $gray-lighter;
       height: 80px;
       position: absolute;
       right: 20px;
@@ -29,9 +33,12 @@
     .icon {
       fill: none;
       height: 20px;
-      margin-right: 10px;
       vertical-align: middle;
       width: 20px;
+
+      &.send {
+        stroke-width: 5px;
+      }
     }
   }
 }
