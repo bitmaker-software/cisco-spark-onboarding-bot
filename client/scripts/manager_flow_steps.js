@@ -1,12 +1,6 @@
 "use strict";
 
-// In this order: Vue, Sortable, Vue.Draggable
-// script(src='/javascripts/libs/Sortable-1.5.1/Sortable.js')
-// script(src='/javascripts/libs/vue.draggable/vuedraggable.js')
-import Vue from 'vue/dist/vue';
-// require('sortablejs');
 import draggable from 'vuedraggable';
-
 
 $(function () {
   console.log("manager_flow_steps.js");
@@ -56,23 +50,22 @@ $(function () {
     app.newStepTypeSelected = 1;
   };
 
-//
-// Get data
-//
+  //
+  // Get data
+  //
   function fetchSteps() {
     $.get('/manager/api/flow/' + flowId, {}, function (flow) {
       // console.log("Raw flow steps from the server:");
       // console.log(flow.steps);
       // console.log("Flow steps curated to be handled by Vue:"); // TODO: do it on server-side?
       app.steps = flow.steps.map(step => {
-        let curatedStep = {
+        return {
           id: step.id,
           text: step.text,
           step_type_id: step.step_type_id,
           step_choices: step.step_choices, // multiple choice questions
           type_description: getStepTypeFromTypeId(step.step_type_id).description
-        };
-        return curatedStep;
+        }
       });
 
       console.log('Steps');

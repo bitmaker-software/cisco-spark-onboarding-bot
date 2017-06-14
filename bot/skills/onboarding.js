@@ -14,10 +14,13 @@ module.exports = function (controller) {
     //get the flow from the database
     retrieveCurrentFlowFromDb(bot).then(flow => {
       var thread = 'default';
+      console.log(flow);
       //create the conversation
       bot.createConversation(message, function (err, convo) {
         flow.steps.forEach(function (step) {
-          switch (step.stepTypeId) {
+          console.log("STEP TYPE ID: ")
+          console.log(step.step_type_id);
+          switch (step.step_type_id) {
             // case "announcement":
             case 1:
               addAnnouncementStep(bot, convo, step, flow.respondent_flow_id, thread);
@@ -35,6 +38,8 @@ module.exports = function (controller) {
           }
         });
 
+        addEndConversationHandler(bot, convo);
+
         convo.activate();
 
       });
@@ -44,14 +49,25 @@ module.exports = function (controller) {
     });
   }
 
-  function addAnnouncementStep(bot, convo, step, respondent_flow_id, thread) {
+  function addEndConversationHandler(bot, convo){
+    convo.on('end', function(convo){
+      if(convo.status == 'completed'){
+        bot.reply(convo.source_message, "Thank you for your time!");
+      }else{
+        bot.reply(convo.source_message, "Something went wrong. Please contact your HR department for more information.");
+      }
+    });
+  }
 
+  function addAnnouncementStep(bot, convo, step, respondent_flow_id, thread) {
+    console.log("Adding announcement step: " + step.text);
     var text = step.text + '\n\nPlease type ok to continue';
 
     convo.addQuestion(text, [
       {
         "pattern": "^ok$",
         "callback": function (response, convo) {
+          console.log("OK");
           //save response
           //go to next
           convo.next();
@@ -60,15 +76,20 @@ module.exports = function (controller) {
       {
         "default": true,
         "callback": function (response, convo) {
+          console.log("NOT OK");
           //repeat the question
-          convo.repeat();
-          convo.next();
+          //convo.say("Please type ok to continue");
+          bot.reply(convo.source_message, "Please type ok to continue");
+          //convo.repeat();
+          //convo.silentRepeat();
+          //convo.next();
         }
       }
     ], {}, thread);
   };
 
   function addFreeTextStep(bot, convo, step, respondent_flow_id, thread) {
+    console.log("Adding free text step: " + step.text);
     var text = step.text + "\n\nYou can write as many lines as you want.\n\nPlease type @end in a single line when you're done";
 
     convo.addQuestion(text, [
@@ -76,9 +97,10 @@ module.exports = function (controller) {
         "pattern": "^@end$",
         "callback": function (response, convo) {
           //console.log(convo.extractResponse(step.step_id));
-          var answer = convo.extractResponse(step.step_id);
+          var answer = convo.extractResponse(step.id);
           //remove the terminator
           answer = answer.replace("@end", "");
+          console.log("Answer: " + answer);
           saveTextAnswer(bot, step, respondent_flow_id, answer);
           //save response
           //go to next
@@ -91,10 +113,11 @@ module.exports = function (controller) {
           //do nothing, wait for @end and collect all lines
         }
       }
-    ], {"key": step.step_id, "multiple": true}, thread);
+    ], {"key": step.id, "multiple": true}, thread);
   }
 
   function addMultipleChoiceStep(bot, convo, step, respondent_flow_id, thread) {
+    console.log("Adding multiple choice step: " + step.text);
     var text = step.text + '\n\n';
 
     var patternsAndCallbacks = [];
@@ -124,8 +147,9 @@ module.exports = function (controller) {
       "default": true,
       "callback": function (response, convo) {
         //repeat the question
-        convo.repeat();
-        convo.next();
+        bot.reply(convo.source_message, "Invalid option. Please choose one option.");
+        //convo.repeat();
+        //convo.next();
       }
     });
     text += 'Please choose one option';

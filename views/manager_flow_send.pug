@@ -2,4 +2,35 @@ extends layout
 
 block content
   div#root
-    p Send
+    h1 Send flow
+      strong  !{title}
+      |  to the respondents
+
+    //div.row(style="height: initial; background-color: #999; font-size: 10px; margin: 20px;")
+    //  div.col-lg-12
+    //    div Temporary helper (click the address to add to the input field):
+    //    mixin testemail(email)
+    //      div(style="padding: 10px; cursor: pointer;", @click="addEmailToInput($event)")= email
+    //    +testemail('andre.ventura@bitmaker-software.com')
+    //    +testemail('tiago.fernandes@bitmaker-software.com')
+    //    +testemail('ricardo.fernandes@bitmaker-software.com')
+    //    +testemail('barbara.mendes@bitmaker-software.com')
+
+    div.row
+      div.col-6.offset-3
+        div.row.search
+          div.col-10
+            input.form-control#txt-search-user(type='text', name='search-user', placeholder='Type a username to search', v-model='searchInput', @keyup.enter='doSearch')
+          div.col-2
+            input#btn-search-user.btn.btn-block(type='button', name='btn-search-user', value='Search', @click='doSearch')
+
+          div(v-if='searchResultsInfo') {{ searchResultsInfo }}
+
+          ul
+            li(v-for='user in searchResults') {{ user.displayName }} ({{ user.email }})
+              input(type="button", value="Send", @click="sendFlowToUser(user)")
+
+  block pageScripts
+    script.
+      var flowId = !{flowId}; // used on AJAX requests
+    script(src=static.root + '/js/manager_flow_send.js')

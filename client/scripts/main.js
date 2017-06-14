@@ -1,12 +1,14 @@
 console.log('Main script, included on all pages...'); // eslint-disable-line no-console
 
-// jQuery first, then Tether, then Bootstrap JS.
+// first jQuery, then Tether (needed by Bootstrap tooltips), then Bootstrap
 window.$ = window.jQuery = require('jquery'); // "Bootstrap's JavaScript requires jQuery"
 window.Tether = require('tether'); // "Bootstrap tooltips require Tether"
 require('bootstrap');
 
-// Vue
-//script(src='/javascripts/libs/vue-2.3.3/vue.js')
+import Vue from 'vue/dist/vue';
+window.Vue = Vue;
+
+// Vue must be defined on each page
 
 if (module.hot) {
   module.hot.accept();
