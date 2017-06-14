@@ -30,11 +30,6 @@
     background-color: $gray-lightest;
   }
 
-  .multiple-choice .input-group {
-    margin-bottom: 20px;
-    margin-top: 20px;
-  }
-
   .file-type {
     margin-top: 20px;
   }
@@ -53,5 +48,16 @@
         cursor: pointer;
       }
     }
+  }
+}
+
+.multiple-choice {
+  .input-group,
+  .btn {
+    margin-top: 20px;
+  }
+
+  .input-group:last-child {
+    margin-bottom: 0;
   }
 }
