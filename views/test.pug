@@ -1,25 +1,31 @@
 extends layout
 
 block content
-  h1= title
+  div.text-center.p-4
+    h4.mb-4= title
+    p.text-muted.mb-4.mt-4 Search for people to share documents and other information
+    
+    div.row
+      div.col-6.offset-3
+        div.row.search
+          div.col-10
+            input.form-control#txt-search-user(type='text' name='search-user' placeholder='Type a username to search')
+          div.col-2
+            input#btn-search-user.btn.btn-block(type='button' name='btn-search-user' value='Search')
 
-  div
-    label(for='txt-search-user') Search User:
+          div#result-info
 
-    input#txt-search-user(type='text' name='search-user' placeholder='Type a username to search')
+          ul#lst-result-user
+          
+    div.row
+      div.col
+        div(style="background-color: #AFF2FF; padding: 20px;")
+          div Google Drive picker
+          div
+            input(type='button', value='Files', onclick='GDrive.selectFile(function(r){ alert("fileId: " + r);})')
+          div
+            input(type='button', value='Directories', onclick='GDrive.selectFolder(function(r){ alert("folderId: " + r);})')
 
-    input#btn-search-user.btn.btn-primary(type='button' name='btn-search-user' value='Search')
-
-    div#result-info
-
-    ul#lst-result-user
-
-  div(style="background-color: #AFF2FF; padding: 20px;")
-    div Google Drive picker
-    div
-      input(type='button', value='Files', onclick='GDrive.selectFile(function(r){ alert("fileId: " + r);})')
-    div
-      input(type='button', value='Directories', onclick='GDrive.selectFolder(function(r){ alert("folderId: " + r);})')
 
   //script(src=static.root + '/js/test.js@' + static.suffix)
   script(src=static.root + '/js/test.js')
