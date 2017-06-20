@@ -14,7 +14,7 @@ This project uses BotKit
 * Create the database (e.g. ciscosparkonboarding) and the user (e.g. ciscosparkbot)
 
 * npm install / yarn (to install the dependencies)
-* Expose the bot localhost endpoint (ngrok http 3000) [warning: Ubuntu's ngrok package is version 1.x and is not working] and copy the https:// address to the .env file (next point)
+* Expose the bot localhost endpoint (ngrok http 3000) [warning: Ubuntu's ngrok package is version 1.x and is not working] and copy the https:// address to the .env file public_address variable (next point)
 * Create the .env file on the bot dir (/bot/.env) with the credentials - talk to @andrefv
 * npm run dev (to have the development server running)
 
