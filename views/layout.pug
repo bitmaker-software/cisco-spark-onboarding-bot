@@ -22,7 +22,7 @@ html(lang='en')
       ul.navbar-nav.ml-auto
         if locals.user && locals.user.isAuthenticated
           li.nav-item
-            a.nav-link(href='#') Username
+            a.nav-link(href='#')= locals.user.user.name
           li.nav-item
             a.nav-link(href="/auth/logout")
               svg.icon

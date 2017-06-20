@@ -1,8 +1,8 @@
 "use strict";
 
 import express        from 'express';
-import path           from 'path';
-import favicon        from 'serve-favicon';
+// import path           from 'path';
+// import favicon        from 'serve-favicon';
 import logger         from 'morgan';
 import compression    from 'compression';
 import cookieParser   from 'cookie-parser';
@@ -12,35 +12,37 @@ import mime           from 'mime';
 
 import config from './app.config';
 
-var routes_index = require('./routes/index');
-var routes_settings = require('./routes/settings');
-var routes_manager = require('./routes/manager');
-var routes_webhooks = require('./routes/webhooks');
-var routes_auth = require('./routes/auth');
-var routes_test = require('./routes/test');
+const routes_index = require('./routes/index');
+const routes_settings = require('./routes/settings');
+const routes_manager = require('./routes/manager');
+const routes_webhooks = require('./routes/webhooks');
+const routes_auth = require('./routes/auth');
+const routes_test = require('./routes/test');
 
-var database_services = require('./bot/database_services');
+const database_services = require('./bot/database_services');
 
-var botWebhooks = require('./bot/components/routes/incoming_webhooks');
+const botWebhooks = require('./bot/components/routes/incoming_webhooks');
 
-var bot;
-// bot = require('./bot/bot'); // comment to avoid registering with Spark
+const REGISTER_WITH_SPARK = false; // set to false to avoid registering with Spark
+if (REGISTER_WITH_SPARK) {
+  const bot = require('./bot/bot');
+}
 
-var passport = require('passport');
-var CiscoSparkStrategy = require('passport-cisco-spark').Strategy;
-var session = require('express-session');
-var models = require('./models/index.js');
-var sequelize = models.sequelize;
-var SequelizeStore = require('connect-session-sequelize')(session.Store);
+const passport = require('passport');
+const CiscoSparkStrategy = require('passport-cisco-spark').Strategy;
+const session = require('express-session');
+const models = require('./models/index.js');
+const sequelize = models.sequelize;
+const SequelizeStore = require('connect-session-sequelize')(session.Store);
 
 
-var env = require('node-env-file');
+const env = require('node-env-file');
 env(__dirname + '/bot/.env');
 
 
-//
-// Passport configuration
-//
+// **************************************************
+//             Passport configuration
+// **************************************************
 passport.serializeUser(function (user, done) {
   done(null, user);
 });
@@ -49,7 +51,7 @@ passport.deserializeUser(function (obj, done) {
   done(null, obj);
 });
 
-// Use the SparkStrategy within passport
+// Use the CiscoSparkStrategy within passport
 passport.use(new CiscoSparkStrategy({
     clientID: process.env.cisco_spark_client_id,
     clientSecret: process.env.cisco_spark_client_secret,
@@ -60,7 +62,7 @@ passport.use(new CiscoSparkStrategy({
   },
   function (accessToken, refreshToken, profile, done) {
     database_services.userLoggedIn(profile.id, profile.displayName, profile.emails, profile._json.orgId).then(user => {
-      var sessionUser = {id: user.id, name: user.name, avatar: profile._json.avatar, spark_token: accessToken};
+      const sessionUser = {id: user.id, name: user.name, avatar: profile._json.avatar, spark_token: accessToken};
       return done(null, sessionUser);
     }, err => {
       return done(err);
@@ -68,18 +70,30 @@ passport.use(new CiscoSparkStrategy({
   }
 ));
 
-var app = express();
+const app = express();
 
-app.locals.static = config.static;
+app.locals.static = config.static; // expose the static URLs structure
 
-// view engine setup
+// **************************************************
+//               View engine setup
+// **************************************************
 app.set('views', `${__dirname}/views`);
 app.set('view engine', 'pug');
 
+// **************************************************
+//                    Favicon
+// **************************************************
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+
+// **************************************************
+//                    Logging
+// **************************************************
 app.use(logger('dev'));
 
+// **************************************************
+//                  Static content
+// **************************************************
 // app.use(express.static(path.join(__dirname, 'public')));
 app.use(config.static.root, express.static(`${__dirname}/public`, {
   setHeaders: (res, path) => {
@@ -103,9 +117,9 @@ app.use(cookieParser());
 // }));
 
 
-//
-// Setup session & passport
-//
+// **************************************************
+//             Setup session & passport
+// **************************************************
 app.use(session({
   secret: process.env.session_secret,
   resave: false,
@@ -115,11 +129,16 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-
+// **************************************************
+//  Middleware accessible on templates via 'locals'
+// **************************************************
 const middleware = {
   globalLocals: function (req, res, next) {
     res.locals = {
-      user: {isAuthenticated: req.isAuthenticated()},
+      user: {
+        isAuthenticated: req.isAuthenticated(),
+        user: req.user,
+      },
       // siteTitle: "My Website's Title",
       // pageTitle: "The Root Splash Page",
       // author: "Cory Gross",
@@ -130,6 +149,9 @@ const middleware = {
 };
 app.use(middleware.globalLocals);
 
+// **************************************************
+//                      Routes
+// **************************************************
 app.use('/', routes_index);
 app.use('/manager', routes_manager);
 app.use('/settings', routes_settings);
@@ -138,8 +160,8 @@ app.use('/auth', routes_auth);
 app.use('/test', routes_test);
 
 // import all the pre-defined bot routes that are present in /bot/components/routes
-if (bot) {
-  var normalizedPath = require("path").join(__dirname, "bot/components/routes");
+if (typeof bot !== 'undefined') {
+  const normalizedPath = require("path").join(__dirname, "bot/components/routes");
   require("fs").readdirSync(normalizedPath).forEach(function (file) {
     console.log(file);
     require("./bot/components/routes/" + file)(app, bot);
@@ -148,9 +170,11 @@ if (bot) {
   console.log('WARNING: bot is not defined; did you import it? (OK if you are just testing without needing to register the callbacks with Spark)');
 }
 
-// catch 404 and forward to error handler
+// **************************************************
+//      Catch 404 and forward to error handler
+// **************************************************
 app.use(function (req, res, next) {
-  var err = new Error('Not Found');
+  const err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
@@ -166,9 +190,15 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
-
+// **************************************************
+//             Database (create tables)
+// **************************************************
+//
 // sync() will create all table if they doesn't exist in database
-sequelize.sync({force: true}).then(() => {
+//
+// {force: true} means DROP TABLE IF EXISTS before trying to create the table
+//
+sequelize.sync({force: false}).then(() => {
   console.log("Database models synced, will load the fixtures");
   // Load database fixtures
   models.startLoadingDatabaseFixtures();
@@ -181,6 +211,7 @@ sequelize.sync({force: true}).then(() => {
   console.error(err);
 });
 
-
-
+// **************************************************
+//                 Export the app
+// **************************************************
 module.exports = app;
