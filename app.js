@@ -23,9 +23,10 @@ const database_services = require('./bot/database_services');
 
 const botWebhooks = require('./bot/components/routes/incoming_webhooks');
 
-const REGISTER_WITH_SPARK = false; // set to false to avoid registering with Spark
+let bot;
+const REGISTER_WITH_SPARK = true; // set to false to avoid registering with Spark
 if (REGISTER_WITH_SPARK) {
-  const bot = require('./bot/bot');
+  bot = require('./bot/bot');
 }
 
 const passport = require('passport');
