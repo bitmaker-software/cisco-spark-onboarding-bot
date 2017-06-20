@@ -64,7 +64,17 @@ router.get('/search_users/:user', ensureAuthenticated, (req, res, next) => {
   });
 });
 
-router.post('/send_flow/:flow_id/:spark_id', ensureAuthenticated, (req, res, next) => {
+router.post('/send_flow/:flow_id', ensureAuthenticated, (req, res, next) => {
+
+  // Initiate the flow for this user
+  const userId = req.body.userId;
+
+  if (userId) {
+    return res.status(400).send("No user ID provided!");
+  } else {
+    return res.status(200).send();
+  }
+
   request({
     url: 'https://api.ciscospark.com/v1/messages',
     method: 'POST',
@@ -76,7 +86,7 @@ router.post('/send_flow/:flow_id/:spark_id', ensureAuthenticated, (req, res, nex
     json: true,
     body: {toPersonId: req.params.spark_id, text: 'Hello. I am the onboarding bot!'}
   }, (error, response, body) => {
-    if (!error && response.statusCode == 200) {
+    if (!error && response.statusCode === 200) {
       res.send("flow sent!")
     } else {
       res.send("flow not sent: " + error)

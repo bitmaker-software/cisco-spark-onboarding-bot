@@ -6,6 +6,9 @@
 // Import boostrap after variables so that our variables file overwrites theirs
 @import '../../node_modules/bootstrap/scss/bootstrap';
 
+// Import Sweetalert2 styles
+@import '../../node_modules/sweetalert2/src/sweetalert2.scss';
+
 @import 'mixins';
 
 @import 'layout';

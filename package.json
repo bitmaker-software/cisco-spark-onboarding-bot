@@ -44,9 +44,11 @@
     "sequelize": "^3.30.4",
     "serve-favicon": "~2.4.2",
     "svg-sprite": "^1.3.7",
+    "sweetalert2": "^6.6.5",
     "tether": "^1.4.0",
     "underscore-db": "^0.12.2",
     "vue": "^2.3.3",
+    "vue-resource": "^1.3.4",
     "vuedraggable": "^2.11.0",
     "wordfilter": "^0.2.6"
   },

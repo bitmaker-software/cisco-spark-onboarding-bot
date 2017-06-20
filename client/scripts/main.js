@@ -7,6 +7,9 @@ require('bootstrap');
 
 import Vue from 'vue/dist/vue';
 window.Vue = Vue;
+Vue.use(require('vue-resource')); // $http
+
+window.swal = require('sweetalert2');
 
 // Vue must be defined on each page
 
