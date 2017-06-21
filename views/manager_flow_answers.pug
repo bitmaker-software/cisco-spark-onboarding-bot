@@ -2,12 +2,59 @@ extends layout
 
 block content
   div#root
-    p Answers
+    -var page = 1;
+    button.btn.btn-primary(type="button", @click="showAnswers("+page+")", style="margin: 20px;") Show answers
 
-    button.btn.btn-primary(type="button", @click="showAnswers", style="margin: 20px;") Show answers
+    //table
+    mixin rowHeader(items)
+        tr
+            each item, index in items
+                th= item
 
-    div(v-for="answer in answers")
-      div {{ answer.stepId }} / {{ answer.text }} / {{ answer.answerDate }}
+    mixin row(items)
+        tr
+            each item, index in items
+                td= item
+
+    mixin table(tableHeader)
+        table.table
+            .table-responsive
+            thead
+                each row, index in tableHeader
+                    +rowHeader(row)
+            tbody
+                tr(v-for="answer in answers")
+                    td.col-sm-2 username {{ answer.id }}
+                    td.col-sm-2 {{ answer.answerDate }}
+                    td.col-sm-2 question {{ answer.stepId }}
+                    td.col-sm-6 {{ answer.text }}
+
+    - var myheader = [{1: "Respondent", 2: "Date",3: "Question",4: "Answer"}]
+
+    +table(myheader)
+
+    mixin newli(myNumber)
+        li.page-item
+            -page = myNumber;
+            a.page-link(href="#", @click="showAnswers("+page+")")= myNumber
+
+    //pagination
+    -var n = 0;
+    div
+        nav(aria-label="paginator")
+            ul.pagination
+                li.page-item
+                    -if(page > 1) page--;
+                    a.page-link(href="#", aria-label="Previous", @click="showAnswers("+page+")")
+                        span(aria-hidden="true") &laquo;
+                        span.sr-only Previous
+                while n < 2
+                    +newli(++n)
+                li.page-item
+                    -if(page < 2) page++;
+                    a.page-link(href="#" aria-label="Next", @click="showAnswers("+page+")")
+                        span(aria-hidden="true") &raquo;
+                        span.sr-only Next
 
 block pageScripts
   script(src=static.root + '/js/manager_flow_answers.js')
