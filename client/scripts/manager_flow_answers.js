@@ -11,6 +11,8 @@ let app = new Vue({
   methods: {
     showAnswers: (page) => {
 
+        //mudar isto para fazer pedidos a bd?
+
         if(page == 1){
             app.answers = [
                 {id: 123, stepId: 1, text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit." +
@@ -30,9 +32,16 @@ let app = new Vue({
             ];
         }
 
-
       app.maxPages = Math.ceil(app.answers.length / app.maxPerPage);
     },
+
+    doSearch(text){
+        alert("search!");
+    },
+
+    order(text){
+        alert("order "+text);
+    }
   }
 
 });
