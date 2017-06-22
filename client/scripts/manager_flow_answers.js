@@ -43,5 +43,6 @@ let app = new Vue({
         alert("order "+text);
     }
   }
-
 });
+
+app.showAnswers(1);

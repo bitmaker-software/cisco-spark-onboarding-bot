@@ -22,7 +22,6 @@ block content
                         svg.step-icon
                             use(xlink:href=static.root + "/sprite.svg#order")
 
-
     mixin row(items)
         tr
             each item, index in items
@@ -42,7 +41,6 @@ block content
                     td.col-sm-6 {{ answer.text }}
 
     - var myheader = [{1: "Respondent  ", 2: "Date  ",3: "Question  ",4: "Answer  "}]
-
     +table(myheader)
 
     mixin newli(myNumber)
@@ -60,7 +58,9 @@ block content
                     a.page-link(href="#", aria-label="Previous", @click="showAnswers("+page+")")
                         span(aria-hidden="true") &laquo;
                         span.sr-only Previous
-                while n < 2
+                //temporario
+                +newli(++n)
+                template(v-for="n in maxPages")
                     +newli(++n)
                 li.page-item
                     -if(page < 2) page++;
