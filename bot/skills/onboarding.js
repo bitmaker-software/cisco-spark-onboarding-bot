@@ -1,16 +1,29 @@
 "use strict";
 
-const database_services = require('../database_services');
+const databaseServices = require('../database_services');
 
 module.exports = function (controller) {
 
+  // const selfMessageInitializationOfFlow = 'Initialization of flow ';
+  // controller.on('self_message', function (bot, message) {
+  //   console.log(`Self message: ⏎`);
+  //   console.log(message);
+  //   if (message.text.startsWith(selfMessageInitializationOfFlow)) {
+  //     console.log(`Got message starting with "${selfMessageInitializationOfFlow}"`);
+  //     let flowId = message.text.replace(selfMessageInitializationOfFlow, '');
+  //// if we pass this message we'll enter into a loop (because the message source user is the bot)
+  //// buildConversationFromCurrentFlow(bot, message, flowId); // LOOP!
+  // buildConversationFromCurrentFlow(bot, {channel: message.channel}, flowId); // Not working, user is undefined
+  // }
+  // });
 
-  controller.hears(['cisco'], 'direct_message,direct_mention', function (bot, message) {
-    // TODO: ********************
-    // TODO: this is a temporary hook to force initiating a flow from the user side
-    // TODO: ********************
-    let flowId = 1;
-    buildConversationFromCurrentFlow(bot, message, flowId);
+  controller.hears(['start'], 'direct_message', function (bot, message) {
+    // Get the oldest pending flow and start it
+    databaseServices.getOldestPendingFlowForUserEmail(message.user).then(flow => {
+      console.log(`getOldestPendingFlowForUserEmail ${message.user}`);
+      console.log(flow.id);
+      buildConversationFromCurrentFlow(bot, message, flow.id);
+    });
   });
 
 
@@ -18,7 +31,8 @@ module.exports = function (controller) {
    Retrieve the current flow from the datastore, and build the conversation accordingly
    */
   // TODO: exposing buildConversationFromCurrentFlow function (there must be a better way to do this!)
-  global.buildConversationFromCurrentFlow = function (bot, message, flowId) {
+  // global.buildConversationFromCurrentFlow = function (bot, message, flowId) {
+  let buildConversationFromCurrentFlow = function (bot, message, flowId) {
     console.log(`buildConversationFromCurrentFlow(bot=${bot}, message=${message}, flowId=${flowId})`);
     //get the flow from the database
     retrieveCurrentFlowFromDb(flowId).then(flow => {
@@ -26,32 +40,38 @@ module.exports = function (controller) {
       console.log(flow);
       //create the conversation
       bot.createConversation(message, function (err, convo) {
-        flow.steps.forEach(function (step) {
-          console.log("STEP TYPE ID: ");
-          console.log(step.step_type_id);
-          switch (step.step_type_id) {
-            // case "announcement":
-            case 1:
-              addAnnouncementStep(bot, convo, step, flow.respondent_flow_id, thread);
-              break;
-            // case "free_text":
-            case 2:
-              addFreeTextStep(bot, convo, step, flow.respondent_flow_id, thread);
-              break;
-            // case "multiple_choice":
-            case 4:
-              addMultipleChoiceStep(bot, convo, step, flow.respondent_flow_id, thread);
-              break;
-            default:
-              break;
-          }
-        });
+        console.log("createConversation callback. convo: ⏎");
+        console.log(convo);
+        if (!err && convo) {
+          flow.steps.forEach(function (step) {
+            console.log("STEP TYPE ID: ");
+            console.log(step.step_type_id);
+            switch (step.step_type_id) {
+              // case "announcement":
+              case 1:
+                addAnnouncementStep(bot, convo, step, flow.respondent_flow_id, thread);
+                break;
+              // case "free_text":
+              case 2:
+                addFreeTextStep(bot, convo, step, flow.respondent_flow_id, thread);
+                break;
+              // case "multiple_choice":
+              case 4:
+                addMultipleChoiceStep(bot, convo, step, flow.respondent_flow_id, thread);
+                break;
+              default:
+                break;
+            }
+          });
 
-        addEndConversationHandler(bot, convo);
+          addEndConversationHandler(bot, convo);
 
-        console.log('Activating the conversation');
-        convo.activate();
-
+          console.log('Activating the conversation');
+          convo.activate();
+        } else {
+          console.log('Error creating the conversation');
+          console.log(err);
+        }
       });
     }, err => {
       console.error("Error fetching the flow:");
@@ -185,7 +205,7 @@ module.exports = function (controller) {
     const SEND_DUMMY = false;
     if (!SEND_DUMMY) {
       // Get from the database
-      return database_services.getFlow(flowId);
+      return databaseServices.getFlow(flowId);
     } else {
       return new Promise(
         function (resolve, reject) {

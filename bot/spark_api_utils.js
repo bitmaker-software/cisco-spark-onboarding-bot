@@ -1,6 +1,7 @@
 "use strict";
 
-let request = require('request');
+const request = require('request');
+// const databaseServices = require('./database_services'); // this would be a circular dependency and would give an empty object; load it later when needed
 
 module.exports = {
   getUserFromSpark: (params, bearer) => {
@@ -48,30 +49,28 @@ module.exports = {
 
     console.log(`initiateFlowForUser(flowId=${flowId}, sparkUserId=${sparkUserId})`);
 
-    let bot = global.bot.spawn({});
-    let context = {
-      toPersonId: sparkUserId
-    };
-    buildConversationFromCurrentFlow(bot, context, flowId);
+    //
+    // NOTE: we need a message object to pass to createConversation(), because if we just pass a context {toPersonId: ...},
+    //       the bot will send the initial flow message but the user will not be inside/engaged into the conversation.
+    //
 
-    // return new Promise((resolve, reject) => {
-    // request({
-    //   url: 'https://api.ciscospark.com/v1/messages',
-    //   method: 'POST',
-    //   auth: {
-    //     user: null,
-    //     pass: null,
-    //     bearer: process.env.access_token
-    //   },
-    //   json: true,
-    //   body: {toPersonId: req.params.spark_id, text: 'Hello. I am the onboarding bot!'}
-    // }, (error, response, body) => {
-    //   if (!error && response.statusCode === 200) {
-    //     resolve();
-    //   } else {
-    //     reject(error);
-    //   }
-    // });
-    // });
+    //
+    // NOTE: startPrivateConversation and startPrivateConversationWithPersonId are not
+    //       setting the user/channel in the returning convo object
+
+    let bot = global.bot.spawn({});
+    bot.startPrivateConversationWithPersonId(sparkUserId, function (err, convo) {
+      if (!err && convo) {
+        const databaseServices = require('./database_services');
+        console.log(`Fetching flow ${flowId}`);
+        console.log("Called help");
+        databaseServices.getFlowName(flowId).then(flowName => {
+          console.log(`Got flow name: ${flowName}`);
+          convo.say(`Starting onboarding for "${flowName}". Please say "Start" to begin.`);
+        }, error => {
+          console.log(`Error fetching the flow: ${error}`);
+        });
+      }
+    });
   }
 };

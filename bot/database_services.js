@@ -4,7 +4,6 @@ const models = require('../models');
 const sparkAPIUtils = require('./spark_api_utils');
 
 module.exports = {
-
   /*
    function called after a successful login via spark oauth.
    Check if the tenant and the user already exists, and create them if not
@@ -81,6 +80,32 @@ module.exports = {
     });
   },
 
+  getFlowName: id => {
+    return new Promise(function (resolve, reject) {
+      // TODO: check security
+      // Get flow
+      models.flow.find({where: {id: id}}).then(flow => {
+        resolve(flow.name);
+      }, err => {
+        console.error("Error fetching the flow:");
+        console.error(err);
+        reject(err)
+      });
+    });
+  },
+
+  getOldestPendingFlowForUserEmail: email => {
+    return new Promise(function (resolve, reject) {
+      models.respondent.find({where: {email: email}}).then(respondent => {
+        if (respondent) {
+          resolve(models.respondent_flow.find({where: {respondent_id: respondent.id}})); // TODO: sort by ID and resolve the oldest? AND check the status
+        } else {
+          reject('Respondent not found');
+        }
+      })
+    });
+  },
+
   getAnswers: function (flow_id,page,per_page,filter,sort,order) {
     console.log('getAnswers('+flow_id+' , '+page+' , '+per_page+' , '+filter+')');
     return new Promise(function (resolve, reject)
@@ -111,7 +136,7 @@ module.exports = {
           },
           {
             model: models.step,
-            attributes: ['step_order','text','step_type_id'],
+            attributes: ['step_order', 'text', 'step_type_id'],
             where: {
               $or: [
                 {step_type_id: 2},
@@ -185,6 +210,7 @@ module.exports = {
       });
     });
   },
+
   getGoogleDriveCredentials: function(userId, storeId){
     return new Promise((resolve, reject) => {
       models.sequelize.query('select * from ﻿document_stores');

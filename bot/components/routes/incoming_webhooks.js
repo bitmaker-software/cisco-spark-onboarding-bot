@@ -6,16 +6,16 @@ module.exports = function (webserver, controller) {
 
   debug('Configured POST /ciscospark/receive url for receiving events');
   webserver.post('/ciscospark/receive', function (req, res) {
+    // This is called by Spark for "all" messages (even the ones the bot sends)
 
     // NOTE: we should enforce the token check here
 
-    // respond to Spark that the webhook has been received.
-    res.status(200);
-    res.send('ok');
+    // Respond to Spark that the message has been received.
+    res.sendStatus(200);
 
     let bot = controller.spawn({});
 
-    // Now, pass the webhook into be processed
+    // Pass the message into the controller to be processed.
     controller.handleWebhookPayload(req, res, bot);
 
   });
