@@ -5,7 +5,7 @@
   "scripts": {
     "start": "bash -c 'NODE_ENV=production node index.js'",
     "clean": "bash -c 'rm -rf public/{js,css}'",
-    "dev:js": "node index dev",
+    "dev:js": "node --inspect=12345 index dev",
     "dev:css": "gulp scss:watch",
     "dev": "npm-run-all clean -p dev:*",
     "build:js": "webpack",

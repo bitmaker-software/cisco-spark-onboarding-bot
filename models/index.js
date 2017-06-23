@@ -38,9 +38,7 @@ fs
     return (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js');
   })
   .forEach(function (file) {
-    var model = sequelize.import(__dirname + '/' + file);
-    // var model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
-    console.log('Imported model ' + model);
+    let model = sequelize.import(__dirname + '/' + file);
     db[model.name] = model;
   });
 

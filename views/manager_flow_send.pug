@@ -22,7 +22,7 @@ block content
           div.col-10
             input.form-control#txt-search-user(type='text', name='search-user', placeholder='Type a username to search', v-model='searchInput', @keyup.enter='doSearch')
           div.col-2
-            input#btn-search-user.btn.btn-primary.btn-block(type='button', name='btn-search-user', value='Search', @click='doSearch')
+            input#btn-search-user.btn.btn-primary.btn-block(type='button', name='btn-search-user', value='Search', @click='doSearch', :disabled='searchInput.trim() === \'\'')
 
         div.row.mt-4
           div.col(v-if='searchResultsInfo') 

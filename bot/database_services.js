@@ -1,6 +1,7 @@
 "use strict";
 
-var models = require('../models');
+const models = require('../models');
+const sparkAPIUtils = require('./spark_api_utils');
 
 module.exports = {
 
@@ -20,7 +21,7 @@ module.exports = {
       }).spread((tenant, tenantCreated) => {
 
         //check the user
-        var email = null;
+        let email = null;
         if (emails && emails.length > 0) {
           email = emails[0];
         }
@@ -134,6 +135,58 @@ module.exports = {
   getGoogleDriveCredentials: function(userId, storeId){
     return new Promise((resolve, reject) => {
       models.sequelize.query('select * from ﻿document_stores');
+    });
+  },
+
+
+  findOrCreateRespondent: (sparkId, bearer) => {
+    console.log(`At findOrCreateRespondent(sparkId = ${sparkId}, bearer = ${bearer})`);
+    return new Promise((resolve, reject) => {
+      // Get user info from Spark
+      sparkAPIUtils.getUserFromSpark({sparkId: sparkId}, bearer).then(users => {
+        console.log('Result from Spark search:');
+        console.log(users);
+
+        if (users.length !== 1) {
+          reject();
+        }
+
+        let user = users[0];
+
+        models.respondent.findOrCreate({
+          where: {
+            spark_id: sparkId
+          },
+          defaults: {
+            tenant_id: 1, // TODO: where to get this from?
+            name: user.displayName,
+            email: user.email,
+            spark_id: user.id
+          }
+        }).then(result => resolve(result[0]));
+      }, error => {
+        console.log('Error fetching the user from Spark:');
+        console.log(error);
+      });
+    });
+  },
+  findOrCreateRespondentFlow: (assignerId, userId, flowId, date) => {
+    console.log(`At findOrCreateRespondentFlow(assignerId = ${assignerId}, userId = ${userId}, flowId = ${flowId}, date = ${date})`);
+    return new Promise((resolve, reject) => {
+      models.respondent_flow.findOrCreate({
+        where: {
+          respondent_id: userId,
+          flow_id: flowId
+        },
+        defaults: {
+          assigner_id: assignerId,
+          respondent_id: userId,
+          flow_id: flowId,
+          // flow_status_id: 1,
+          assign_date: date, // TODO
+          start_date: date, // TODO
+        }
+      }).then(result => resolve(result[0]));
     });
   }
 

@@ -1,12 +1,12 @@
 "use strict";
 
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 
 /* POST webhooks. */
 router.post('/', function (req, res, next) {
-  var token = req.body.token;
-  var response;
+  const token = req.body.token;
+  let response;
   if (token) {
     response = {
       id: req.body.id,
