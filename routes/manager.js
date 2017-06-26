@@ -89,14 +89,16 @@ router.get('/flow/:id/send', ensureAuthenticated, function (req, res, next) {
 router.get('/flow/:id/answers', ensureAuthenticated, function (req, res, next) {
   let promises = [
     getStepTypes(),
-    getFlow(req.params.id)
+    getFlow(req.params.id),
+    getAnswer(req.params.id)
   ];
   Promise.all(promises).then(values => {
     res.render('manager_flow_answers', {
       title: values[1][0].name,
       flowId: req.params.id,
       stepTypes: values[0],
-      active: 'Manager' // left side bar icon
+      active: 'Manager', // left side bar icon
+      answerServer: values[2]
     });
   }, err => {
     console.error("Error fetching the step types or flow:");
@@ -322,6 +324,63 @@ function getFlows(id) {
     config.where.id = id;
   }
   return models.flow.findAll(config);
+}
+
+//
+//answers page
+//
+function getAnswers(flow_id) {
+  console.log('getAnswers('+flow_id+')');
+
+  return new Promise(function (resolve, reject)
+  {
+    models.respondent_answer.findAll({
+      attributes: ['answer_date','text','document_url'],
+      where: {
+        status: "Answered"
+      },
+      include: [
+        {
+          model: models.respondent_flow,
+          attributes: ['id'],
+          where: {
+            flow_id: flow_id
+          },
+          include: [
+            {
+              model: models.respondent,
+              attributes: ['name']
+            }
+          ]
+        },
+        {
+          model: models.step,
+          attributes: ['step_order','text','step_type_id'],
+          where: {
+            $or: [
+              {step_type_id: 2},
+              {step_type_id: 3},
+              {step_type_id: 4}
+            ]
+          }
+        },
+        {
+          model: models.step_choice,
+          attributes: ['choice_order','text'],
+        }
+      ]
+    }).then(result => {
+      resolve(result)
+    }, err => {
+      console.error("Error getting answers");
+      console.error(err);
+      reject(err);
+    });
+  });
+}
+
+function getAnswer(flow_id) {
+   return getAnswers(flow_id);
 }
 
 function getFlow(id) {
