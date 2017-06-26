@@ -3,7 +3,6 @@ extends layout
 block content
   div#root
     -var page = 1;
-    //button.btn.btn-primary(type="button", @click="showAnswers("+page+")", style="margin: 20px;") Show answers
 
     div.row
         div.col-3
@@ -49,7 +48,6 @@ block content
             a.page-link(href="#", @click="showAnswers("+page+")")= myNumber
 
     //pagination
-    -var n = 0;
     div
         nav(aria-label="paginator").offset-5
             ul.pagination
@@ -58,10 +56,10 @@ block content
                     a.page-link(href="#", aria-label="Previous", @click="showAnswers("+page+")")
                         span(aria-hidden="true") &laquo;
                         span.sr-only Previous
-                //temporario
-                +newli(++n)
-                template(v-for="n in maxPages")
+                - var n = 0;
+                template(v-for="n1 in maxPages")
                     +newli(++n)
+
                 li.page-item
                     -if(page < 2) page++;
                     a.page-link(href="#" aria-label="Next", @click="showAnswers("+page+")")
@@ -70,23 +68,5 @@ block content
 
 block pageScripts
   script.
-    var answersArray = !{JSON.stringify(answerServer).replace(/<\//g, '<\\/')};
-    for(var i = 0; i < answersArray.length; i++)
-    {
-      //data apresentavel
-      var date = answersArray[i].answer_date+"";
-      answersArray[i].answer_date = date.substring(0, 10);
-      //colocar a resposta de acordo com o que recebe
-      var stepType = answersArray[i].step.step_type_id;
-      if(stepType == 2){
-        answersArray[i].answer = answersArray[i].text;
-      }else if(stepType == 3){
-        answersArray[i].answer = answersArray[i].document_url;
-      }else if (stepType == 4) {
-        answersArray[i].answer =
-          answersArray[i].step_choice.choice_order+" : "+
-          answersArray[i].step_choice.text;
-      }
-    }
-
+    var flowId = !{flowId}; // used on AJAX requests
   script(src=static.root + '/js/manager_flow_answers.js')

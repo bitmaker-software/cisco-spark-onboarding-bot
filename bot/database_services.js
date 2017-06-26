@@ -80,6 +80,59 @@ module.exports = {
     });
   },
 
+  getAnswers: function (flow_id,page,max) {
+    console.log('getAnswers('+flow_id+' , '+page+' , '+max+')');
+
+    return new Promise(function (resolve, reject)
+    {
+      models.respondent_answer.findAll({
+        attributes: ['answer_date','text','document_url'],
+        where: {
+          status: "Answered"
+        },
+        include: [
+          {
+            model: models.respondent_flow,
+            attributes: ['id'],
+            where: {
+              flow_id: flow_id
+            },
+            include: [
+              {
+                model: models.respondent,
+                attributes: ['name']
+              }
+            ]
+          },
+          {
+            model: models.step,
+            attributes: ['step_order','text','step_type_id'],
+            where: {
+              $or: [
+                {step_type_id: 2},
+                {step_type_id: 3},
+                {step_type_id: 4}
+              ]
+            }
+          },
+          {
+            model: models.step_choice,
+            attributes: ['choice_order','text'],
+          }
+        ],
+        offset: max*page,
+        limit: max
+      }).then(result => {
+        console.log(result);
+          resolve(result)
+        }, err => {
+          console.error("Error getting answers");
+          console.error(err);
+          reject(err);
+        });
+    });
+  },
+
   getGoogleDriveCredentials: function(userId, storeId){
     return new Promise((resolve, reject) => {
       models.sequelize.query('select * from ﻿document_stores');
