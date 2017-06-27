@@ -100,11 +100,4 @@ router.get('/document_stores', ensureAuthenticated, (req, res, next) => {
   }, err => res.send(err));
 });
 
-router.get('/answers_page/:flowId/:page/:maxPerPage', ensureAuthenticated, (req, res, next) => {
-    database_services.getAnswers(req.params.flowId,req.params.page,req.params.maxPerPage).then(
-      answers => {
-        res.send(answers);
-    }, err => res.send(err));
-});
-
 module.exports = router;

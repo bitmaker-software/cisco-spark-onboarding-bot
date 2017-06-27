@@ -9,6 +9,9 @@
 // Import Sweetalert2 styles
 @import '../../node_modules/sweetalert2/src/sweetalert2.scss';
 
+@import '../../node_modules/element-ui/lib/theme-default/index';
+@import '../../node_modules/element-ui/lib/theme-default/fonts/element-icons.woff';
+
 @import 'mixins';
 
 @import 'layout';

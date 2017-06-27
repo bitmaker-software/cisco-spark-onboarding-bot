@@ -1,72 +1,50 @@
 extends layout
 
 block content
-  div#root
-    -var page = 1;
-
-    div.row
-        div.col-3
-            div.row.search
-                div.col-7
-                    input#txt-search.form-control(type='text', name='search', placeholder='Type to search', v-model='searchInput', @keyup.enter='doSearch')
-                div.col-5
-                    input#btn-search.btn.btn-primary.btn-block(type='button', name='btn-search', value='Search', @click='doSearch')
-
-    //table
-    mixin rowHeader(items)
-        tr
-            each item, index in items
-                th= item
-                    span(@click="order("+index+")")
-                        svg.step-icon
-                            use(xlink:href=static.root + "/sprite.svg#order")
-
-    mixin row(items)
-        tr
-            each item, index in items
-                td= item
-
-    mixin table(tableHeader)
-        table.table
-            .table-responsive
-            thead
-                each row, index in tableHeader
-                    +rowHeader(row)
-            tbody
-                tr(v-for="answer in answers")
-                    td.col-sm-1 {{ answer.respondent_flow.respondent.name}}
-                    td.col-sm-1 {{ answer.answer_date }}
-                    td.col-sm-4 {{ answer.step.step_order }} : {{ answer.step.text }}
-                    td.col-sm-6 {{ answer.answer }}
-
-    - var myheader = [{1: "User  ", 2: "Date  ",3: "Question  ",4: "Answer  "}]
-    +table(myheader)
-
-    mixin newli(myNumber)
-        li.page-item
-            -page = myNumber;
-            a.page-link(href="#", @click="showAnswers("+page+")")= myNumber
-
-    //pagination
-    div
-        nav(aria-label="paginator").offset-5
-            ul.pagination
-                li.page-item
-                    -if(page > 1) page--;
-                    a.page-link(href="#", aria-label="Previous", @click="showAnswers("+page+")")
-                        span(aria-hidden="true") &laquo;
-                        span.sr-only Previous
-                - var n = 0;
-                template(v-for="n1 in maxPages")
-                    +newli(++n)
-
-                li.page-item
-                    -if(page < 2) page++;
-                    a.page-link(href="#" aria-label="Next", @click="showAnswers("+page+")")
-                        span(aria-hidden="true") &raquo;
-                        span.sr-only Next
+    div#root
+        template
+            data-tables(:data='answers',
+                        :has-action-col='false',
+                        :stripe='false',
+                        :search-def='getSearchDef()',
+                        :pagination-def='getPaginationDef()')
+                //http://element.eleme.io/#/en-US/component/table
+                el-table-column(prop="username",label="Username",width="150",sortable="custom")
+                el-table-column(prop="date",label="Date",width="115",sortable="custom")
+                el-table-column(prop="question_num",label="#",width="70",sortable="custom")
+                el-table-column(prop="question",label="Question")
+                el-table-column(prop="answer",label="Answer")
 
 block pageScripts
-  script.
-    var flowId = !{flowId}; // used on AJAX requests
-  script(src=static.root + '/js/manager_flow_answers.js')
+    script.
+        var flowId = !{flowId}; // used on AJAX requests
+        var answersReceived = !{JSON.stringify(answers).replace(/<\//g, '<\\/')};
+        var answersArray = [];
+
+        for (var i = 0; i < answersReceived.length; i++)
+        {
+            var answer = [];
+            //name
+            answer.username = answersReceived[i].respondent_flow.respondent.name;
+
+            //date
+            var date = answersReceived[i].answer_date + "";
+            answer.date = date.substring(0, 10);
+
+            //question
+            answer.question_num = answersReceived[i].step.step_order;
+            answer.question = answersReceived[i].step.text;
+
+            //colocar a resposta de acordo com o que recebe
+            var stepType = answersReceived[i].step.step_type_id;
+            if (stepType == 2) {
+                answer.answer = answersReceived[i].text;
+            } else if (stepType == 3) {
+                answer.answer = answersReceived[i].document_url;
+            } else if (stepType == 4) {
+                answer.answer = answersReceived[i].step_choice.choice_order + " : " + answersReceived[i].step_choice.text;
+            }
+            answersArray.push(answer);
+        }
+    script(src=static.root + '/js/manager_flow_answers.js')
+

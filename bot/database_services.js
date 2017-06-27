@@ -80,8 +80,8 @@ module.exports = {
     });
   },
 
-  getAnswers: function (flow_id,page,max) {
-    console.log('getAnswers('+flow_id+' , '+page+' , '+max+')');
+  getAnswers: function (flow_id) {
+    console.log('getAnswers('+flow_id+')');
 
     return new Promise(function (resolve, reject)
     {
@@ -119,9 +119,7 @@ module.exports = {
             model: models.step_choice,
             attributes: ['choice_order','text'],
           }
-        ],
-        offset: max*page,
-        limit: max
+        ]
       }).then(result => {
         console.log(result);
           resolve(result)
