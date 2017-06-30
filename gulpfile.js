@@ -59,3 +59,8 @@ gulp.task('sprite-shortcut', function() {
   return gulp.src('client/sprite/sprite.svg')
     .pipe(gulp.dest('public/'));
 });
+
+gulp.task('font-awesome', function() {
+    return gulp.src('node_modules/font-awesome/fonts/*.*')
+        .pipe(gulp.dest('public/fonts/'));
+});

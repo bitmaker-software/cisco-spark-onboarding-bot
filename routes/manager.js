@@ -92,7 +92,7 @@ router.get('/flow/:id/answers', ensureAuthenticated, function (req, res, next) {
   let promises = [
     getStepTypes(),
     getFlow(req.params.id),
-    database_services.getAnswers(req.params.id)
+    database_services.countAnswers(req.params.id,"")
   ];
   Promise.all(promises).then(values => {
     res.render('manager_flow_answers', {
@@ -100,7 +100,7 @@ router.get('/flow/:id/answers', ensureAuthenticated, function (req, res, next) {
       flowId: req.params.id,
       stepTypes: values[0],
       active: 'Manager', // left side bar icon
-      answers: values[2]
+      totalAnswers: values[2]
     });
   }, err => {
     console.error("Error fetching the step types, flow or answers:");

@@ -3,14 +3,16 @@
 
 @import 'variables';
 
+//Import datatables
+//@import '../../node_modules/datatables.net-bs/css/dataTables.bootstrap';
+
 // Import boostrap after variables so that our variables file overwrites theirs
 @import '../../node_modules/bootstrap/scss/bootstrap';
 
+@import '../../node_modules/font-awesome/scss/font-awesome';
+
 // Import Sweetalert2 styles
 @import '../../node_modules/sweetalert2/src/sweetalert2.scss';
-
-@import '../../node_modules/element-ui/lib/theme-default/index';
-@import '../../node_modules/element-ui/lib/theme-default/fonts/element-icons.woff';
 
 @import 'mixins';
 

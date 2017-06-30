@@ -30,17 +30,33 @@ module.exports = env => {
     devtool: dev ? 'inline-source-map' : 'hidden-source-map',
 
     module: {
-      rules: [{
-        test: /\.js$/,
-        loaders: [{
-          loader: 'babel-loader',
-          query: {
-            presets: [['es2015', {modules: false}], 'stage-2'],// 'react'],
-            // plugins: dev ? ['react-hot-loader/babel'] : undefined
-          }
-        }],
-        exclude: /node_modules/
-      }],
+      rules: [
+        {
+          test: /\.jsx?$/,
+          loaders: [{
+              loader: 'babel-loader',
+              query: {
+                  cacheDirectory: true,
+                  presets: [['es2015', {modules: false}], 'stage-2']//, 'react'],
+                  // plugins: dev ? ['react-hot-loader/babel'] : undefined
+              }
+          }],
+          exclude: /node_modules/
+        },
+        {
+          test: /\.vue$/,
+          loaders: [{
+            loader: 'vue-loader'
+          }],
+            exclude: /node_modules/
+        },
+      ],
+    },
+
+    resolve: {
+      alias: {
+        vue$: 'vue/dist/vue.common.js',
+      }
     },
 
     // plugins: [

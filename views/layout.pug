@@ -35,7 +35,7 @@ html(lang='en')
 
     mixin item(title, url, icon)
       li.nav-item
-        a.nav-link(href=url, class=active === title ? 'active' : '', data-toggle="tooltip", data-placement="right", title= title)
+        a.nav-link(href=url, class=active === title ? 'active' : '', data-toggle="tooltip",data-animation="false", data-placement="right", title= title)
           svg.icon
             use(xlink:href=static.root + "/sprite.svg#" + icon)
           span.sr-only= title

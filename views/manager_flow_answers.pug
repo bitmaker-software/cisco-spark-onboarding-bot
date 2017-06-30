@@ -1,50 +1,31 @@
 extends layout
 
 block content
-    div#root
-        template
-            data-tables(:data='answers',
-                        :has-action-col='false',
-                        :stripe='false',
-                        :search-def='getSearchDef()',
-                        :pagination-def='getPaginationDef()')
-                //http://element.eleme.io/#/en-US/component/table
-                el-table-column(prop="username",label="Username",width="150",sortable="custom")
-                el-table-column(prop="date",label="Date",width="115",sortable="custom")
-                el-table-column(prop="question_num",label="#",width="70",sortable="custom")
-                el-table-column(prop="question",label="Question")
-                el-table-column(prop="answer",label="Answer")
+
+  div#app.container-fluid
+    div
+      label Search for
+      input(type="text", v-model="filterText",@keyup.enter="doFilter",placeholder="Type username to search")
+      button.btn.btn-info(@click="doFilter") Go
+      button.btn.btn-border(@click="resetFilter") Reset
+    div
+      p Type "Username", "Date" or "#" to reorder the table
+    vuetable(ref="vuetable",
+            api-url= "../../../test/answers/"+flowId+"/"+totalAnswers ,
+            :fields= "fields",
+            :css="css",
+            pagination-path="",
+            :per-page="10",
+            :muti-sort="true",
+            multi-sort-key="ctrl",
+            :append-params="moreParams",
+            @vuetable:pagination-data="onPaginationData")
+    div
+      vuetable-pagination-info(ref="paginationInfo",:css="cssPagination",info-class="pull-left")
+      vuetable-pagination(ref="pagination",:css="cssPagination",@vuetable-pagination:change-page="onChangePage")
 
 block pageScripts
     script.
         var flowId = !{flowId}; // used on AJAX requests
-        var answersReceived = !{JSON.stringify(answers).replace(/<\//g, '<\\/')};
-        var answersArray = [];
-
-        for (var i = 0; i < answersReceived.length; i++)
-        {
-            var answer = [];
-            //name
-            answer.username = answersReceived[i].respondent_flow.respondent.name;
-
-            //date
-            var date = answersReceived[i].answer_date + "";
-            answer.date = date.substring(0, 10);
-
-            //question
-            answer.question_num = answersReceived[i].step.step_order;
-            answer.question = answersReceived[i].step.text;
-
-            //colocar a resposta de acordo com o que recebe
-            var stepType = answersReceived[i].step.step_type_id;
-            if (stepType == 2) {
-                answer.answer = answersReceived[i].text;
-            } else if (stepType == 3) {
-                answer.answer = answersReceived[i].document_url;
-            } else if (stepType == 4) {
-                answer.answer = answersReceived[i].step_choice.choice_order + " : " + answersReceived[i].step_choice.text;
-            }
-            answersArray.push(answer);
-        }
     script(src=static.root + '/js/manager_flow_answers.js')
 
