@@ -9,7 +9,7 @@
     "dev:css": "gulp scss:watch font-awesome",
     "dev": "npm-run-all clean -p dev:*",
     "build:js": "webpack",
-    "build:css": "gulp scss:build",
+    "build:css": "gulp scss:build font-awesome",
     "compress": "bash -c 'gzip -9 -q public/**/*.{css,js,map}'",
     "build": "npm-run-all clean -p build:* -s compress",
     "tool": "node index"

@@ -3,7 +3,7 @@
 const models = require('../models');
 const router = require('express').Router();
 const ensureAuthenticated = require('./auth_middleware');
-const database_services = require('../bot/database_services');
+const databaseServices = require('../bot/database_services');
 const sparkAPIUtils = require('../bot/spark_api_utils');
 
 
@@ -26,104 +26,6 @@ router.get('/', ensureAuthenticated, function (req, res, next) {
   });
 });
 
-// router.get('/flow/new', ensureAuthenticated, function (req, res, next) {
-//   res.send('To be implemented');
-// });
-
-router.post('/api/flow', ensureAuthenticated, function (req, res, next) {
-  // New flow
-  console.log("Got a request to create a new flow");
-  console.log(req.body);
-  models.flow.create({
-    name: req.body.name,
-    flow_status_id: 1
-  }).then(function () {
-    return res.send('OK, saved flow');
-  }, err => {
-    console.error("Error creating the flow");
-    console.error(err);
-  });
-});
-
-
-//
-//
-// Flow page (edit steps, send, see answers, dashboard)
-//
-//
-router.get('/flow/:id/edit', ensureAuthenticated, function (req, res, next) {
-  let promises = [
-    getStepTypes(),
-    getFlow(req.params.id)
-  ];
-  Promise.all(promises).then(values => {
-    res.render('manager_flow_edit', {
-      title: values[1][0].name,
-      flowId: req.params.id,
-      stepTypes: values[0],
-      active: 'Manager' // left side bar icon
-    });
-  }, err => {
-    console.error("Error fetching the step types or flow:");
-    console.error(err);
-  });
-});
-
-router.get('/flow/:id/send', ensureAuthenticated, function (req, res, next) {
-  let promises = [
-    getStepTypes(),
-    getFlow(req.params.id)
-  ];
-  Promise.all(promises).then(values => {
-    res.render('manager_flow_send', {
-      title: values[1][0].name,
-      flowId: req.params.id,
-      stepTypes: values[0],
-      active: 'Manager' // left side bar icon
-    });
-  }, err => {
-    console.error("Error fetching the step types or flow:");
-    console.error(err);
-  });
-});
-
-router.get('/flow/:id/answers', ensureAuthenticated, function (req, res, next) {
-  let promises = [
-    getStepTypes(),
-    getFlow(req.params.id),
-    database_services.countAnswers(req.params.id,"")
-  ];
-  Promise.all(promises).then(values => {
-    res.render('manager_flow_answers', {
-      title: values[1][0].name,
-      flowId: req.params.id,
-      stepTypes: values[0],
-      active: 'Manager', // left side bar icon
-      totalAnswers: values[2]
-    });
-  }, err => {
-    console.error("Error fetching the step types, flow or answers:");
-    console.error(err);
-  });
-});
-
-router.get('/flow/:id/dashboard', ensureAuthenticated, function (req, res, next) {
-  let promises = [
-    getStepTypes(),
-    getFlow(req.params.id)
-  ];
-  Promise.all(promises).then(values => {
-    res.render('manager_flow_dashboard', {
-      title: values[1][0].name,
-      flowId: req.params.id,
-      stepTypes: values[0],
-      active: 'Manager' // left side bar icon
-    });
-  }, err => {
-    console.error("Error fetching the step types or flow:");
-    console.error(err);
-  });
-});
 
 // ——————————————————————————————————————————————————
 //                     View Flow
@@ -387,9 +289,9 @@ router.post('/api/flow/:id/send', ensureAuthenticated, (req, res, next) => {
   }
 
   // Is the user already assigned to this flow?
-  // database_services.getRespondentFlow({user: userId, flow: req.params.flowId}).then(result => {
-  database_services.findOrCreateRespondent(userId, req.user.spark_token).then(user => {
-    database_services.findOrCreateRespondentFlow(assignerId, user.id, flowId, assignDate).then(respondentFlow => {
+  // databaseServices.getRespondentFlow({user: userId, flow: req.params.flowId}).then(result => {
+  databaseServices.findOrCreateRespondent(userId, req.user.spark_token).then(user => {
+    databaseServices.findOrCreateRespondentFlow(assignerId, user.id, flowId, assignDate).then(respondentFlow => {
       sparkAPIUtils.initiateFlowForUser(flowId, user.spark_id);//.then(() => {
       return res.status(200).send();
       // });
@@ -410,7 +312,7 @@ router.get('/flow/:id/answers', ensureAuthenticated, function (req, res, next) {
   let promises = [
     getStepTypes(),
     getFlow(req.params.id),
-    database_services.getAnswers(req.params.id)
+    databaseServices.countAnswers(req.params.id,"")
   ];
   Promise.all(promises).then(values => {
     res.render('manager_flow_answers', {
@@ -418,7 +320,7 @@ router.get('/flow/:id/answers', ensureAuthenticated, function (req, res, next) {
       flowId: req.params.id,
       stepTypes: values[0],
       active: 'Manager', // left side bar icon
-      answers: values[2]
+      totalAnswers: values[2]
     });
   }, err => {
     console.error("Error fetching the step types, flow or answers:");

@@ -19,7 +19,7 @@ const routes_webhooks = require('./routes/webhooks');
 const routes_auth = require('./routes/auth');
 const routes_test = require('./routes/test');
 
-const database_services = require('./bot/database_services');
+const databaseServices = require('./bot/database_services');
 
 const botWebhooks = require('./bot/components/routes/incoming_webhooks'); // TODO: not in use?
 
@@ -69,7 +69,7 @@ passport.use(new CiscoSparkStrategy({
     ]
   },
   function (accessToken, refreshToken, profile, done) {
-    database_services.userLoggedIn(profile.id, profile.displayName, profile.emails, profile._json.orgId).then(user => {
+    databaseServices.userLoggedIn(profile.id, profile.displayName, profile.emails, profile._json.orgId).then(user => {
       const sessionUser = {id: user.id, name: user.name, avatar: profile._json.avatar, spark_token: accessToken};
       return done(null, sessionUser);
     }, err => {

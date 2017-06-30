@@ -4,6 +4,7 @@ let app = new Vue({
   el: '#root',
   // app initial state
   data: {
+    searching: false,
     searchInput: '',
     searchResultsInfo: '',
     searchResults: []
@@ -13,11 +14,15 @@ let app = new Vue({
       app.searchInput = event.currentTarget.innerText;
     },
     doSearch: () => {
+      app.searching = true;
+      app.searchResultsInfo = '';
+      app.searchResults = [];
       const searchString = encodeURIComponent(app.searchInput);
       console.log(this);
       app.$http.get('/manager/api/search_users/' + searchString).then(response => {
         app.searchResultsInfo = `Found ${response.body.length} result${response.body.length === 1 ? '' : 's' }.`;
         app.searchResults = response.body;
+        app.searching = false;
       }, error => {
         if (error.status === 401) {
           window.location.replace('/auth/spark');
