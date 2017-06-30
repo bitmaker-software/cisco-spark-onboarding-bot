@@ -1,8 +1,6 @@
 "use strict";
 
-let express = require('express');
-let request = require('request');
-let router = express.Router();
+let router = require('express').Router();
 let ensureAuthenticated = require('./auth_middleware');
 let database_services = require('../bot/database_services');
 let env = require('node-env-file');
@@ -11,6 +9,8 @@ env(__dirname + '/../bot/.env');
 let gdrive_client_id = process.env.gdrive_client_id;
 let gdrive_developer_key = process.env.gdrive_developer_key;
 let gdrive_share_to = 'spark-drive@testdriveintegration-167213.iam.gserviceaccount.com';
+
+let bot = require('../app').bot;
 
 if (!gdrive_client_id) {
   console.error("WARNING: gdrive_client_id is not defined!");
@@ -118,9 +118,6 @@ router.get('/answers/:flow_id/:total', ensureAuthenticated, (req, res, next) => 
 
       sort = sort.substring(0,n-1);
   }
-
-  console.log(sort+ " "+ order);
-  console.log("\n\n");
 
   if(typeof filter === 'undefined') filter = "";
   else{

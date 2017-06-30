@@ -1,24 +1,33 @@
 "use strict";
 
-var database_services = require('../database_services');
+const database_services = require('../database_services');
 
 module.exports = function (controller) {
 
+
   controller.hears(['cisco'], 'direct_message,direct_mention', function (bot, message) {
-    buildConversationFromCurrentFlow(bot, message);
+    // TODO: ********************
+    // TODO: this is a temporary hook to force initiating a flow from the user side
+    // TODO: ********************
+    let flowId = 1;
+    buildConversationFromCurrentFlow(bot, message, flowId);
   });
+
+
   /*
    Retrieve the current flow from the datastore, and build the conversation accordingly
    */
-  function buildConversationFromCurrentFlow(bot, message) {
+  // TODO: exposing buildConversationFromCurrentFlow function (there must be a better way to do this!)
+  global.buildConversationFromCurrentFlow = function (bot, message, flowId) {
+    console.log(`buildConversationFromCurrentFlow(bot=${bot}, message=${message}, flowId=${flowId})`);
     //get the flow from the database
-    retrieveCurrentFlowFromDb(bot).then(flow => {
-      var thread = 'default';
+    retrieveCurrentFlowFromDb(flowId).then(flow => {
+      let thread = 'default';
       console.log(flow);
       //create the conversation
       bot.createConversation(message, function (err, convo) {
         flow.steps.forEach(function (step) {
-          console.log("STEP TYPE ID: ")
+          console.log("STEP TYPE ID: ");
           console.log(step.step_type_id);
           switch (step.step_type_id) {
             // case "announcement":
@@ -40,6 +49,7 @@ module.exports = function (controller) {
 
         addEndConversationHandler(bot, convo);
 
+        console.log('Activating the conversation');
         convo.activate();
 
       });
@@ -47,13 +57,13 @@ module.exports = function (controller) {
       console.error("Error fetching the flow:");
       console.error(err);
     });
-  }
+  };
 
-  function addEndConversationHandler(bot, convo){
-    convo.on('end', function(convo){
-      if(convo.status == 'completed'){
+  function addEndConversationHandler(bot, convo) {
+    convo.on('end', function (convo) {
+      if (convo.status === 'completed') {
         bot.reply(convo.source_message, "Thank you so much for your time! Have a nice day!");
-      }else{
+      } else {
         bot.reply(convo.source_message, "Sorry, something went wrong. Please contact your HR department for more information.");
       }
     });
@@ -61,7 +71,7 @@ module.exports = function (controller) {
 
   function addAnnouncementStep(bot, convo, step, respondent_flow_id, thread) {
     console.log("Adding announcement step: " + step.text);
-    var text = step.text + '\n\nPlease type ok to continue.';
+    let text = step.text + '\n\nPlease type ok to continue.';
 
     convo.addQuestion(text, [
       {
@@ -86,18 +96,18 @@ module.exports = function (controller) {
         }
       }
     ], {}, thread);
-  };
+  }
 
   function addFreeTextStep(bot, convo, step, respondent_flow_id, thread) {
     console.log("Adding free text step: " + step.text);
-    var text = step.text + "\n\nYou can write as many lines as you want.\n\nPlease type @end in a single line when you're done!";
+    let text = step.text + "\n\nYou can write as many lines as you want.\n\nPlease type @end in a single line when you're done!";
 
     convo.addQuestion(text, [
       {
         "pattern": "^@end$",
         "callback": function (response, convo) {
           //console.log(convo.extractResponse(step.step_id));
-          var answer = convo.extractResponse(step.id);
+          let answer = convo.extractResponse(step.id);
           //remove the terminator
           answer = answer.replace("@end", "");
           console.log("Answer: " + answer);
@@ -118,9 +128,9 @@ module.exports = function (controller) {
 
   function addMultipleChoiceStep(bot, convo, step, respondent_flow_id, thread) {
     console.log("Adding multiple choice step: " + step.text);
-    var text = step.text + '\n\n';
+    let text = step.text + '\n\n';
 
-    var patternsAndCallbacks = [];
+    let patternsAndCallbacks = [];
     if (!step.step_choices) {
       console.error("The multiple choice step has no choices!");
     } else {
@@ -171,13 +181,11 @@ module.exports = function (controller) {
     console.log("insert into RespondentAnswers(respondent_flow_id, step_id, step_choice_id, status, answer_date) values(" + respondent_flow_id + ", " + step.step_id + ", " + step_choice_id + ", 'answered', new Date());");
   }
 
-  function retrieveCurrentFlowFromDb(bot) {
+  function retrieveCurrentFlowFromDb(flowId) {
     const SEND_DUMMY = false;
     if (!SEND_DUMMY) {
       // Get from the database
-      // TODO: which flow id?
-      let id = 1;
-      return database_services.getFlow(id);
+      return database_services.getFlow(flowId);
     } else {
       return new Promise(
         function (resolve, reject) {

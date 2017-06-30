@@ -21,12 +21,18 @@ const routes_test = require('./routes/test');
 
 const database_services = require('./bot/database_services');
 
-const botWebhooks = require('./bot/components/routes/incoming_webhooks');
+const botWebhooks = require('./bot/components/routes/incoming_webhooks'); // TODO: not in use?
+
+
+// ——————————————————————————————————————————————————
+//                       Bot
+// ——————————————————————————————————————————————————
 
 let bot;
 const REGISTER_WITH_SPARK = true; // set to false to avoid registering with Spark
 if (REGISTER_WITH_SPARK) {
   bot = require('./bot/bot');
+  global.bot = bot;
 }
 
 const passport = require('passport');
@@ -41,9 +47,10 @@ const env = require('node-env-file');
 env(__dirname + '/bot/.env');
 
 
-// **************************************************
+// ——————————————————————————————————————————————————
 //             Passport configuration
-// **************************************************
+// ——————————————————————————————————————————————————
+
 passport.serializeUser(function (user, done) {
   done(null, user);
 });
@@ -75,26 +82,34 @@ const app = express();
 
 app.locals.static = config.static; // expose the static URLs structure
 
-// **************************************************
+
+// ——————————————————————————————————————————————————
 //               View engine setup
-// **************************************************
+// ——————————————————————————————————————————————————
+
 app.set('views', `${__dirname}/views`);
 app.set('view engine', 'pug');
 
-// **************************************************
+
+// ——————————————————————————————————————————————————
 //                    Favicon
-// **************************************************
+// ——————————————————————————————————————————————————
+
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
-// **************************************************
+
+// ——————————————————————————————————————————————————
 //                    Logging
-// **************************************************
+// ——————————————————————————————————————————————————
+
 app.use(logger('dev'));
 
-// **************************************************
+
+// ——————————————————————————————————————————————————
 //                  Static content
-// **************************************************
+// ——————————————————————————————————————————————————
+
 // app.use(express.static(path.join(__dirname, 'public')));
 app.use(config.static.root, express.static(`${__dirname}/public`, {
   setHeaders: (res, path) => {
@@ -118,9 +133,10 @@ app.use(cookieParser());
 // }));
 
 
-// **************************************************
+// ——————————————————————————————————————————————————
 //             Setup session & passport
-// **************************************************
+// ——————————————————————————————————————————————————
+
 app.use(session({
   secret: process.env.session_secret,
   resave: false,
@@ -130,9 +146,11 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// **************************************************
+
+// ——————————————————————————————————————————————————
 //  Middleware accessible on templates via 'locals'
-// **************************************************
+// ——————————————————————————————————————————————————
+
 const middleware = {
   globalLocals: function (req, res, next) {
     res.locals = {
@@ -150,9 +168,11 @@ const middleware = {
 };
 app.use(middleware.globalLocals);
 
-// **************************************************
+
+// ——————————————————————————————————————————————————
 //                      Routes
-// **************************************************
+// ——————————————————————————————————————————————————
+
 app.use('/', routes_index);
 app.use('/manager', routes_manager);
 app.use('/settings', routes_settings);
@@ -171,9 +191,11 @@ if (typeof bot !== 'undefined') {
   console.log('WARNING: bot is not defined; did you import it? (OK if you are just testing without needing to register the callbacks with Spark)');
 }
 
-// **************************************************
+
+// ——————————————————————————————————————————————————
 //      Catch 404 and forward to error handler
-// **************************************************
+// ——————————————————————————————————————————————————
+
 app.use(function (req, res, next) {
   const err = new Error('Not Found');
   err.status = 404;
@@ -191,28 +213,41 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
-// **************************************************
+
+// ——————————————————————————————————————————————————
 //             Database (create tables)
-// **************************************************
+// ——————————————————————————————————————————————————
+
 //
 // sync() will create all table if they doesn't exist in database
 //
 // {force: true} means DROP TABLE IF EXISTS before trying to create the table
 //
-sequelize.sync({force: false}).then(() => {
-  console.log("Database models synced, will load the fixtures");
-  // Load database fixtures
-  models.startLoadingDatabaseFixtures();
-  // Start the server
+const CREATE_DB_AND_LOAD_FIXTURES = false;
+if (CREATE_DB_AND_LOAD_FIXTURES) {
+  sequelize.sync({force: false}).then(() => {
+    console.log("Database models synced, will load the fixtures");
+    // Load database fixtures
+    models.startLoadingDatabaseFixtures();
+    startTheServer();
+  }, err => {
+    console.error("Error on sequelize.sync():");
+    console.error(err);
+  });
+} else {
+  startTheServer();
+}
+
+function startTheServer() {
+  console.log('Will now start the server.');
   app.listen(config.port, config.host, () => {
     console.log(`Application listening on ${config.host}:${config.port}...`);
   });
-}, err => {
-  console.error("Error on sequelize.sync():");
-  console.error(err);
-});
+}
 
-// **************************************************
+
+// ——————————————————————————————————————————————————
 //                 Export the app
-// **************************************************
+// ——————————————————————————————————————————————————
+
 module.exports = app;
