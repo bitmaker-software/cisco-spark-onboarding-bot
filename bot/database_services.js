@@ -160,7 +160,8 @@ module.exports = {
               $or: [
                 {step_type_id: 2},
                 {step_type_id: 3},
-                {step_type_id: 4}
+                {step_type_id: 4},
+                {step_type_id: 6}
               ],
             }
           },
@@ -173,6 +174,7 @@ module.exports = {
         offset: per_page * page,
         order: sort + ' ' + order
       }).then(answers => {
+        console.log(answers);
         resolve(answers);
       }, err => {
         console.error("Error getting answers");
@@ -212,7 +214,8 @@ module.exports = {
               $or: [
                 {step_type_id: 2},
                 {step_type_id: 3},
-                {step_type_id: 4}
+                {step_type_id: 4},
+                {step_type_id: 6}
               ],
             }
           },

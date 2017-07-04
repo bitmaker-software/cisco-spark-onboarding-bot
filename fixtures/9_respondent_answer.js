@@ -10,7 +10,7 @@ module.exports = {
             text: 'This is me.',
             document_url: null,
             step_choice_id: null,
-            respondent_flow_id: 1,  //daqui vou buscar o user e o flow (tmb devia ir buscar a pergunta...)
+            respondent_flow_id: 1,  //daqui vou buscar o user e o flow
             step_id: 2,
         },
         //user 1 flow SALES pergunta 2

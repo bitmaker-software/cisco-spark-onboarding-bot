@@ -163,7 +163,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
             console.log("Result from new step");
             console.log(result);
 
-            if (step.step_type_id === 4) {
+            if (step.step_type_id === 3) {
               // Multiple choice
               console.log("step.step_choices:");
               console.log(step.step_choices);
@@ -184,6 +184,27 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                 });
               });
             } // if step type === 4
+
+            if (step.step_type_id === 5 || step.step_type_id === 6) {
+              //read documents
+              console.log("step.document_steps:");
+              console.log(step.document_steps);
+
+              step.document_steps.forEach((document, index) => {
+                  console.log("Document index: " + index);
+                  models.document_step.create({
+                    //document_store_id: ,
+                    document_url: document,
+                    //upload_dir: ,
+                  }).then(result => {
+                        //
+                  }, err => {
+                    console.error("Error saving the document step:");
+                    console.error(err);
+                    return res.send(err);
+                  });
+              });
+            }
 
           })
       )
@@ -270,7 +291,6 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
 
     });
 });
-
 
 // ——————————————————————————————————————————————————
 //                    Send Flow

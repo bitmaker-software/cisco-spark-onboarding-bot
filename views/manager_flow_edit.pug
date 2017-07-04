@@ -77,7 +77,7 @@ block content
                   // User Read Document, add the file picker
                   //
                   div.input-group.file-type
-                    input(type='button', value='Google Drive', @click='getFileId')
+                    input(type='button', value='Google Drive', @click='getFileId(step)')
                     input(type='button', value='Box')
                     input(type='button', value='SFTP')
 
@@ -86,7 +86,7 @@ block content
                   // User Read and Upload Document
                   //
                   div.input-group.file-type
-                    input(type='file', value='Google Drive', @click='getFileId')
+                    input(type='file', value='Google Drive', @click='getFileId(step)')
                     input(type='button', value='Box')
                     input(type='button', value='SFTP')
 
