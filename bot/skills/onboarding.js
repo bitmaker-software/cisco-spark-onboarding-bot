@@ -57,8 +57,20 @@ module.exports = function (controller) {
                 addFreeTextStep(bot, convo, step, respondentFlow.id, thread);
                 break;
               // case "multiple_choice":
+              case 3:
+                addMultipleChoiceStep(bot, convo, step, flow.respondent_flow_id, thread);
+                break;
+              //case "upload document" step
               case 4:
-                addMultipleChoiceStep(bot, convo, step, respondentFlow.id, thread);
+                addUploadDocumentStep(bot, convo, step, flow.respondent_flow_id, thread);
+                break;
+              //case "read document" step
+              case 5:
+                addReadDocumentStep(bot, convo, step, flow.respondent_flow_id, thread);
+                break;
+              //case "read and upload document" step
+              case 6:
+                addReadUploadDocumentStep(bot, convo, step, flow.respondent_flow_id, thread);
                 break;
               default:
                 break;
@@ -201,6 +213,118 @@ module.exports = function (controller) {
     });
     text += 'Please choose one of the available options.';
     convo.addQuestion(text, patternsAndCallbacks, {}, thread);
+  }
+
+  function addUploadDocumentStep(bot, convo, step, respondent_flow_id, thread) {
+    console.log("Adding upload document step: " + step.text);
+    //mudar para verificar que ja fez upload
+    let text = step.text + '\n\nUpload the file to continue.';
+
+    convo.addQuestion(text, [
+      {
+        "default": true,
+        "callback": function (response, convo) {
+
+          if (response.original_message.files) {
+            console.log("OK");
+            //save response
+            //go to next
+            convo.next();
+          }
+          else {
+            console.log("NOT OK");
+            //repeat the question
+            //convo.say("Please type ok to continue");
+            bot.reply(convo.source_message, "Sorry, I didn't get that. Please upload the file to continue.");
+            //convo.repeat();
+            //convo.silentRepeat();
+            //convo.next();
+          }
+        }
+      }
+    ], {}, thread);
+  }
+
+  function addReadDocumentStep(bot, convo, step, respondent_flow_id, thread) {
+    console.log("Adding read document step: " + step.text);
+    let text = step.text + '\n\nPlease type ok to continue.';
+
+    //TEMPORARIO
+    /*
+     var fs = require('fs');
+     var filePath = './bot/files_to_serve/test_file.txt';
+     fs.exists(filePath, function (exists) {
+     if (exists)
+     {
+     var readStream = fs.createReadStream(filePath);
+     text = step.text + '\n\nPlease type ok to continue.';
+     } else
+     {
+     text='Sorry, there was a problem reading the file. Please contact your supervisor.';
+     }
+     });
+     */
+
+    convo.addQuestion({
+      text: text,
+      files: ['https://github.com/howdyai/botkit/blob/master/docs/readme-ciscospark.md#attaching-files']
+    }, [
+      {
+        "pattern": "^ok$",
+        "callback": function (response, convo) {
+          console.log("OK");
+          //save response
+          // go to next
+          convo.next();
+        }
+      },
+      {
+        "default": true,
+        "callback": function (response, convo) {
+          console.log("NOT OK");
+          //repeat the question
+          //convo.say("Please type ok to continue");
+          bot.reply(convo.source_message, "Sorry, I didn't get that. Please type ok to continue");
+          //convo.repeat();
+          //convo.silentRepeat();
+          //convo.next();
+        }
+      }
+    ], {}, thread);
+  }
+
+  function addReadUploadDocumentStep(bot, convo, step, respondent_flow_id, thread) {
+    console.log("Adding read and upload document step: " + step.text);
+    //verificar que fez upload
+    let text = step.text + '\n\nUpload the file to continue.';
+
+    convo.addQuestion(
+      {
+        text: text,
+        files: ['https://github.com/howdyai/botkit/blob/master/docs/readme-ciscospark.md#attaching-files']
+      },
+      [
+        {
+          "default": true,
+          "callback": function (response, convo) {
+            if (response.original_message.files) {
+              console.log("OK");
+              //save response
+              //go to next
+              convo.next();
+            }
+            else {
+              console.log("NOT OK");
+              //repeat the question
+              //convo.say("Please type ok to continue");
+              bot.reply(convo.source_message, "Sorry, I didn't get that. Please upload the file to continue.");
+              //convo.repeat();
+              //convo.silentRepeat();
+              //convo.next();
+            }
+          }
+        }
+      ], {}, thread);
   }
 
   /*

@@ -6,6 +6,26 @@ const ensureAuthenticated = require('./auth_middleware');
 const databaseServices = require('../bot/database_services');
 const sparkAPIUtils = require('../bot/spark_api_utils');
 
+//aqui
+let env = require('node-env-file');
+env(__dirname + '/../bot/.env');
+
+let gdrive_client_id = process.env.gdrive_client_id;
+let gdrive_developer_key = process.env.gdrive_developer_key;
+let gdrive_share_to = 'spark-drive@testdriveintegration-167213.iam.gserviceaccount.com';
+
+//let bot = require('../app').bot;
+
+if (!gdrive_client_id) {
+  console.error("WARNING: gdrive_client_id is not defined!");
+}
+if (!gdrive_developer_key) {
+  console.error("WARNING: gdrive_developer_key is not defined!");
+}
+if (!gdrive_share_to) {
+  console.error("WARNING: gdrive_share_to is not defined!");
+}
+
 
 // ——————————————————————————————————————————————————
 //                  View All Flows
@@ -105,7 +125,10 @@ router.get('/flow/:id/edit', ensureAuthenticated, function (req, res, next) {
       title: values[1][0].name,
       flowId: req.params.id,
       stepTypes: values[0],
-      active: 'Manager' // left side bar icon
+      active: 'Manager', // left side bar icon
+      gdrive_client_id: gdrive_client_id,
+      gdrive_developer_key: gdrive_developer_key,
+      gdrive_share_to: gdrive_share_to
     });
   }, err => {
     console.error("Error fetching the step types or flow:");

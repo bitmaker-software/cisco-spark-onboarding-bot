@@ -14,14 +14,21 @@ $(function () {
       stepTypeIcons: {
         1: "announcement", // Announcement
         2: "question",  // Question
-        3: "document", // Document
-        4: "multiplechoice", // Multiple Choice
-        5: "signature", // Docusign
+        3: "multiplechoice", // Multiple Choice
+        4: "", // User upload Document
+        5: "document", // User read Document
+        6: "", // User read and upload
       },
-      newStepTypeSelected: 1,
+      newStepTypeSelected: 1
     },
     methods: {
       addStep: stepType => addNewStep(stepType),
+      getFileId: () => {
+          GDrive.selectFile(function (id) {
+              //AQUI
+              alert(id);
+          })
+      },
       saveSteps: saveSteps,
       startDraggingStepTypes: () => {
         console.log("Start dragging");

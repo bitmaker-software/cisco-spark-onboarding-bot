@@ -106,7 +106,7 @@ module.exports = {
                 respondent_flow_status_id: 1 // 1 === Not started
               }
             }
-            )); // TODO: sort by ID and resolve the oldest?
+          )); // TODO: sort by ID and resolve the oldest?
         } else {
           reject('Respondent not found');
         }
@@ -126,12 +126,11 @@ module.exports = {
     });
   },
 
-  getAnswers: function (flow_id,page,per_page,filter,sort,order) {
-    console.log('getAnswers('+flow_id+' , '+page+' , '+per_page+' , '+filter+')');
-    return new Promise(function (resolve, reject)
-    {
+  getAnswers: function (flow_id, page, per_page, filter, sort, order) {
+    console.log('getAnswers(' + flow_id + ' , ' + page + ' , ' + per_page + ' , ' + filter + ')');
+    return new Promise(function (resolve, reject) {
       models.respondent_answer.findAll({
-        attributes: ['id','answer_date','text','document_url'],
+        attributes: ['id', 'answer_date', 'text', 'document_url'],
         where: {
           answer_status_id: 2,
         },
@@ -148,7 +147,7 @@ module.exports = {
                 attributes: ['name'],
                 where: {
                   name: {
-                    $like: '%'+filter+'%',
+                    $like: '%' + filter + '%',
                   }
                 }
               }
@@ -167,66 +166,65 @@ module.exports = {
           },
           {
             model: models.step_choice,
-            attributes: ['choice_order','text'],
+            attributes: ['choice_order', 'text'],
           },
         ],
         limit: per_page,
-        offset: per_page*page,
-        order: sort+' '+order
+        offset: per_page * page,
+        order: sort + ' ' + order
       }).then(answers => {
         resolve(answers);
       }, err => {
-          console.error("Error getting answers");
-          console.error(err);
-          reject(err);
-        });
+        console.error("Error getting answers");
+        console.error(err);
+        reject(err);
+      });
     });
   },
 
-  countAnswers: function (flow_id,filter) {
-    console.log('countAnswers('+flow_id+' , '+filter+')');
-    return new Promise(function (resolve, reject)
-    {
+  countAnswers: function (flow_id, filter) {
+    console.log('countAnswers(' + flow_id + ' , ' + filter + ')');
+    return new Promise(function (resolve, reject) {
       models.respondent_answer.count({
-          where: {
-            answer_status_id: 2,
-          },
-          include: [
+        where: {
+          answer_status_id: 2,
+        },
+        include: [
+          {
+            model: models.respondent_flow,
+            where: {
+              flow_id: flow_id
+            },
+            include: [
               {
-                model: models.respondent_flow,
+                model: models.respondent,
                 where: {
-                  flow_id: flow_id
-                },
-                include: [
-                    {
-                      model: models.respondent,
-                      where: {
-                        name: {
-                            $like: '%'+filter+'%',
-                        }
-                      }
-                    }
-                ]
-              },
-              {
-                model: models.step,
-                where: {
-                  $or: [
-                      {step_type_id: 2},
-                      {step_type_id: 3},
-                      {step_type_id: 4}
-                  ],
+                  name: {
+                    $like: '%' + filter + '%',
+                  }
                 }
-              },
-          ]
+              }
+            ]
+          },
+          {
+            model: models.step,
+            where: {
+              $or: [
+                {step_type_id: 2},
+                {step_type_id: 3},
+                {step_type_id: 4}
+              ],
+            }
+          },
+        ]
       }).then(res => {
-          console.log("----");
-          console.log(res);
-          resolve(res);
+        console.log("----");
+        console.log(res);
+        resolve(res);
       }, err => {
-          console.error("Error getting answers");
-          console.error(err);
-          reject(err);
+        console.error("Error getting answers");
+        console.error(err);
+        reject(err);
       });
     });
   },
@@ -251,7 +249,7 @@ module.exports = {
     });
   },
 
-  getGoogleDriveCredentials: function(userId, storeId){
+  getGoogleDriveCredentials: function (userId, storeId) {
     return new Promise((resolve, reject) => {
       models.sequelize.query('select * from ﻿document_stores');
     });

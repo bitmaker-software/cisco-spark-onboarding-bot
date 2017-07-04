@@ -3,13 +3,14 @@ extends layout
 block content
 
   div#app.container-fluid
+    div.text-center.p-4
+      h4.mb-4= 'Answers Collected'
+      p.text-muted.mb-4.mt-4 Type over "Username", "Date" or "#" to reorder the results
     div
       label Search for
-      input(type="text", v-model="filterText",@keyup.enter="doFilter",placeholder="Type username to search")
+      input.mb-4(type="text", v-model="filterText",@keyup.enter="doFilter",placeholder="username")
       button.btn.btn-info(@click="doFilter") Go
       button.btn.btn-border(@click="resetFilter") Reset
-    div
-      p Type "Username", "Date" or "#" to reorder the table
     vuetable(ref="vuetable",
             api-url= "../../../test/answers/"+flowId+"/"+totalAnswers ,
             :fields= "fields",
