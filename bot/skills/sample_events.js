@@ -17,6 +17,9 @@ module.exports = function (controller) {
   controller.on('direct_message', function (bot, message) {
     // reply to _message_ by using the _bot_ object
     bot.reply(message, 'Hello, there is no onboarding process in progress.');
+
+    // TODO: find flow in progress and resume it!
+
   });
 
   controller.on('bot_space_join', function (bot, message) {

@@ -59,12 +59,12 @@ router.get('/answers/:flow_id/:total', ensureAuthenticated, (req, res, next) => 
 
   if(typeof filter === 'undefined') filter = "";
   else{
-    database_services.countAnswers(flow_id,filter).then(result => {
+    databaseServices.countAnswers(flow_id,filter).then(result => {
       total = result;
     }, err => res.send(err));
   }
 
-  database_services.getAnswers(flow_id,page-1,per_page,filter,sort,order).then(answers => {
+  databaseServices.getAnswers(flow_id,page-1,per_page,filter,sort,order).then(answers => {
     var dataJSON = createJSON(answers,flow_id,total,sort,page,per_page);
     res.send(dataJSON);
   }, err => res.send(err));

@@ -223,9 +223,9 @@ app.use(function (err, req, res, next) {
 //
 // {force: true} means DROP TABLE IF EXISTS before trying to create the table
 //
-const CREATE_DB_AND_LOAD_FIXTURES = false;
+const CREATE_DB_AND_LOAD_FIXTURES = true;
 if (CREATE_DB_AND_LOAD_FIXTURES) {
-  sequelize.sync({force: false}).then(() => {
+  sequelize.sync({force: true}).then(() => {
     console.log("Database models synced, will load the fixtures");
     // Load database fixtures
     models.startLoadingDatabaseFixtures();

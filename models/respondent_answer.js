@@ -5,9 +5,6 @@ module.exports = function (sequelize, DataTypes) {
       text: {
         type: DataTypes.STRING
       },
-      status: {
-        type: DataTypes.STRING
-      },
       document_url: {
         type: DataTypes.STRING
       },

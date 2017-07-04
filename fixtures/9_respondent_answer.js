@@ -4,7 +4,7 @@ module.exports = {
         //user 1 flow SALES pergunta 1
         {
             id: 1,
-            status: 'Answered',     //Answered || Waiting
+            answer_status_id: 2,     //Answered || Waiting
             question_date: null,
             answer_date: new Date(),
             text: 'This is me.',
@@ -16,7 +16,7 @@ module.exports = {
         //user 1 flow SALES pergunta 2
         {
             id: 2,
-            status: 'Answered',
+            answer_status_id: 2,
             question_date: null,
             answer_date: new Date(),
             text: null,
@@ -28,7 +28,7 @@ module.exports = {
         //user 1 flow SALES pergunta 3
         {
             id: 3,
-            status: 'Answered',
+            answer_status_id: 2,
             question_date: null,
             answer_date: new Date(),
             text: null,
@@ -40,7 +40,7 @@ module.exports = {
         //user 2 flow SALES pergunta 1
         {
             id: 4,
-            status: 'Answered',
+            answer_status_id: 2,
             question_date: null,
             answer_date: new Date(),
             text: 'This is the other me.',
@@ -52,7 +52,7 @@ module.exports = {
         //user 2 flow SALES pergunta 2
         {
             id: 5,
-            status: 'Waiting',
+            answer_status_id: 1,
             question_date: null,
             answer_date: new Date(),
             text: null,

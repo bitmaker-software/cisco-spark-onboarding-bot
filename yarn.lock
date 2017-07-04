@@ -7779,6 +7779,10 @@ void-elements@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/void-elements/-/void-elements-2.0.1.tgz#c066afb582bb1cb4128d60ea92392e94d5e9dbec"
 
+vue-events@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/vue-events/-/vue-events-3.0.1.tgz#bdd9c9b66e004ec75ad9b4c7a8ea6667a59a79f7"
+
 vue-hot-reload-api@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/vue-hot-reload-api/-/vue-hot-reload-api-2.1.0.tgz#9ca58a6e0df9078554ce1708688b6578754d86de"

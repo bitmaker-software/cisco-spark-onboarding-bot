@@ -288,17 +288,27 @@ router.post('/api/flow/:id/send', ensureAuthenticated, (req, res, next) => {
     return res.status(400).send("No user ID provided!");
   }
 
-  // Is the user already assigned to this flow?
-  // databaseServices.getRespondentFlow({user: userId, flow: req.params.flowId}).then(result => {
   databaseServices.findOrCreateRespondent(userId, req.user.spark_token).then(user => {
-    databaseServices.findOrCreateRespondentFlow(assignerId, user.id, flowId, assignDate).then(respondentFlow => {
-      sparkAPIUtils.initiateFlowForUser(flowId, user.spark_id);//.then(() => {
-      return res.status(200).send();
-      // });
+    databaseServices.getFlow(flowId).then(flow => {
+      if (!flow.steps.length) {
+        return res.status(400).send('The flow has no steps.');
+      }
+      // Continue
+      databaseServices.findOrCreateRespondentFlow(assignerId, user.id, flowId, assignDate).then(respondentFlow => {
+        // OK
+        sparkAPIUtils.initiateFlowForUser(flowId, user.spark_id);
+        return res.status(200).send();
+      }, error => {
+        // findOrCreateRespondentFlow error
+        return res.status(400).send(error);
+      });
     }, error => {
+      // getFlow error
       return res.status(400).send(error);
-    })
+    });
   }, error => {
+    // findOrCreateRespondent error
+    // TODO: can't we catch just one of these errors?
     return res.status(400).send(error);
   });
 });
@@ -312,7 +322,7 @@ router.get('/flow/:id/answers', ensureAuthenticated, function (req, res, next) {
   let promises = [
     getStepTypes(),
     getFlow(req.params.id),
-    databaseServices.countAnswers(req.params.id,"")
+    databaseServices.countAnswers(req.params.id, "")
   ];
   Promise.all(promises).then(values => {
     res.render('manager_flow_answers', {
