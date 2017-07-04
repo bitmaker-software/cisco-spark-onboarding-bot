@@ -272,7 +272,7 @@ router.get('/flow/:id/send', ensureAuthenticated, function (req, res, next) {
 });
 
 router.get('/api/search_users/:user', ensureAuthenticated, (req, res, next) => {
-  sparkAPIUtils.getUserFromSpark({email: req.params.user}, req.user.spark_token).then(users => {
+  sparkAPIUtils.getUserFromSpark({user: req.params.user}, req.user.spark_token).then(users => {
     res.send(users);
   });
 });

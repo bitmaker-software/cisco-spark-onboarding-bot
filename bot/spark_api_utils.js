@@ -17,9 +17,15 @@ module.exports = {
         }
       };
 
-      if (params.email) {
-        reqBody.qs.email = params.email;
+      let user = params.user;
+      if (user) {
+        if (user.includes('@')) {
+          reqBody.qs.email = user;
+        } else {
+          reqBody.qs.displayName = user;
+        }
       }
+
       if (params.sparkId) {
         reqBody.qs.id = params.sparkId;
       }
