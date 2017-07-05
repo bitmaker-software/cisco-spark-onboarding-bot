@@ -1,6 +1,7 @@
 "use strict";
 
 const databaseServices = require('../database_services');
+const drive = require('../bot');
 
 module.exports = function (controller) {
 
@@ -249,26 +250,27 @@ module.exports = function (controller) {
     console.log("Adding read document step: " + step.text);
     let text = step.text + '\n\nPlease type ok to continue.';
 
-    //TEMPORARIO
-    /*
-     var fs = require('fs');
-     var filePath = './bot/files_to_serve/test_file.txt';
-     fs.exists(filePath, function (exists) {
-     if (exists)
-     {
-     var readStream = fs.createReadStream(filePath);
-     text = step.text + '\n\nPlease type ok to continue.';
-     } else
-     {
-     text='Sorry, there was a problem reading the file. Please contact your supervisor.';
-     }
-     });
-     */
+    let documents = [];
 
-    convo.addQuestion({
-      text: text,
-      files: ['https://github.com/howdyai/botkit/blob/master/docs/readme-ciscospark.md#attaching-files']
-    }, [
+    if (!step.document_steps)
+    {
+      console.error("The read document step has no document!");
+    }
+    else
+    {
+      step.document_steps.forEach(function (doc) {
+        //TODO INES: funcao que vai buscar a drive um url?
+        var url = drive.getDriveDocument(doc);
+        documents.push(url);
+        documents.push('https://github.com/howdyai/botkit/blob/master/docs/readme-ciscospark.md#attaching-files');
+      });
+    }
+
+    convo.addQuestion(
+      {
+        text: text,
+        files: documents
+      },[
       {
         "pattern": "^ok$",
         "callback": function (response, convo) {
@@ -310,6 +312,7 @@ module.exports = function (controller) {
             if (response.original_message.files) {
               console.log("OK");
               //save response
+              //TODO INES
               //go to next
               convo.next();
             }

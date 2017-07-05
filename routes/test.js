@@ -63,8 +63,6 @@ router.get('/answers/:flow_id/:total', ensureAuthenticated, (req, res, next) => 
     }, err => res.send(err));
   }
 
-  console.log("aqui "+flow_id+" "+page+" "+per_page+" "+filter+" "+sort+" "+order);
-
   databaseServices.getAnswers(flow_id,page-1,per_page,filter,sort,order).then(answers => {
     var dataJSON = createJSON(answers,flow_id,total,sort,page,per_page);
     res.send(dataJSON);

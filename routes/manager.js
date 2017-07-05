@@ -195,6 +195,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                   models.document_step.create({
                     //document_store_id: ,
                     document_url: document,
+                    step_id: step.id,
                     //upload_dir: ,
                   }).then(result => {
                         //
