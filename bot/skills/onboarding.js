@@ -59,14 +59,13 @@ function getDriveDocument(fileId, callback) {
 
     var request = drive.files.get({
         'fileId': fileId,
-        'fields': "id,name,webViewLink,thumbnailLink,webContentLink"
+        'fields': "id,name,webViewLink,webContentLink"
     }, function(err, file)
     {
         console.log(file);
         callback(file.webContentLink);
 /*
         var filePath = "./bot/files_to_serve/"+file.name;
-
         var dest = fs.createWriteStream(filePath);
         dest.on('open',function(fd){
             drive.files.get({
@@ -81,8 +80,6 @@ function getDriveDocument(fileId, callback) {
         })
         */
     });
-
-
 }
 
 
@@ -120,61 +117,63 @@ module.exports = function (controller) {
   let buildConversationFromCurrentFlow = function (bot, message, respondentFlow) {
     console.log(`buildConversationFromCurrentFlow(bot=${bot}, message=${message}, flowId=${respondentFlow.flow_id})`);
     //get the flow from the database
-    getFlow(respondentFlow.flow_id).then(flow => {
+    retrieveCurrentFlowFromDb(flowId).then(flowReceived => {
       let thread = 'default';
-      console.log(flow);
-      //create the conversation
-      bot.createConversation(message, function (err, convo) {
-        // console.log("createConversation callback. convo: ⏎");
-        // console.log(convo);
-        if (!err && convo) {
-          flow.steps.forEach(function (step) {
-            console.log("STEP TYPE ID: ");
-            console.log(step.step_type_id);
-            switch (step.step_type_id) {
-              // case "announcement":
-              case 1:
-                addAnnouncementStep(bot, convo, step, respondentFlow.id, thread);
-                break;
-              // case "free_text":
-              case 2:
-                addFreeTextStep(bot, convo, step, respondentFlow.id, thread);
-                break;
-              // case "multiple_choice":
-              case 3:
-                addMultipleChoiceStep(bot, convo, step, flow.respondent_flow_id, thread);
-                break;
-              //case "upload document" step
-              case 4:
-                addUploadDocumentStep(bot, convo, step, flow.respondent_flow_id, thread);
-                break;
-              //case "read document" step
-              case 5:
-                addReadDocumentStep(bot, convo, step, flow.respondent_flow_id, thread);
-                break;
-              //case "read and upload document" step
-              case 6:
-                addReadUploadDocumentStep(bot, convo, step, flow.respondent_flow_id, thread);
-                break;
-              default:
-                break;
-            }
-          });
+      console.log(flowReceived);
 
-          addEndConversationHandler(bot, convo, respondentFlow);
+      //NEW
+      updateDownloadedDocs(flowReceived).then(function(flow) {
 
-          console.log('Activating the conversation');
-          convo.activate();
+        //create the conversation
+        bot.createConversation(message, function (err, convo) {
+          // console.log("createConversation callback. convo: ⏎");
+          // console.log(convo);
+          if (!err && convo) {
+            flow.steps.forEach(function (step) {
+              console.log("STEP TYPE ID: ");
+              console.log(step.step_type_id);
+              switch (step.step_type_id) {
+                // case "announcement":
+                case 1:
+                  addAnnouncementStep(bot, convo, step, respondentFlow.id, thread);
+                  break;
+                // case "free_text":
+                case 2:
+                  addFreeTextStep(bot, convo, step, respondentFlow.id, thread);
+                  break;
+                // case "multiple_choice":
+                case 3:
+                  addMultipleChoiceStep(bot, convo, step, flow.respondent_flow_id, thread);
+                  break;
+                //case "upload document" step
+                case 4:
+                  addUploadDocumentStep(bot, convo, step, flow.respondent_flow_id, thread);
+                  break;
+                //case "read document" step
+                case 5:
+                  addReadDocumentStep(bot, convo, step, flow.respondent_flow_id, thread);
+                  break;
+                //case "read and upload document" step
+                case 6:
+                  addReadUploadDocumentStep(bot, convo, step, flow.respondent_flow_id, thread);
+                  break;
+                default:
+                  break;
+              }
+            });
 
-          databaseServices.setRespondentFlowStarted(respondentFlow);
+            addEndConversationHandler(bot, convo);
 
-          // TODO: when/where to update current step id on the respondent flow?
+            console.log('Activating the conversation');
+            convo.activate();
+          } else {
+            console.log('Error creating the conversation');
+            console.log(err);
+          }
+        });
 
-        } else {
-          console.log('Error creating the conversation');
-          console.log(err);
-        }
-      });
+      }); //END FUNCTION
+
     }, err => {
       console.error("Error fetching the flow:");
       console.error(err);
@@ -341,41 +340,35 @@ module.exports = function (controller) {
     else
     {
       //funcao que vai buscar a drive um url
-      getDriveDocument(step.document_step.document_url, function(document) {
-
-          console.log("AQUI >>> ")
-          console.log(document)
-          console.log("--------------------")
-          convo.addQuestion(
+      //getDriveDocument(step.document_step.document_url, function(document) {
+       convo.addQuestion(
+          {
+            text: text,
+            files: [step.url]
+          },[
               {
-                  text: text,
-                  files: [document]
-              },[
-                  {
-                      "pattern": "^ok$",
-                      "callback": function (response, convo) {
-                          console.log("OK");
-                          //save response
-                          // go to next
-                          convo.next();
-                      }
-                  },
-                  {
-                      "default": true,
-                      "callback": function (response, convo) {
-                          console.log("NOT OK");
-                          //repeat the question
-                          //convo.say("Please type ok to continue");
-                          bot.reply(convo.source_message, "Sorry, I didn't get that. Please type ok to continue");
-                          //convo.repeat();
-                          //convo.silentRepeat();
-                          //convo.next();
-                      }
-                  }
-              ], {}, thread);
-      });
-
-      //documents.push('https://github.com/howdyai/botkit/blob/master/docs/readme-ciscospark.md#attaching-files');
+                "pattern": "^ok$",
+                "callback": function (response, convo) {
+                  console.log("OK");
+                  //save response
+                  // go to next
+                  convo.next();
+                }
+              },
+              {
+                "default": true,
+                "callback": function (response, convo) {
+                    console.log("NOT OK");
+                    //repeat the question
+                    //convo.say("Please type ok to continue");
+                    bot.reply(convo.source_message, "Sorry, I didn't get that. Please type ok to continue");
+                    //convo.repeat();
+                    //convo.silentRepeat();
+                    //convo.next();
+                }
+              }
+          ], {}, thread);
+      //});
     }
   }
 
@@ -490,5 +483,50 @@ module.exports = function (controller) {
         }
       );
     }
+  }
+
+  function updateDownloadedDocs(flow)
+  {
+      return new Promise(function(resolve, reject)
+      {
+        console.log("init");
+        var counter = 0;
+        var size = flow.steps.length;
+
+        flow.steps.forEach(function (step) {
+          //read documents
+          if(step.step_type_id == 5 || step.step_type_id == 6)
+          {
+            if(step.document_step !== null){
+              drive.files.get({
+                  'fileId': step.document_step.document_url,
+                  'fields': "id,name,webViewLink,webContentLink"
+              }, function(err, file) {
+                  console.log(file);
+                  step.url = file.webContentLink;
+                  counter++;
+
+                  if(counter == size) {
+                    console.log("end 2!");
+                    resolve(flow);
+                  }
+              });
+            }
+            else{
+              step.url = null;
+              counter++;
+            }
+          }
+          else{
+            counter++;
+          }
+        });
+
+        if(counter == size) {
+            console.log("end 1!");
+            resolve(flow);
+        }
+
+      });
   }
 };
