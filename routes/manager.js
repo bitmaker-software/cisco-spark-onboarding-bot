@@ -5,6 +5,7 @@ const router = require('express').Router();
 const ensureAuthenticated = require('./auth_middleware');
 const databaseServices = require('../bot/database_services');
 const sparkAPIUtils = require('../bot/spark_api_utils');
+const key = require('../bot/keys/Integration test-6661fdb0c0a7.json');
 
 //aqui
 let env = require('node-env-file');
@@ -12,7 +13,7 @@ env(__dirname + '/../bot/.env');
 
 let gdrive_client_id = process.env.gdrive_client_id;
 let gdrive_developer_key = process.env.gdrive_developer_key;
-let gdrive_share_to = 'spark-drive@testdriveintegration-167213.iam.gserviceaccount.com';
+let gdrive_share_to = key.client_email;
 
 //let bot = require('../app').bot;
 
@@ -183,27 +184,24 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                   return res.send(err);
                 });
               });
-            } // if step type === 4
+            } // if step type === 3
 
             if (step.step_type_id === 5 || step.step_type_id === 6) {
               //read documents
-              console.log("step.document_steps:");
-              console.log(step.document_steps);
+              console.log("step.document_step:");
+              console.log(step.document_step);
 
-              step.document_steps.forEach((document, index) => {
-                  console.log("Document index: " + index);
-                  models.document_step.create({
-                    //document_store_id: ,
-                    document_url: document,
-                    step_id: step.id,
-                    //upload_dir: ,
-                  }).then(result => {
-                        //
-                  }, err => {
-                    console.error("Error saving the document step:");
+              models.document_step.create({
+                  //document_store_id: ,
+                   document_url: step.document_step,
+                   step_id: result.id,
+                  // upload_dir: ,
+              }).then(result => {
+
+              }, err => {
+                console.error("Error saving the document step:");
                     console.error(err);
                     return res.send(err);
-                  });
               });
             }
 

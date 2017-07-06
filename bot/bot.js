@@ -50,6 +50,7 @@ var controller = Botkit.sparkbot({
   secret: process.env.secret, // this is an RECOMMENDED but optional setting that enables validation of incoming webhooks
   webhook_name: 'Cisco Spark bot created with Botkit, override me before going to production',
   studio_command_uri: process.env.studio_command_uri,
+
 });
 
 // Set up an Express-powered webserver to expose oauth and webhook endpoints
@@ -102,84 +103,6 @@ require("fs").readdirSync(normalizedPath).forEach(function (file) {
 //   console.log('NOTE: Botkit Studio functionality has not been enabled');
 //   console.log('To enable, pass in a studio_token parameter with a token from https://studio.botkit.ai/');
 // }
-
-//GDRIVE CONF
-
-//require google apis
-var google = require('googleapis');
-
-//this is the json file with the private key
-var key = require('./keys/Integration test-6661fdb0c0a7.json');
-
-var drive = google.drive({
-    version: 'v3'
-});
-
-// create an access token for read only access
-var jwtClient = new google.auth.JWT(
-    key.client_email,
-    null,
-    key.private_key,
-    ['https://www.googleapis.com/auth/drive.readonly'],
-    null
-);
-
-//authorize a request
-jwtClient.authorize(function (err, tokens) {
-    if (err) {
-        console.log(err);
-        return;
-    }
-
-    // Make an authorized request to list Drive files.
-    drive.files.list({
-        folderId: 'root',
-        auth: jwtClient
-    }, function (err, response) {
-        if (err) {
-            console.log('The API returned an error: ' + err);
-            return;
-        }
-        var files = response.files;
-        if (files.length == 0) {
-            console.log('No files found.');
-        } else {
-            console.log('Files:');
-            for (var i = 0; i < files.length; i++) {
-                var file = files[i];
-                console.log('%s (%s)', file.name, file.id);
-            }
-        }
-    });
-});
-
-function getDriveDocument(doc){
-
-    drive.files.list({
-        folderId: 'root',
-        auth: jwtClient
-    }, function (err, response) {
-        if (err) {
-            console.log('The API returned an error: ' + err);
-            return;
-        }
-        var files = response.files;
-        if (files.length == 0) {
-            console.log('No files found.');
-        } else {
-            console.log('Files:');
-            for (var i = 0; i < files.length; i++) {
-                var file = files[i];
-
-                if(file.id === doc){
-                  console.log('%s (%s) + %s', file.name, file.id,file.downloadUrl);
-                  return file.downloadUrl;
-                }
-            }
-            console.log("File not found");
-        }
-    });
-}
 
 function usage_tip() {
   console.log('~~~~~~~~~~');

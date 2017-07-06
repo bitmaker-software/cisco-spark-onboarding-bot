@@ -1,7 +1,90 @@
 "use strict";
 
 const databaseServices = require('../database_services');
-const drive = require('../bot');
+const fs = require('fs');
+
+//GDRIVE CONF
+
+//require google apis
+var google = require('googleapis');
+
+//this is the json file with the private key
+var key = require('../keys/Integration test-6661fdb0c0a7.json');
+
+// create an access token for read only access
+var jwtClient = new google.auth.JWT(
+    key.client_email,
+    null,
+    key.private_key,
+    ['https://www.googleapis.com/auth/drive.readonly'],
+    null
+);
+
+var drive = google.drive({
+    version: 'v3',
+    auth: jwtClient
+});
+
+//authorize a request
+jwtClient.authorize(function (err, tokens) {
+    if (err) {
+        console.log(err);
+        return;
+    }
+
+    // Make an authorized request to list Drive files.
+  drive.files.list({
+   folderId: 'root',
+   auth: jwtClient
+   }, function (err, response) {
+   if (err) {
+   console.log('The API returned an error: ' + err);
+   return;
+   }
+   var files = response.files;
+   if (files.length == 0) {
+   console.log('No files found.');
+   } else {
+   console.log('Files:');
+   for (var i = 0; i < files.length; i++) {
+   var file = files[i];
+   console.log('%s (%s)', file.name, file.id);
+   }
+   }
+   });
+});
+
+//google drive
+function getDriveDocument(fileId, callback) {
+
+    var request = drive.files.get({
+        'fileId': fileId,
+        'fields': "id,name,webViewLink,thumbnailLink,webContentLink"
+    }, function(err, file)
+    {
+        console.log(file);
+        callback(file.webContentLink);
+/*
+        var filePath = "./bot/files_to_serve/"+file.name;
+
+        var dest = fs.createWriteStream(filePath);
+        dest.on('open',function(fd){
+            drive.files.get({
+                fileId: file.id,
+                alt: 'media'
+            }).on('end', function() {
+                console.log('Done');
+                callback(fs.createReadStream(filePath));
+            }).on('error', function(err) {
+                console.log('Error during download', err);
+            }).pipe(dest);
+        })
+        */
+    });
+
+
+}
+
 
 module.exports = function (controller) {
 
@@ -250,49 +333,50 @@ module.exports = function (controller) {
     console.log("Adding read document step: " + step.text);
     let text = step.text + '\n\nPlease type ok to continue.';
 
-    let documents = [];
+    var document = "";
 
-    if (!step.document_steps)
-    {
+    if (step.document_step === null) {
       console.error("The read document step has no document!");
     }
     else
     {
-      step.document_steps.forEach(function (doc) {
-        //TODO INES: funcao que vai buscar a drive um url?
-        var url = drive.getDriveDocument(doc);
-        documents.push(url);
-        documents.push('https://github.com/howdyai/botkit/blob/master/docs/readme-ciscospark.md#attaching-files');
-      });
-    }
+      //funcao que vai buscar a drive um url
+      getDriveDocument(step.document_step.document_url, function(document) {
 
-    convo.addQuestion(
-      {
-        text: text,
-        files: documents
-      },[
-      {
-        "pattern": "^ok$",
-        "callback": function (response, convo) {
-          console.log("OK");
-          //save response
-          // go to next
-          convo.next();
-        }
-      },
-      {
-        "default": true,
-        "callback": function (response, convo) {
-          console.log("NOT OK");
-          //repeat the question
-          //convo.say("Please type ok to continue");
-          bot.reply(convo.source_message, "Sorry, I didn't get that. Please type ok to continue");
-          //convo.repeat();
-          //convo.silentRepeat();
-          //convo.next();
-        }
-      }
-    ], {}, thread);
+          console.log("AQUI >>> ")
+          console.log(document)
+          console.log("--------------------")
+          convo.addQuestion(
+              {
+                  text: text,
+                  files: [document]
+              },[
+                  {
+                      "pattern": "^ok$",
+                      "callback": function (response, convo) {
+                          console.log("OK");
+                          //save response
+                          // go to next
+                          convo.next();
+                      }
+                  },
+                  {
+                      "default": true,
+                      "callback": function (response, convo) {
+                          console.log("NOT OK");
+                          //repeat the question
+                          //convo.say("Please type ok to continue");
+                          bot.reply(convo.source_message, "Sorry, I didn't get that. Please type ok to continue");
+                          //convo.repeat();
+                          //convo.silentRepeat();
+                          //convo.next();
+                      }
+                  }
+              ], {}, thread);
+      });
+
+      //documents.push('https://github.com/howdyai/botkit/blob/master/docs/readme-ciscospark.md#attaching-files');
+    }
   }
 
   function addReadUploadDocumentStep(bot, convo, step, respondent_flow_id, thread) {

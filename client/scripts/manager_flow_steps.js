@@ -25,7 +25,8 @@ $(function () {
       addStep: stepType => addNewStep(stepType),
       getFileId: (step) => {
           GDrive.selectFile(function (id) {
-              step.document_steps.push(id);
+              alert(">> "+id+" <<");
+              step.document_step = id;
           })
       },
       saveSteps: saveSteps,
@@ -47,7 +48,7 @@ $(function () {
     app.steps.push({
       step_type_id: stepTypeInt,
       step_choices: [],
-      document_steps: []
+      document_step: null
     });
 
     $('#myModal').modal('hide');
@@ -73,7 +74,7 @@ $(function () {
           step_type_id: step.step_type_id,
           step_choices: step.step_choices, // multiple choice questions
           type_description: getStepTypeFromTypeId(step.step_type_id).description,
-          document_steps: step.document_steps
+          document_step: step.document_step
         }
       });
 

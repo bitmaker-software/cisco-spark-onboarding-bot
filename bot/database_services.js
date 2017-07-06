@@ -58,7 +58,8 @@ module.exports = {
           order: [[models.Sequelize.col('"step_order"'), 'ASC'],
             [models.step_choice, '"choice_order"', 'ASC']],
           include: [
-            {model: models.step_choice}
+            {model: models.step_choice},
+            {model: models.document_step}
           ]
         }).then(steps => {
           resolve({
