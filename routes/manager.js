@@ -61,7 +61,8 @@ router.get('/api/flow/:id', ensureAuthenticated, function (req, res, next) {
     models.step.findAll({
       where: {flow_id: req.params.id},
       include: [
-        {model: models.step_choice}
+        {model: models.step_choice},
+        {model: models.document_step}
       ],
       order: [[models.Sequelize.col('"step_order"'), 'ASC'],
         [models.step_choice, '"choice_order"', 'ASC']],
@@ -148,6 +149,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
   let promiseArray = [];
 
   req.body.steps.forEach((step, index) => {
+
     if (step.id === undefined) {
       // Create step
       promiseArray.push(
@@ -203,7 +205,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                     console.error(err);
                     return res.send(err);
               });
-            }
+            }// if step type === 5 || 6
 
           })
       )
@@ -228,7 +230,8 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
             if (affectedCount === 1) {
               // Check if is multiple choice
               console.log("Step updated (type = " + step.step_type_id + ")");
-              if (step.step_type_id === 4) {
+              if (step.step_type_id === 3)
+              {
                 // Multiple choice
                 // TODO: what if the user removed options? etc.
                 step.step_choices.forEach((choice, index) => {
@@ -264,6 +267,49 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                   }
                 });
               }
+
+              if(step.step_type_id === 5 || step.step_type_id === 6)
+              {
+                //READ DOCUMENTS
+                models.document_step.find(
+                    {where: {step_id: step.id}}).then(result => {
+
+                      //ainda nao existe nenhum documento -> create
+                      if(result == null)
+                      {
+
+                        console.log("!!!! 1")
+
+                        models.document_step.create({
+                            //document_store_id: ,
+                            document_url: step.document_step,
+                            step_id: step.id,
+                            // upload_dir: ,
+                        }).then(result => {
+                          //
+                        }, err => {
+                          console.error("Error creating the document step:");
+                          console.error(err);
+                          return res.send(err);
+                        });
+                      }
+                      //update
+                      else
+                      {
+                        models.document_step.update(
+                            {document_url: step.document_step},
+                            {where: {step_id: step.id}}).
+                        then(
+                            result => { },
+                            err => {
+                              console.error("Error updating the step document: ");
+                              console.error(err);
+                              return res.send(err);
+                        });
+                      }
+                });
+              }// if step type === 5 || 6
+
             }
           })
       )
@@ -282,7 +328,6 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
     .then(function () {
       console.log("All steps processed.");
       return res.status(200).send();
-
 
       // console.error("Error saving the step:");
       // console.error(err);

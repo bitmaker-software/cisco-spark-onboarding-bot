@@ -54,6 +54,7 @@ jwtClient.authorize(function (err, tokens) {
    });
 });
 
+/*
 //google drive
 function getDriveDocument(fileId, callback) {
 
@@ -63,8 +64,7 @@ function getDriveDocument(fileId, callback) {
     }, function(err, file)
     {
         console.log(file);
-        callback(file.webContentLink);
-/*
+
         var filePath = "./bot/files_to_serve/"+file.name;
         var dest = fs.createWriteStream(filePath);
         dest.on('open',function(fd){
@@ -78,9 +78,11 @@ function getDriveDocument(fileId, callback) {
                 console.log('Error during download', err);
             }).pipe(dest);
         })
-        */
+        callback(dest);
+
     });
 }
+*/
 
 
 module.exports = function (controller) {

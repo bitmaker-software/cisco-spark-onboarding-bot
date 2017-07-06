@@ -25,7 +25,7 @@ $(function () {
       addStep: stepType => addNewStep(stepType),
       getFileId: (step) => {
           GDrive.selectFile(function (id) {
-              alert(">> "+id+" <<");
+              alert(id);
               step.document_step = id;
           })
       },
@@ -74,7 +74,7 @@ $(function () {
           step_type_id: step.step_type_id,
           step_choices: step.step_choices, // multiple choice questions
           type_description: getStepTypeFromTypeId(step.step_type_id).description,
-          document_step: step.document_step
+          document_step: getDocumentUrl(step)
         }
       });
 
@@ -97,6 +97,13 @@ $(function () {
       return stepTypesObj[typeId];
     }
     return {description: "Unknown step type"};
+  }
+
+  function getDocumentUrl(step){
+    if(step.document_step !== null){
+      return step.document_step.document_url;
+    }
+    return null;
   }
 
   function saveSteps() {
