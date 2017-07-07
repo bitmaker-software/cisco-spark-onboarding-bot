@@ -194,16 +194,16 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
               console.log(step.document_step);
 
               models.document_step.create({
-                  //document_store_id: ,
-                   document_url: step.document_step,
-                   step_id: result.id,
-                  // upload_dir: ,
+                //document_store_id: ,
+                document_url: step.document_step,
+                step_id: result.id,
+                // upload_dir: ,
               }).then(result => {
 
               }, err => {
                 console.error("Error saving the document step:");
-                    console.error(err);
-                    return res.send(err);
+                console.error(err);
+                return res.send(err);
               });
             }// if step type === 5 || 6
 
@@ -230,8 +230,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
             if (affectedCount === 1) {
               // Check if is multiple choice
               console.log("Step updated (type = " + step.step_type_id + ")");
-              if (step.step_type_id === 3)
-              {
+              if (step.step_type_id === 3) {
                 // Multiple choice
                 // TODO: what if the user removed options? etc.
                 step.step_choices.forEach((choice, index) => {
@@ -268,45 +267,42 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                 });
               }
 
-              if(step.step_type_id === 5 || step.step_type_id === 6)
-              {
+              if (step.step_type_id === 5 || step.step_type_id === 6) {
                 //READ DOCUMENTS
                 models.document_step.find(
-                    {where: {step_id: step.id}}).then(result => {
+                  {where: {step_id: step.id}}).then(result => {
 
-                      //ainda nao existe nenhum documento -> create
-                      if(result == null)
-                      {
+                  //ainda nao existe nenhum documento -> create
+                  if (result === null) {
 
-                        console.log("!!!! 1")
+                    console.log("!!!! 1");
 
-                        models.document_step.create({
-                            //document_store_id: ,
-                            document_url: step.document_step,
-                            step_id: step.id,
-                            // upload_dir: ,
-                        }).then(result => {
-                          //
-                        }, err => {
-                          console.error("Error creating the document step:");
-                          console.error(err);
-                          return res.send(err);
-                        });
-                      }
-                      //update
-                      else
-                      {
-                        models.document_step.update(
-                            {document_url: step.document_step},
-                            {where: {step_id: step.id}}).
-                        then(
-                            result => { },
-                            err => {
-                              console.error("Error updating the step document: ");
-                              console.error(err);
-                              return res.send(err);
-                        });
-                      }
+                    models.document_step.create({
+                      //document_store_id: ,
+                      document_url: step.document_step,
+                      step_id: step.id,
+                      // upload_dir: ,
+                    }).then(result => {
+                      //
+                    }, err => {
+                      console.error("Error creating the document step:");
+                      console.error(err);
+                      return res.send(err);
+                    });
+                  }
+                  //update
+                  else {
+                    models.document_step.update(
+                      {document_url: step.document_step},
+                      {where: {step_id: step.id}}).then(
+                      result => {
+                      },
+                      err => {
+                        console.error("Error updating the step document: ");
+                        console.error(err);
+                        return res.send(err);
+                      });
+                  }
                 });
               }// if step type === 5 || 6
 
