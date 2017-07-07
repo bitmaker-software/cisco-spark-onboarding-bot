@@ -7,7 +7,7 @@ module.exports = function (sequelize, DataTypes) {
       },
       org_id: {
         type: DataTypes.STRING,
-          unique: true
+        unique: true
       },
       bot_key: {
         type: DataTypes.STRING

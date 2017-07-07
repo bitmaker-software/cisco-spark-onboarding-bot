@@ -1,5 +1,5 @@
-import { relative as relativePath } from 'path';
-import { create as createBrowserSync } from 'browser-sync';
+import {relative as relativePath} from 'path';
+import {create as createBrowserSync} from 'browser-sync';
 import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
@@ -11,7 +11,7 @@ import webpackConfig from '../webpack.config';
 const publicPath = appConfig.static.root;
 
 const bs = createBrowserSync();
-const wp = webpack(webpackConfig({ dev: true, publicPath }));
+const wp = webpack(webpackConfig({dev: true, publicPath}));
 
 bs.watch(['views', 'public']).on('change', bs.reload);
 
@@ -19,7 +19,7 @@ bs.init({
   proxy: `${appConfig.host}:${appConfig.port}`,
   open: false, online: false, notify: false,
   middleware: [
-    webpackDevMiddleware(wp, { noInfo: true, publicPath }),
+    webpackDevMiddleware(wp, {noInfo: true, publicPath}),
     webpackHotMiddleware(wp)
   ]
 });

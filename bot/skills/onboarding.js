@@ -1,6 +1,107 @@
 "use strict";
 
 const databaseServices = require('../database_services');
+const fs = require('fs');
+
+//GDRIVE CONF
+
+//require google apis
+let google = require('googleapis');
+
+//this is the json file with the private key
+let key = require('../keys/Integration test-6661fdb0c0a7.json');
+
+// create an access token for read only access
+let jwtClient = new google.auth.JWT(
+  key.client_email,
+  null,
+  key.private_key,
+  ['https://www.googleapis.com/auth/drive'], //.readonly
+  null
+);
+
+let drive = google.drive({
+  version: 'v3',
+  auth: jwtClient
+});
+
+//authorize a request
+jwtClient.authorize(function (err, tokens) {
+  if (err) {
+    console.log(err);
+    return;
+  }
+
+  // Make an authorized request to list Drive files.
+  drive.files.list({
+    folderId: 'root',
+    auth: jwtClient
+  }, function (err, response) {
+    if (err) {
+      console.log('The API returned an error: ' + err);
+      return;
+    }
+    let files = response.files;
+    if (files.length === 0) {
+      console.log('No files found.');
+    } else {
+      console.log('Files: \n');
+      for (let i = 0; i < files.length; i++) {
+        let file = files[i];
+        console.log('%s (%s)', file.name, file.id);
+
+        drive.permissions.list({
+          fileId: file.id
+        }, function (err, response) {
+          console.log(response);
+        })
+
+        /*
+         //delete files
+         drive.files.delete({
+         fileId: file.id
+         }, function (err, response) {
+         if (err) {
+         console.log('delete error: ' + err);
+         return;
+         }
+         console.log("deleted "+file.id);
+         });
+         */
+      }
+    }
+  });
+
+  console.log("\n");
+});
+
+/*
+ //google drive
+ function getDriveDocument(fileId, callback) {
+ var request = drive.files.get({
+ 'fileId': fileId,
+ 'fields': "id,name,webViewLink,webContentLink"
+ }, function(err, file)
+ {
+ console.log(file);
+ var filePath = "./bot/files_to_serve/"+file.name;
+ var dest = fs.createWriteStream(filePath);
+ dest.on('open',function(fd){
+ drive.files.get({
+ fileId: file.id,
+ alt: 'media'
+ }).on('end', function() {
+ console.log('Done');
+ callback(fs.createReadStream(filePath));
+ }).on('error', function(err) {
+ console.log('Error during download', err);
+ }).pipe(dest);
+ })
+ callback(dest);
+ });
+ }
+ */
+
 
 module.exports = function (controller) {
 
@@ -39,46 +140,65 @@ module.exports = function (controller) {
     getFlow(respondentFlow.flow_id).then(flow => {
       let thread = 'default';
       console.log(flow);
-      //create the conversation
-      bot.createConversation(message, function (err, convo) {
-        // console.log("createConversation callback. convo: ⏎");
-        // console.log(convo);
-        if (!err && convo) {
-          flow.steps.forEach(function (step) {
-            console.log("STEP TYPE ID: ");
-            console.log(step.step_type_id);
-            switch (step.step_type_id) {
-              // case "announcement":
-              case 1:
-                addAnnouncementStep(bot, convo, step, respondentFlow.id, thread);
-                break;
-              // case "free_text":
-              case 2:
-                addFreeTextStep(bot, convo, step, respondentFlow.id, thread);
-                break;
-              // case "multiple_choice":
-              case 4:
-                addMultipleChoiceStep(bot, convo, step, respondentFlow.id, thread);
-                break;
-              default:
-                break;
-            }
-          });
 
-          addEndConversationHandler(bot, convo, respondentFlow);
+      //NEW
+      updateDownloadedDocs(flow).then(function (flow) {
 
-          console.log('Activating the conversation');
-          convo.activate();
+        //create the conversation
+        bot.createConversation(message, function (err, convo) {
+          // console.log("createConversation callback. convo: ⏎");
+          // console.log(convo);
+          if (!err && convo) {
+            flow.steps.forEach(function (step) {
+              console.log("STEP TYPE ID: ");
+              console.log(step.step_type_id);
+              switch (step.step_type_id) {
+                // case "announcement":
+                case 1:
+                  addAnnouncementStep(bot, convo, step, respondentFlow.id, thread);
+                  break;
+                // case "free_text":
+                case 2:
+                  addFreeTextStep(bot, convo, step, respondentFlow.id, thread);
+                  break;
+                // case "multiple_choice":
+                case 3:
+                  addMultipleChoiceStep(bot, convo, step, respondentFlow.id, thread);
+                  break;
+                //case "upload document" step
+                case 4:
+                  addUploadDocumentStep(bot, convo, step, respondentFlow.id, thread);
+                  break;
+                //case "read document" step
+                case 5:
+                  addReadDocumentStep(bot, convo, step, respondentFlow.id, thread);
+                  break;
+                //case "read and upload document" step
+                case 6:
+                  addReadUploadDocumentStep(bot, convo, step, respondentFlow.id, thread);
+                  break;
+                default:
+                  break;
+              }
+            });
 
-          databaseServices.setRespondentFlowStarted(respondentFlow);
+            addEndConversationHandler(bot, convo, respondentFlow);
 
-          // TODO: when/where to update current step id on the respondent flow?
+            console.log('Activating the conversation');
+            convo.activate();
 
-        } else {
-          console.log('Error creating the conversation');
-          console.log(err);
-        }
-      });
+            databaseServices.setRespondentFlowStarted(respondentFlow);
+
+            // TODO: when/where to update current step id on the respondent flow?
+
+          } else {
+            console.log('Error creating the conversation');
+            console.log(err);
+          }
+        });
+
+      }); //END FUNCTION
+
     }, err => {
       console.error("Error fetching the flow:");
       console.error(err);
@@ -203,6 +323,128 @@ module.exports = function (controller) {
     convo.addQuestion(text, patternsAndCallbacks, {}, thread);
   }
 
+  function addUploadDocumentStep(bot, convo, step, respondent_flow_id, thread) {
+    console.log("Adding upload document step: " + step.text);
+    //mudar para verificar que ja fez upload
+    let text = step.text + '\n\nUpload the file to continue.';
+
+    convo.addQuestion(text, [
+      {
+        "default": true,
+        "callback": function (response, convo) {
+
+          if (response.original_message.files) {
+            console.log("OK");
+            //save answer --> AQUI
+            bot.retrieveFileInfo(response.original_message.files[0], function (err, file_info) {
+              bot.retrieveFile(response.original_message.files[0], function (err, file) {
+                uploadToDrive(file_info, file, function (fileId) {
+                  saveDocumentAnswer(bot, step, respondent_flow_id, fileId);
+                });
+              });
+            });
+            //go to next
+            convo.next();
+          }
+          else {
+            console.log("NOT OK");
+            //repeat the question
+            //convo.say("Please type ok to continue");
+            bot.reply(convo.source_message, "Sorry, I didn't get that. Please upload the file to continue.");
+            //convo.repeat();
+            //convo.silentRepeat();
+            //convo.next();
+          }
+        }
+      }
+    ], {}, thread);
+  }
+
+  function addReadDocumentStep(bot, convo, step, respondent_flow_id, thread) {
+    console.log("Adding read document step: " + step.text);
+    let text = step.text + '\n\nPlease type ok to continue.';
+
+    if (step.document_step === null) {
+      console.error("The read document step has no document!");
+    }
+    else {
+      convo.addQuestion({
+        text: text,
+        files: [step.url]
+      }, [
+        {
+          "pattern": "^ok$",
+          "callback": function (response, convo) {
+            console.log("OK");
+            // go to next
+            convo.next();
+          }
+        },
+        {
+          "default": true,
+          "callback": function (response, convo) {
+            console.log("NOT OK");
+            //repeat the question
+            //convo.say("Please type ok to continue");
+            bot.reply(convo.source_message, "Sorry, I didn't get that. Please type ok to continue");
+            //convo.repeat();
+            // convo.silentRepeat();
+            // convo.next();
+          }
+        }
+      ], {}, thread);
+
+    }
+  }
+
+  function addReadUploadDocumentStep(bot, convo, step, respondent_flow_id, thread) {
+    console.log("Adding read and upload document step: " + step.text);
+    //verificar que fez upload
+    let text = step.text + '\n\nUpload the file to continue.';
+
+    if (step.document_step === null) {
+      console.error("The read document step has no document!");
+    }
+    else {
+
+      convo.addQuestion(
+        {
+          text: text,
+          files: [step.url]
+        },
+        [
+          {
+            "default": true,
+            "callback": function (response, convo) {
+              if (response.original_message.files) {
+                console.log("OK");
+                //save answer
+                bot.retrieveFileInfo(response.original_message.files[0], function (err, file_info) {
+                  bot.retrieveFile(response.original_message.files[0], function (err, file) {
+                    uploadToDrive(file_info, file, function (fileId) {
+                      saveDocumentAnswer(bot, step, respondent_flow_id, fileId);
+                    });
+                  });
+                });
+                //go to next
+                convo.next();
+              }
+              else {
+                console.log("NOT OK");
+                //repeat the question
+                //convo.say("Please type ok to continue");
+                bot.reply(convo.source_message, "Sorry, I didn't get that. Please upload the file to continue.");
+                //convo.repeat();
+                //convo.silentRepeat();
+                //convo.next();
+              }
+            }
+          }
+        ], {}, thread);
+    }
+
+  }
+
   /*
    save an answer to the database
    */
@@ -218,6 +460,57 @@ module.exports = function (controller) {
     console.log('saving multiple choice answer to database');
     console.log("insert into RespondentAnswers(respondent_flow_id, step_id, step_choice_id, status, answer_date) values(" + respondent_flow_id + ", " + step.step_id + ", " + step_choice_id + ", 'answered', new Date());");
     databaseServices.saveMultipleChoiceAnswer(respondent_flow_id, step.id, step_choice_id);
+  }
+
+  function saveDocumentAnswer(bot, step, respondent_flow_id, url) {
+    console.log('saving document answer to database');
+    databaseServices.saveDocumentAnswer(respondent_flow_id, step.id, url);
+  }
+
+  function uploadToDrive(file_info, file, callback) {
+    let fileMetadata = {
+      'name': file_info.filename
+    };
+
+    let media = {
+      'uploadType': media,
+      'Content-Type': file_info['content-type'],
+      'Content-Length': file_info['content-length'],
+      'body': file
+    };
+
+    drive.files.create({
+      resource: fileMetadata,
+      media: media,
+      fields: 'id,webContentLink'
+    }, function (err1, file) {
+      if (err1) {
+        console.log("Error uploading file :");
+        console.log(err1);
+      } else {
+        //isto
+        console.log('File Id: ', file.id + '\nWebContentView: ' + file.webContentLink);
+        //callback(file.id);
+
+        let permission = {
+          'type': 'anyone',
+          'role': 'reader'
+        };
+        drive.permissions.create({
+          resource: permission,
+          fileId: file.id,
+          fields: 'id',
+        }, function (err2, per) {
+          if (err2) {
+            // Handle error
+            console.log(err2);
+          } else {
+            console.log('Permission ID: ', per.id);
+            callback(file.webContentLink);
+          }
+        });
+      }
+    });
   }
 
   function getFlow(flowId) {
@@ -279,5 +572,48 @@ module.exports = function (controller) {
         }
       );
     }
+  }
+
+  function updateDownloadedDocs(flow) {
+    return new Promise(function (resolve, reject) {
+      console.log("init");
+      let counter = 0;
+      let size = flow.steps.length;
+
+      flow.steps.forEach(function (step) {
+        //read documents
+        if (step.step_type_id === 5 || step.step_type_id === 6) {
+          if (step.document_step !== null) {
+            drive.files.get({
+              'fileId': step.document_step.document_url,
+              'fields': "id,name,webViewLink,webContentLink"
+            }, function (err, file) {
+              console.log(file);
+              //isto
+              step.url = file.webContentLink;
+              counter++;
+
+              if (counter === size) {
+                console.log("end 2!");
+                resolve(flow);
+              }
+            });
+          }
+          else {
+            step.url = null;
+            counter++;
+          }
+        }
+        else {
+          counter++;
+        }
+      });
+
+      if (counter === size) {
+        console.log("end 1!");
+        resolve(flow);
+      }
+
+    });
   }
 };

@@ -103,7 +103,12 @@
           view.setSelectFolderEnabled(true);
         }
 
-        let picker = new google.picker.PickerBuilder().addView(view).setOAuthToken(self.oauthToken).setDeveloperKey(self.developerKey).setCallback(self.pickerCallback).build();
+        let picker = new google.picker.PickerBuilder()
+            .addView(view)
+            .setOAuthToken(self.oauthToken)
+            .setDeveloperKey(self.developerKey)
+            .setCallback(self.pickerCallback)
+            .build();
         picker.setVisible(true);
       }
     }
@@ -111,34 +116,57 @@
   };
 
   self.pickerCallback = function (data) {
-    let url = 'nothing';
+    let url;
     let docid = '';
-    if (data[google.picker.Response.ACTION] === google.picker.Action.PICKED) {
+    if (data[google.picker.Response.ACTION] === google.picker.Action.PICKED)
+    {
       let doc = data[google.picker.Response.DOCUMENTS][0];
       url = doc[google.picker.Document.URL];
       docid = doc[google.picker.Document.ID];
       self.shareFile(docid);
-    } else if (data[google.picker.Response.ACTION] === google.picker.Action.CANCEL) {
+    }
+    else if (data[google.picker.Response.ACTION] === google.picker.Action.CANCEL)
+    {
       self.selectMode = 'none';
+    }
+    else
+    {
+      url = 'nothing';
     }
     let message = 'You picked: ' + url + ' (' + docid + ')';
     console.log(message);
   };
 
-  self.shareFile = function (fileId) {
-    if (self.driveShareLoaded) {
+  self.shareFile = function (fileId)
+  {
+    if (self.driveShareLoaded)
+    {
       let role = self.selectMode === 'file' ? 'reader' : 'writer';
+
+      let reqPub = gapi.client.drive.permissions.create({
+          'fileId': fileId,
+          'resource': {
+              'type': 'anyone',
+              'role': 'reader'
+          }
+      });
+      reqPub.execute(function(resp){
+        console.log("Request Public : ")
+        console.log(resp);
+      });
+
       let req = gapi.client.drive.permissions.create({
         'fileId': fileId,
-        'sendNotificationEmail': false,
+        //'sendNotificationEmail': false,   //PROBLEMA
         'resource': {
-          'emailAddress': shareTo,
+          'emailAddress': self.shareTo,
           'type': 'user',
           'role': role
         }
       });
 
       req.execute(function (resp) {
+        console.log("Request User : ")
         console.log(resp);
         if (resp.kind && resp.kind === 'drive#permission') {
           //share ok

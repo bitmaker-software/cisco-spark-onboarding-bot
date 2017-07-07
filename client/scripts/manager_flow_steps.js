@@ -14,14 +14,21 @@ $(function () {
       stepTypeIcons: {
         1: "announcement", // Announcement
         2: "question",  // Question
-        3: "document", // Document
-        4: "multiplechoice", // Multiple Choice
-        5: "signature", // Docusign
+        3: "multiplechoice", // Multiple Choice
+        4: "", // User upload Document
+        5: "document", // User read Document
+        6: "", // User read and upload
       },
-      newStepTypeSelected: 1,
+      newStepTypeSelected: 1
     },
     methods: {
       addStep: stepType => addNewStep(stepType),
+      getFileId: (step) => {
+          GDrive.selectFile(function (id) {
+              alert(id);
+              step.document_step = id;
+          })
+      },
       saveSteps: saveSteps,
       startDraggingStepTypes: () => {
         console.log("Start dragging");
@@ -39,7 +46,9 @@ $(function () {
     let stepTypeInt = parseInt(stepType);
 
     app.steps.push({
-      step_type_id: stepTypeInt
+      step_type_id: stepTypeInt,
+      step_choices: [],
+      document_step: null
     });
 
     $('#myModal').modal('hide');
@@ -64,7 +73,8 @@ $(function () {
           text: step.text,
           step_type_id: step.step_type_id,
           step_choices: step.step_choices, // multiple choice questions
-          type_description: getStepTypeFromTypeId(step.step_type_id).description
+          type_description: getStepTypeFromTypeId(step.step_type_id).description,
+          document_step: getDocumentUrl(step)
         }
       });
 
@@ -87,6 +97,13 @@ $(function () {
       return stepTypesObj[typeId];
     }
     return {description: "Unknown step type"};
+  }
+
+  function getDocumentUrl(step){
+    if(step.document_step !== null){
+      return step.document_step.document_url;
+    }
+    return null;
   }
 
   function saveSteps() {

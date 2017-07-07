@@ -87,6 +87,7 @@ Object.keys(db).forEach(function (modelName) {
 
   // - Document Step
   m.document_step.belongsTo(m.document_store);
+  //m.document_step.belongsTo(m.step);  //AQUI
 
   // - Respondent
   m.respondent.belongsTo(m.tenant);

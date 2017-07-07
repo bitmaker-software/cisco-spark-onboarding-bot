@@ -5,6 +5,27 @@ const router = require('express').Router();
 const ensureAuthenticated = require('./auth_middleware');
 const databaseServices = require('../bot/database_services');
 const sparkAPIUtils = require('../bot/spark_api_utils');
+const key = require('../bot/keys/Integration test-6661fdb0c0a7.json');
+
+//aqui
+let env = require('node-env-file');
+env(__dirname + '/../bot/.env');
+
+let gdrive_client_id = process.env.gdrive_client_id;
+let gdrive_developer_key = process.env.gdrive_developer_key;
+let gdrive_share_to = key.client_email;
+
+//let bot = require('../app').bot;
+
+if (!gdrive_client_id) {
+  console.error("WARNING: gdrive_client_id is not defined!");
+}
+if (!gdrive_developer_key) {
+  console.error("WARNING: gdrive_developer_key is not defined!");
+}
+if (!gdrive_share_to) {
+  console.error("WARNING: gdrive_share_to is not defined!");
+}
 
 
 // ——————————————————————————————————————————————————
@@ -40,7 +61,8 @@ router.get('/api/flow/:id', ensureAuthenticated, function (req, res, next) {
     models.step.findAll({
       where: {flow_id: req.params.id},
       include: [
-        {model: models.step_choice}
+        {model: models.step_choice},
+        {model: models.document_step}
       ],
       order: [[models.Sequelize.col('"step_order"'), 'ASC'],
         [models.step_choice, '"choice_order"', 'ASC']],
@@ -105,7 +127,10 @@ router.get('/flow/:id/edit', ensureAuthenticated, function (req, res, next) {
       title: values[1][0].name,
       flowId: req.params.id,
       stepTypes: values[0],
-      active: 'Manager' // left side bar icon
+      active: 'Manager', // left side bar icon
+      gdrive_client_id: gdrive_client_id,
+      gdrive_developer_key: gdrive_developer_key,
+      gdrive_share_to: gdrive_share_to
     });
   }, err => {
     console.error("Error fetching the step types or flow:");
@@ -124,6 +149,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
   let promiseArray = [];
 
   req.body.steps.forEach((step, index) => {
+
     if (step.id === undefined) {
       // Create step
       promiseArray.push(
@@ -140,7 +166,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
             console.log("Result from new step");
             console.log(result);
 
-            if (step.step_type_id === 4) {
+            if (step.step_type_id === 3) {
               // Multiple choice
               console.log("step.step_choices:");
               console.log(step.step_choices);
@@ -160,7 +186,26 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                   return res.send(err);
                 });
               });
-            } // if step type === 4
+            } // if step type === 3
+
+            if (step.step_type_id === 5 || step.step_type_id === 6) {
+              //read documents
+              console.log("step.document_step:");
+              console.log(step.document_step);
+
+              models.document_step.create({
+                //document_store_id: ,
+                document_url: step.document_step,
+                step_id: result.id,
+                // upload_dir: ,
+              }).then(result => {
+
+              }, err => {
+                console.error("Error saving the document step:");
+                console.error(err);
+                return res.send(err);
+              });
+            }// if step type === 5 || 6
 
           })
       )
@@ -185,7 +230,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
             if (affectedCount === 1) {
               // Check if is multiple choice
               console.log("Step updated (type = " + step.step_type_id + ")");
-              if (step.step_type_id === 4) {
+              if (step.step_type_id === 3) {
                 // Multiple choice
                 // TODO: what if the user removed options? etc.
                 step.step_choices.forEach((choice, index) => {
@@ -221,6 +266,46 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                   }
                 });
               }
+
+              if (step.step_type_id === 5 || step.step_type_id === 6) {
+                //READ DOCUMENTS
+                models.document_step.find(
+                  {where: {step_id: step.id}}).then(result => {
+
+                  //ainda nao existe nenhum documento -> create
+                  if (result === null) {
+
+                    console.log("!!!! 1");
+
+                    models.document_step.create({
+                      //document_store_id: ,
+                      document_url: step.document_step,
+                      step_id: step.id,
+                      // upload_dir: ,
+                    }).then(result => {
+                      //
+                    }, err => {
+                      console.error("Error creating the document step:");
+                      console.error(err);
+                      return res.send(err);
+                    });
+                  }
+                  //update
+                  else {
+                    models.document_step.update(
+                      {document_url: step.document_step},
+                      {where: {step_id: step.id}}).then(
+                      result => {
+                      },
+                      err => {
+                        console.error("Error updating the step document: ");
+                        console.error(err);
+                        return res.send(err);
+                      });
+                  }
+                });
+              }// if step type === 5 || 6
+
             }
           })
       )
@@ -240,14 +325,12 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
       console.log("All steps processed.");
       return res.status(200).send();
 
-
       // console.error("Error saving the step:");
       // console.error(err);
       // return res.send(err);
 
     });
 });
-
 
 // ——————————————————————————————————————————————————
 //                    Send Flow
