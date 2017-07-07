@@ -2,22 +2,22 @@ extends layout
 
 block content
   div#root
-        
+
     div.row
       div.col-md-3.step-container
         h1.title= title
         p.lead.text-center Available step types do be added to the flow
-        
+
         div.step-type(v-for="stepType in stepTypes")
           div.btn.btn-secondary
             svg.step-icon
               use(v-bind="{'xlink:href':'"+static.root +"/sprite.svg#'+stepTypeIcons[stepType.id]}")
-              
+
               // TODO: workaround for now; add column name to the database?
               span {{ stepType.name }}
               span(data-toggle="tooltip", data-placement="top", title, v-bind:title="stepType.description")
                 i.material-icons info              
-                
+
       div.col-md-9.flow-container
         h2.title.text-primary Steps
         div#empty-flow.hidden
@@ -29,7 +29,7 @@ block content
           //p {{ step }}
           draggable(v-model="steps")
             div.list-group-item.no-gutters(v-for="step in steps")
-              div.drag 
+              div.drag
                 span.drag-handle.drag-handle-step
                   svg.icon
                     use(xlink:href=static.root + "/sprite.svg#drag")
@@ -72,23 +72,34 @@ block content
                   //
                   // User Upload Document
                   //
+                  div.input-group.file-type
+                    label Answer Destination Folder
+                      input(type='button', value='Google Drive', @click='getFolderId(step)')
+                      input(type='button', value='Box')
+                      input(type='button', value='SFTP')
                 template(v-if="step.step_type_id === 5")
                   //
                   // User Read Document, add the file picker
                   //
                   div.input-group.file-type
-                    input(type='button', value='Google Drive', @click='getFileId(step)')
-                    input(type='button', value='Box')
-                    input(type='button', value='SFTP')
-
+                    label Document to read
+                      input(type='button', value='Google Drive', @click='getFileId(step)')
+                      input(type='button', value='Box')
+                      input(type='button', value='SFTP')
                 template(v-if="step.step_type_id === 6")
                   //
                   // User Read and Upload Document
                   //
                   div.input-group.file-type
-                    input(type='file', value='Google Drive', @click='getFileId(step)')
-                    input(type='button', value='Box')
-                    input(type='button', value='SFTP')
+                    label Document to read
+                      input(type='button', value='Google Drive', @click='getFileId(step)')
+                      input(type='button', value='Box')
+                      input(type='button', value='SFTP')
+                  div.input-group.file-type
+                    label Answer destination folder
+                      input(type='button', value='Google Drive', @click='getFolderId(step)')
+                      input(type='button', value='Box')
+                      input(type='button', value='SFTP')
 
         // Trigger the modal with a button
         div.drag-area Drag & drop questions here or click the button below
@@ -122,21 +133,21 @@ block content
 
 block pageScripts
   script.
-    var stepTypesArray = !{JSON.stringify(stepTypes).replace(/<\//g, '<\\/')};
-    var stepTypesObj = {};
-    stepTypesArray.forEach(function (element) {
-      stepTypesObj[element.id] = element;
-    });
-    console.log(stepTypesObj);
-    var flowId = !{flowId}; // used on AJAX requests
+      var stepTypesArray = !{JSON.stringify(stepTypes).replace(/<\//g, '<\\/')};
+      var stepTypesObj = {};
+      stepTypesArray.forEach(function (element) {
+          stepTypesObj[element.id] = element;
+      });
+      console.log(stepTypesObj);
+      var flowId = !{flowId}; // used on AJAX requests
 
   script(src=static.root + '/js/manager_flow_steps.js')
 
   //script(id='gdrive', src=static.root + '/js/gdrive.js@' + static.suffix,
   script(id='gdrive', src=static.root + '/js/gdrive.js',
-    data-gdrive-client-id=gdrive_client_id,
-    data-gdrive-developer-key=gdrive_developer_key,
-    data-gdrive-share-to=gdrive_share_to)
+  data-gdrive-client-id=gdrive_client_id,
+  data-gdrive-developer-key=gdrive_developer_key,
+  data-gdrive-share-to=gdrive_share_to)
 
   script(async, defer, src="https://apis.google.com/js/api.js", onload="GDrive.onApiLoaded()")
   //onreadystatechange="if (this.readyState === 'complete') this.onload()")
