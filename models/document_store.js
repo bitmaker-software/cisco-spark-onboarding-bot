@@ -6,10 +6,10 @@ module.exports = function (sequelize, DataTypes) {
         type: DataTypes.STRING
       },
       google_drive_client_id: {
-          type: DataTypes.STRING
+        type: DataTypes.STRING
       },
       google_drive_developer_key: {
-          type: DataTypes.STRING
+        type: DataTypes.STRING
       },
       google_drive_user_account: {
         type: DataTypes.STRING

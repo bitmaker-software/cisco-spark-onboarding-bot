@@ -13,7 +13,7 @@ module.exports = function (sequelize, DataTypes) {
       },
       spark_id: {
         type: DataTypes.STRING,
-          unique: true
+        unique: true
       },
     },
     {});
