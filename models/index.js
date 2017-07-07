@@ -70,9 +70,10 @@ Object.keys(db).forEach(function (modelName) {
   m.flow.belongsTo(m.flow_status);
 
   // - Step
-  m.step.belongsTo(m.flow);
-  m.step.belongsTo(m.step_type);
-  m.step.hasMany(m.step_choice);
+  m.step.belongsTo(m.flow); // adds flow_id to step table
+  m.step.belongsTo(m.step_type); // adds step_type_id to step table
+  m.step.hasMany(m.step_choice); // adds step_id to step_choice table
+  m.step.hasOne(m.document_step); // adds step_id to document_step table
 
   // - Step Type
 
@@ -95,13 +96,13 @@ Object.keys(db).forEach(function (modelName) {
   m.respondent_flow.belongsTo(m.respondent);
   m.respondent_flow.belongsTo(m.step, {as: 'current_step'});
   m.respondent_flow.belongsTo(m.flow);
-  m.respondent_flow.belongsTo(m.flow_status);
+  m.respondent_flow.belongsTo(m.respondent_flow_status);
 
   // - Respondent Answer
   m.respondent_answer.belongsTo(m.respondent_flow);
   m.respondent_answer.belongsTo(m.step);
   m.respondent_answer.belongsTo(m.step_choice);
-
+  m.respondent_answer.belongsTo(m.answer_status);
 
 })(db);
 

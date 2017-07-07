@@ -18,11 +18,14 @@ module.exports = function (controller) {
   // });
 
   controller.hears(['start'], 'direct_message', function (bot, message) {
-    // Get the oldest pending flow and start it
-    databaseServices.getOldestPendingFlowForUserEmail(message.user).then(flow => {
+    // Get the oldest pending (not started) flow and start it
+    databaseServices.getOldestPendingFlowForUserEmail(message.user).then(respondentFlow => {
       console.log(`getOldestPendingFlowForUserEmail ${message.user}`);
-      console.log(flow.id);
-      buildConversationFromCurrentFlow(bot, message, flow.id);
+      console.log(respondentFlow.flow_id);
+      buildConversationFromCurrentFlow(bot, message, respondentFlow);
+    }, error => {
+      console.log(error);
+      bot.reply(message, 'No onboarding in progress.');
     });
   });
 
@@ -30,18 +33,16 @@ module.exports = function (controller) {
   /*
    Retrieve the current flow from the datastore, and build the conversation accordingly
    */
-  // TODO: exposing buildConversationFromCurrentFlow function (there must be a better way to do this!)
-  // global.buildConversationFromCurrentFlow = function (bot, message, flowId) {
-  let buildConversationFromCurrentFlow = function (bot, message, flowId) {
-    console.log(`buildConversationFromCurrentFlow(bot=${bot}, message=${message}, flowId=${flowId})`);
+  let buildConversationFromCurrentFlow = function (bot, message, respondentFlow) {
+    console.log(`buildConversationFromCurrentFlow(bot=${bot}, message=${message}, flowId=${respondentFlow.flow_id})`);
     //get the flow from the database
-    retrieveCurrentFlowFromDb(flowId).then(flow => {
+    getFlow(respondentFlow.flow_id).then(flow => {
       let thread = 'default';
       console.log(flow);
       //create the conversation
       bot.createConversation(message, function (err, convo) {
-        console.log("createConversation callback. convo: ⏎");
-        console.log(convo);
+        // console.log("createConversation callback. convo: ⏎");
+        // console.log(convo);
         if (!err && convo) {
           flow.steps.forEach(function (step) {
             console.log("STEP TYPE ID: ");
@@ -49,25 +50,30 @@ module.exports = function (controller) {
             switch (step.step_type_id) {
               // case "announcement":
               case 1:
-                addAnnouncementStep(bot, convo, step, flow.respondent_flow_id, thread);
+                addAnnouncementStep(bot, convo, step, respondentFlow.id, thread);
                 break;
               // case "free_text":
               case 2:
-                addFreeTextStep(bot, convo, step, flow.respondent_flow_id, thread);
+                addFreeTextStep(bot, convo, step, respondentFlow.id, thread);
                 break;
               // case "multiple_choice":
               case 4:
-                addMultipleChoiceStep(bot, convo, step, flow.respondent_flow_id, thread);
+                addMultipleChoiceStep(bot, convo, step, respondentFlow.id, thread);
                 break;
               default:
                 break;
             }
           });
 
-          addEndConversationHandler(bot, convo);
+          addEndConversationHandler(bot, convo, respondentFlow);
 
           console.log('Activating the conversation');
           convo.activate();
+
+          databaseServices.setRespondentFlowStarted(respondentFlow);
+
+          // TODO: when/where to update current step id on the respondent flow?
+
         } else {
           console.log('Error creating the conversation');
           console.log(err);
@@ -79,9 +85,10 @@ module.exports = function (controller) {
     });
   };
 
-  function addEndConversationHandler(bot, convo) {
+  function addEndConversationHandler(bot, convo, respondentFlow) {
     convo.on('end', function (convo) {
       if (convo.status === 'completed') {
+        databaseServices.setRespondentFlowFinished(respondentFlow);
         bot.reply(convo.source_message, "Thank you so much for your time! Have a nice day!");
       } else {
         bot.reply(convo.source_message, "Sorry, something went wrong. Please contact your HR department for more information.");
@@ -93,7 +100,15 @@ module.exports = function (controller) {
     console.log("Adding announcement step: " + step.text);
     let text = step.text + '\n\nPlease type ok to continue.';
 
-    convo.addQuestion(text, [
+    // var fs = require('fs');
+    // var filePath = './bot/files_to_serve/test_file.txt';
+    // bot.say({channel: convo.source_message.channel, text: text, files: [fs.createReadStream(filePath)]}); // OK
+    // convo.say({text: text}); // OK
+    // convo.say({text: text, files: ['http://pre10.deviantart.net/3354/th/pre/i/2012/175/9/6/af_monogrammatic_type____logos_for_sale_by_aeldesign-d54ngvf.png']});
+    // convo.say({text: text, files: [fs.createReadStream(filePath)]}); // TypeError: First argument must be a string or Buffer
+    // convo.addQuestion({text: text, files: ['http://pre10.deviantart.net/3354/th/pre/i/2012/175/9/6/af_monogrammatic_type____logos_for_sale_by_aeldesign-d54ngvf.png']}, [ // OK
+    // convo.addQuestion({text: text, files: [fs.createReadStream(filePath)]}, [ // NOT OK
+    convo.addQuestion(text, [ // OK
       {
         "pattern": "^ok$",
         "callback": function (response, convo) {
@@ -155,6 +170,8 @@ module.exports = function (controller) {
       console.error("The multiple choice step has no choices!");
     } else {
       step.step_choices.forEach(function (choice) {
+        console.log(choice.choice_order);
+        console.log(choice.text);
 
         text += choice.choice_order + '. ' + choice.text + '\n\n';
 
@@ -192,16 +209,18 @@ module.exports = function (controller) {
   function saveTextAnswer(bot, step, respondent_flow_id, text) {
     //insert into RespondentAnswers(respondent_flow_id, step_id, text, status, answer_date) values(respondent_flow_id, step.step_id, text, 'answered', new Date());
     console.log('saving text answer to database');
-    console.log("insert into RespondentAnswers(respondent_flow_id, step_id, text, status, answer_date) values(" + respondent_flow_id + ", " + step.step_id + ", '" + text + "', 'answered', new Date());");
+    console.log("insert into RespondentAnswers(respondent_flow_id, step_id, text, status, answer_date) values(" + respondent_flow_id + ", " + step.id + ", '" + text + "', 'answered', new Date());");
+    databaseServices.saveTextAnswer(respondent_flow_id, step.id, text);
   }
 
   function saveMultipleChoiceAnswer(bot, step, respondent_flow_id, step_choice_id) {
     //insert into RespondentAnswers(respondent_flow_id, step_id, step_choice_id, status, answer_date) values(respondent_flow_id, step.step_id, step_choice_id, 'answered', new Date());
     console.log('saving multiple choice answer to database');
     console.log("insert into RespondentAnswers(respondent_flow_id, step_id, step_choice_id, status, answer_date) values(" + respondent_flow_id + ", " + step.step_id + ", " + step_choice_id + ", 'answered', new Date());");
+    databaseServices.saveMultipleChoiceAnswer(respondent_flow_id, step.id, step_choice_id);
   }
 
-  function retrieveCurrentFlowFromDb(flowId) {
+  function getFlow(flowId) {
     const SEND_DUMMY = false;
     if (!SEND_DUMMY) {
       // Get from the database

@@ -55,7 +55,8 @@ module.exports = {
       models.flow.find({where: {id: flow_id}}).then(flow => {
         models.step.findAll({
           where: {flow_id: flow.id},
-          order: '"step_order"',
+          order: [[models.Sequelize.col('"step_order"'), 'ASC'],
+            [models.step_choice, '"choice_order"', 'ASC']],
           include: [
             {model: models.step_choice}
           ]
@@ -98,11 +99,30 @@ module.exports = {
     return new Promise(function (resolve, reject) {
       models.respondent.find({where: {email: email}}).then(respondent => {
         if (respondent) {
-          resolve(models.respondent_flow.find({where: {respondent_id: respondent.id}})); // TODO: sort by ID and resolve the oldest? AND check the status
+          resolve(models.respondent_flow.find(
+            {
+              where: {
+                respondent_id: respondent.id,
+                respondent_flow_status_id: 1 // 1 === Not started
+              }
+            }
+            )); // TODO: sort by ID and resolve the oldest?
         } else {
           reject('Respondent not found');
         }
       })
+    });
+  },
+
+  setRespondentFlowStarted: respondentFlow => {
+    respondentFlow.updateAttributes({
+      respondent_flow_status_id: 2 // 2 === Started / In progress
+    });
+  },
+
+  setRespondentFlowFinished: respondentFlow => {
+    respondentFlow.updateAttributes({
+      respondent_flow_status_id: 3 // 3 === Finished
     });
   },
 
@@ -113,7 +133,7 @@ module.exports = {
       models.respondent_answer.findAll({
         attributes: ['id','answer_date','text','document_url'],
         where: {
-          status: "Answered",
+          answer_status_id: 2,
         },
         include: [
           {
@@ -169,7 +189,7 @@ module.exports = {
     {
       models.respondent_answer.count({
           where: {
-            status: "Answered",
+            answer_status_id: 2,
           },
           include: [
               {
@@ -208,6 +228,26 @@ module.exports = {
           console.error(err);
           reject(err);
       });
+    });
+  },
+
+  saveTextAnswer: (respondent_flow_id, step_id, text) => {
+    models.respondent_answer.create({
+      text: text,
+      answer_status_id: 2, // 2 === Answered
+      answer_date: new Date(),
+      respondent_flow_id: respondent_flow_id,
+      step_id: step_id,
+    });
+  },
+
+  saveMultipleChoiceAnswer: (respondentFlowId, stepId, choiceId) => {
+    models.respondent_answer.create({
+      answer_status_id: 2, // 2 === Answered
+      answer_date: new Date(),
+      respondent_flow_id: respondentFlowId,
+      step_id: stepId,
+      step_choice_id: choiceId,
     });
   },
 
@@ -260,10 +300,13 @@ module.exports = {
           assigner_id: assignerId,
           respondent_id: userId,
           flow_id: flowId,
-          // flow_status_id: 1,
+          respondent_flow_status_id: 1, // 1 === Not started
           assign_date: date, // TODO
           start_date: date, // TODO
-        }
+        },
+        include: [{
+          model: models.flow
+        }]
       }).then(result => resolve(result[0]));
     });
   }
