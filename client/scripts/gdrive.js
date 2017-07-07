@@ -157,7 +157,7 @@
 
       let req = gapi.client.drive.permissions.create({
         'fileId': fileId,
-        //'sendNotificationEmail': false,   //PROBLEMA
+        'sendNotificationEmail': false,
         'resource': {
           'emailAddress': self.shareTo,
           'type': 'user',
