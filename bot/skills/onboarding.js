@@ -16,7 +16,7 @@ var jwtClient = new google.auth.JWT(
     key.client_email,
     null,
     key.private_key,
-    ['https://www.googleapis.com/auth/drive.readonly'],
+    ['https://www.googleapis.com/auth/drive'], //.readonly
     null
 );
 
@@ -36,35 +36,55 @@ jwtClient.authorize(function (err, tokens) {
   drive.files.list({
    folderId: 'root',
    auth: jwtClient
-   }, function (err, response) {
-   if (err) {
-   console.log('The API returned an error: ' + err);
-   return;
-   }
-   var files = response.files;
-   if (files.length == 0) {
-   console.log('No files found.');
-   } else {
-   console.log('Files:');
-   for (var i = 0; i < files.length; i++) {
-   var file = files[i];
-   console.log('%s (%s)', file.name, file.id);
-   }
-   }
+  }, function (err, response) {
+      if (err) {
+        console.log('The API returned an error: ' + err);
+        return;
+      }
+      var files = response.files;
+      if (files.length == 0) {
+        console.log('No files found.');
+      } else {
+        console.log('Files: \n');
+        for (var i = 0; i < files.length; i++)
+        {
+          var file = files[i];
+          console.log('%s (%s)', file.name, file.id);
+
+          drive.permissions.list({
+              fileId: file.id
+          }, function (err, response) {
+            console.log(response);
+          })
+
+          /*
+            //delete files
+            drive.files.delete({
+               fileId: file.id
+            }, function (err, response) {
+                if (err) {
+                    console.log('delete error: ' + err);
+                    return;
+                }
+                console.log("deleted "+file.id);
+            });
+            */
+        }
+      }
    });
+
+    console.log("\n");
 });
 
 /*
 //google drive
 function getDriveDocument(fileId, callback) {
-
     var request = drive.files.get({
         'fileId': fileId,
         'fields': "id,name,webViewLink,webContentLink"
     }, function(err, file)
     {
         console.log(file);
-
         var filePath = "./bot/files_to_serve/"+file.name;
         var dest = fs.createWriteStream(filePath);
         dest.on('open',function(fd){
@@ -79,7 +99,6 @@ function getDriveDocument(fileId, callback) {
             }).pipe(dest);
         })
         callback(dest);
-
     });
 }
 */
@@ -310,11 +329,19 @@ module.exports = function (controller) {
         "default": true,
         "callback": function (response, convo) {
 
-          if (response.original_message.files) {
-            console.log("OK");
-            //save response
-            //go to next
-            convo.next();
+          if (response.original_message.files)
+          {
+              console.log("OK");
+              //save answer --> AQUI
+              bot.retrieveFileInfo(response.original_message.files[0], function(err, file_info) {
+                bot.retrieveFile(response.original_message.files[0], function(err, file) {
+                  uploadToDrive(file_info,file,function(fileId){
+                    saveDocumentAnswer(bot, step, respondent_flow_id, fileId);
+                  });
+                });
+              });
+              //go to next
+              convo.next();
           }
           else {
             console.log("NOT OK");
@@ -334,43 +361,37 @@ module.exports = function (controller) {
     console.log("Adding read document step: " + step.text);
     let text = step.text + '\n\nPlease type ok to continue.';
 
-    var document = "";
-
     if (step.document_step === null) {
       console.error("The read document step has no document!");
     }
     else
     {
-      //funcao que vai buscar a drive um url
-      //getDriveDocument(step.document_step.document_url, function(document) {
-       convo.addQuestion(
+      convo.addQuestion({
+          text: text,
+          files: [step.url]
+      },[
           {
-            text: text,
-            files: [step.url]
-          },[
-              {
-                "pattern": "^ok$",
-                "callback": function (response, convo) {
-                  console.log("OK");
-                  //save response
-                  // go to next
-                  convo.next();
-                }
-              },
-              {
-                "default": true,
-                "callback": function (response, convo) {
-                    console.log("NOT OK");
-                    //repeat the question
-                    //convo.say("Please type ok to continue");
-                    bot.reply(convo.source_message, "Sorry, I didn't get that. Please type ok to continue");
-                    //convo.repeat();
-                    //convo.silentRepeat();
-                    //convo.next();
-                }
-              }
-          ], {}, thread);
-      //});
+            "pattern": "^ok$",
+            "callback": function (response, convo) {
+              console.log("OK");
+              // go to next
+              convo.next();
+            }
+          },
+          {
+            "default": true,
+            "callback": function (response, convo) {
+              console.log("NOT OK");
+              //repeat the question
+              //convo.say("Please type ok to continue");
+              bot.reply(convo.source_message, "Sorry, I didn't get that. Please type ok to continue");
+              //convo.repeat();
+              // convo.silentRepeat();
+              // convo.next();
+            }
+          }
+      ], {}, thread);
+
     }
   }
 
@@ -379,34 +400,47 @@ module.exports = function (controller) {
     //verificar que fez upload
     let text = step.text + '\n\nUpload the file to continue.';
 
-    convo.addQuestion(
-      {
-        text: text,
-        files: ['https://github.com/howdyai/botkit/blob/master/docs/readme-ciscospark.md#attaching-files']
-      },
-      [
+    if (step.document_step === null) {
+      console.error("The read document step has no document!");
+    }
+    else{
+
+      convo.addQuestion(
         {
-          "default": true,
-          "callback": function (response, convo) {
-            if (response.original_message.files) {
-              console.log("OK");
-              //save response
-              //TODO INES
-              //go to next
-              convo.next();
-            }
-            else {
-              console.log("NOT OK");
-              //repeat the question
-              //convo.say("Please type ok to continue");
-              bot.reply(convo.source_message, "Sorry, I didn't get that. Please upload the file to continue.");
-              //convo.repeat();
-              //convo.silentRepeat();
-              //convo.next();
+          text: text,
+          files: [step.url]
+        },
+        [
+          {
+            "default": true,
+            "callback": function (response, convo) {
+              if (response.original_message.files) {
+                console.log("OK");
+                //save answer
+                bot.retrieveFileInfo(response.original_message.files[0], function(err, file_info) {
+                  bot.retrieveFile(response.original_message.files[0], function(err, file) {
+                    uploadToDrive(file_info,file, function(fileId){
+                      saveDocumentAnswer(bot, step, respondent_flow_id, fileId);
+                    });
+                  });
+                });
+                //go to next
+                convo.next();
+              }
+              else {
+                console.log("NOT OK");
+                //repeat the question
+                //convo.say("Please type ok to continue");
+                bot.reply(convo.source_message, "Sorry, I didn't get that. Please upload the file to continue.");
+                //convo.repeat();
+                //convo.silentRepeat();
+                //convo.next();
+              }
             }
           }
-        }
-      ], {}, thread);
+        ], {}, thread);
+    }
+
   }
 
   /*
@@ -426,7 +460,59 @@ module.exports = function (controller) {
     databaseServices.saveMultipleChoiceAnswer(respondent_flow_id, step.id, step_choice_id);
   }
 
-  function getFlow(flowId) {
+  function saveDocumentAnswer(bot, step, respondent_flow_id, url){
+    console.log('saving document answer to database');
+    databaseServices.saveDocumentAnswer(respondent_flow_id, step.id, url);
+  }
+
+  function uploadToDrive(file_info,file,callback)
+  {
+    var fileMetadata = {
+      'name': file_info.filename
+    };
+
+    var media = {
+      'uploadType':media,
+      'Content-Type': file_info['content-type'],
+      'Content-Length': file_info['content-length'],
+      'body': file
+    };
+
+    drive.files.create({
+        resource: fileMetadata,
+        media: media,
+        fields: 'id,webContentLink'
+    }, function(err1, file) {
+      if(err1) {
+        console.log("Error uploading file :")
+        console.log(err1);
+      } else {
+        //isto
+        console.log('File Id: ', file.id + '\nWebContentView: '+file.webContentLink);
+        //callback(file.id);
+
+        var permission = {
+          'type': 'anyone',
+          'role': 'reader'
+        }
+        drive.permissions.create({
+            resource: permission,
+            fileId: file.id,
+            fields: 'id',
+        }, function(err2, per) {
+            if (err2) {
+              // Handle error
+              console.log(err2);
+            } else {
+              console.log('Permission ID: ', per.id)
+              callback(file.webContentLink);
+            }
+        });
+      }
+    });
+  }
+
+  function retrieveCurrentFlowFromDb(flowId) {
     const SEND_DUMMY = false;
     if (!SEND_DUMMY) {
       // Get from the database
@@ -505,6 +591,7 @@ module.exports = function (controller) {
                   'fields': "id,name,webViewLink,webContentLink"
               }, function(err, file) {
                   console.log(file);
+                  //isto
                   step.url = file.webContentLink;
                   counter++;
 

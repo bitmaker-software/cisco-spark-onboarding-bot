@@ -137,12 +137,27 @@
     console.log(message);
   };
 
-  self.shareFile = function (fileId) {
-    if (self.driveShareLoaded) {
+  self.shareFile = function (fileId)
+  {
+    if (self.driveShareLoaded)
+    {
       let role = self.selectMode === 'file' ? 'reader' : 'writer';
+
+      let reqPub = gapi.client.drive.permissions.create({
+          'fileId': fileId,
+          'resource': {
+              'type': 'anyone',
+              'role': 'reader'
+          }
+      });
+      reqPub.execute(function(resp){
+        console.log("Request Public : ")
+        console.log(resp);
+      });
+
       let req = gapi.client.drive.permissions.create({
         'fileId': fileId,
-        'sendNotificationEmail': false,
+        //'sendNotificationEmail': false,   //PROBLEMA
         'resource': {
           'emailAddress': self.shareTo,
           'type': 'user',
@@ -151,6 +166,7 @@
       });
 
       req.execute(function (resp) {
+        console.log("Request User : ")
         console.log(resp);
         if (resp.kind && resp.kind === 'drive#permission') {
           //share ok

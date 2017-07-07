@@ -253,7 +253,17 @@ module.exports = {
     });
   },
 
-  getGoogleDriveCredentials: function (userId, storeId) {
+  saveDocumentAnswer: (respondent_flow_id, step_id, url) => {
+    models.respondent_answer.create({
+        document_url: url,
+        answer_status_id: 2, // 2 === Answered
+        answer_date: new Date(),
+        respondent_flow_id: respondent_flow_id,
+        step_id: step_id
+    });
+  },
+
+  getGoogleDriveCredentials: function(userId, storeId){
     return new Promise((resolve, reject) => {
       models.sequelize.query('select * from ﻿document_stores');
     });
