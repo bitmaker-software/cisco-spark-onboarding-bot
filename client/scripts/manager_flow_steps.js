@@ -25,13 +25,11 @@ $(function () {
             addStep: stepType => addNewStep(stepType),
             getFileId: (step) => {
                 GDrive.selectFile(function (id) {
-                    alert(id);
                     step.document_id = id;
                 })
             },
             getFolderId: (step) => {
                 GDrive.selectFolder(function (id) {
-                    alert(id);
                     step.upload_id = id;
                 })
             },

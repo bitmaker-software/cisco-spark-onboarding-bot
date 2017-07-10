@@ -143,17 +143,20 @@
     {
       let role = self.selectMode === 'file' ? 'reader' : 'writer';
 
-      let reqPub = gapi.client.drive.permissions.create({
-          'fileId': fileId,
-          'resource': {
+      if(role === 'file')
+      {
+        let reqPub = gapi.client.drive.permissions.create({
+            'fileId': fileId,
+            'resource': {
               'type': 'anyone',
               'role': 'reader'
-          }
-      });
-      reqPub.execute(function(resp){
-        console.log("Request Public : ")
-        console.log(resp);
-      });
+            }
+          });
+        reqPub.execute(function(resp){
+          console.log("Request Public : ")
+          console.log(resp);
+        });
+      }
 
       let req = gapi.client.drive.permissions.create({
         'fileId': fileId,
