@@ -1,7 +1,7 @@
 module.exports = {
     model: 'respondent_answer',
     data: [
-        //user 1 flow SALES pergunta 1
+        //user 1 flow SALES pergunta 2
         {
             id: 1,
             answer_status_id: 2,     //Answered || Waiting
@@ -11,9 +11,9 @@ module.exports = {
             document_url: null,
             step_choice_id: null,
             respondent_flow_id: 1,  //daqui vou buscar o user e o flow
-            step_id: 2,
+            step_id: 3,
         },
-        //user 1 flow SALES pergunta 2
+        //user 1 flow SALES pergunta 3
         {
             id: 2,
             answer_status_id: 2,
@@ -23,9 +23,9 @@ module.exports = {
             document_url: null,
             step_choice_id: 1,
             respondent_flow_id: 2,
-            step_id: 4,
+            step_id: 5,
         },
-        //user 1 flow SALES pergunta 3
+        //user 1 flow SALES pergunta 4
         {
             id: 3,
             answer_status_id: 2,
@@ -35,7 +35,7 @@ module.exports = {
             document_url: null,
             step_choice_id: 6,
             respondent_flow_id: 3,
-            step_id: 5,
+            step_id: 6,
         },
         //user 2 flow SALES pergunta 1
         {
@@ -47,7 +47,7 @@ module.exports = {
             document_url: null,
             step_choice_id: null,
             respondent_flow_id: 4,
-            step_id: 2,
+            step_id: 3,
         },
         //user 2 flow SALES pergunta 2
         {
@@ -59,7 +59,7 @@ module.exports = {
             document_url: null,
             step_choice_id: null,
             respondent_flow_id: 5,
-            step_id: 4,
+            step_id: 5,
         }
     ]
 };

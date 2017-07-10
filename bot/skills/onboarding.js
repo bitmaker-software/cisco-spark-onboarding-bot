@@ -57,7 +57,7 @@ jwtClient.authorize(function (err, tokens) {
         })
         */
 
-        /*
+/*
          //delete files
          drive.files.delete({
          fileId: file.id
@@ -472,11 +472,11 @@ module.exports = function (controller) {
 
     let fileMetadata = {
       'name': file_info.filename,
-      'parents': [folderId]
+      'parents': [folderId],
+      'mimeType': file_info['content-type'],
     };
 
     let media = {
-      'uploadType': 'media',
       'mimeType': file_info['content-type'],
       'body': file
     };
@@ -484,6 +484,7 @@ module.exports = function (controller) {
     drive.files.create({
       resource: fileMetadata,
       media: media,
+      //uploadType: 'media',
       fields: 'id,webContentLink'
     }, function (err1, file) {
       if (err1) {
@@ -509,15 +510,6 @@ module.exports = function (controller) {
           } else {
             console.log('Permission ID: ', per.id);
             callback(file.webContentLink);
-
-              //print
-              console.log("\nUploaded Files : ");
-              drive.files.list({
-                  folderId: folderId,
-                  auth: jwtClient
-              }, function (err, response) {
-                  console.log(">> "+response);
-              });
           }
         });
       }
