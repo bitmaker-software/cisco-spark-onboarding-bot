@@ -34,7 +34,7 @@ jwtClient.authorize(function (err, tokens) {
 
   // Make an authorized request to list Drive files.
   drive.files.list({
-    folderId: 'root',
+    folderId: '0B-65Xatz4HOrc25Gc2lrY2lPZW8',
     auth: jwtClient
   }, function (err, response) {
     if (err) {
@@ -45,16 +45,17 @@ jwtClient.authorize(function (err, tokens) {
     if (files.length === 0) {
       console.log('No files found.');
     } else {
-      console.log('Files: \n');
+      console.log('Files : \n');
       for (let i = 0; i < files.length; i++) {
         let file = files[i];
         console.log('%s (%s)', file.name, file.id);
-
+        /*
         drive.permissions.list({
           fileId: file.id
         }, function (err, response) {
           console.log(response);
         })
+        */
 
         /*
          //delete files
@@ -67,7 +68,7 @@ jwtClient.authorize(function (err, tokens) {
          }
          console.log("deleted "+file.id);
          });
-         */
+      */
       }
     }
   });
@@ -338,7 +339,7 @@ module.exports = function (controller) {
             //save answer --> AQUI
             bot.retrieveFileInfo(response.original_message.files[0], function (err, file_info) {
               bot.retrieveFile(response.original_message.files[0], function (err, file) {
-                uploadToDrive(file_info, file, function (fileId) {
+                uploadToDrive(file_info,file,step.document_step.upload_dir,function (fileId) {
                   saveDocumentAnswer(bot, step, respondent_flow_id, fileId);
                 });
               });
@@ -421,7 +422,7 @@ module.exports = function (controller) {
                 //save answer
                 bot.retrieveFileInfo(response.original_message.files[0], function (err, file_info) {
                   bot.retrieveFile(response.original_message.files[0], function (err, file) {
-                    uploadToDrive(file_info, file, function (fileId) {
+                    uploadToDrive(file_info,file,step.document_step.upload_dir,function (fileId) {
                       saveDocumentAnswer(bot, step, respondent_flow_id, fileId);
                     });
                   });
@@ -467,15 +468,16 @@ module.exports = function (controller) {
     databaseServices.saveDocumentAnswer(respondent_flow_id, step.id, url);
   }
 
-  function uploadToDrive(file_info, file, callback) {
+  function uploadToDrive(file_info,file,folderId,callback) {
+
     let fileMetadata = {
-      'name': file_info.filename
+      'name': file_info.filename,
+      'parents': [folderId]
     };
 
     let media = {
-      'uploadType': media,
-      'Content-Type': file_info['content-type'],
-      'Content-Length': file_info['content-length'],
+      'uploadType': 'media',
+      'mimeType': file_info['content-type'],
       'body': file
     };
 
@@ -485,7 +487,7 @@ module.exports = function (controller) {
       fields: 'id,webContentLink'
     }, function (err1, file) {
       if (err1) {
-        console.log("Error uploading file :");
+        console.log("Error 1 uploading file :");
         console.log(err1);
       } else {
         //isto
@@ -502,11 +504,20 @@ module.exports = function (controller) {
           fields: 'id',
         }, function (err2, per) {
           if (err2) {
-            // Handle error
+            console.log("Error 2 uploading file :");
             console.log(err2);
           } else {
             console.log('Permission ID: ', per.id);
             callback(file.webContentLink);
+
+              //print
+              console.log("\nUploaded Files : ");
+              drive.files.list({
+                  folderId: folderId,
+                  auth: jwtClient
+              }, function (err, response) {
+                  console.log(">> "+response);
+              });
           }
         });
       }
@@ -583,10 +594,10 @@ module.exports = function (controller) {
       flow.steps.forEach(function (step) {
         //read documents
         if (step.step_type_id === 5 || step.step_type_id === 6) {
-          if (step.document_step !== null) {
+          if (step.document_step.document_url !== null) {
             drive.files.get({
               'fileId': step.document_step.document_url,
-              'fields': "id,name,webViewLink,webContentLink"
+              'fields': "id,name,webContentLink"
             }, function (err, file) {
               console.log(file);
               //isto

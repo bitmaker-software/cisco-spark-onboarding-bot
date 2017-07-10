@@ -10,7 +10,7 @@ let app = new Vue({
     searchResults: []
   },
   methods: {
-    addEmailToInput: address => {
+    addEmailToInput: event => {
       app.searchInput = event.currentTarget.innerText;
     },
     doSearch: () => {

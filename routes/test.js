@@ -65,6 +65,7 @@ router.get('/answers/:flow_id/:total', ensureAuthenticated, (req, res, next) => 
 
   databaseServices.getAnswers(flow_id,page-1,per_page,filter,sort,order).then(answers => {
     var dataJSON = createJSON(answers,flow_id,total,sort,page,per_page);
+      console.log(dataJSON)
     res.send(dataJSON);
   }, err => res.send(err));
 });
@@ -78,16 +79,18 @@ router.get('/document_stores', ensureAuthenticated, (req, res, next) => {
 
 function createJSON(answers,flow_id,total,sort,page,per_page)
 {
-    var answersReceived = answers.map(answer => {
+    let answersReceived = answers.map(answer => {
         //colocar a resposta de acordo com o que recebe
         var myanswer;
         var stepType = answer.step.step_type_id;
         if (stepType == 2) myanswer = answer.text;
-        else if (stepType == 3) myanswer = answer.document_url;
-        else if (stepType == 4) myanswer = answer.step_choice.choice_order + " : " + answer.step_choice.text;
+        else if (stepType == 3) myanswer = answer.step_choice.choice_order + " : " + answer.step_choice.text;
+        else if (stepType == 4 || stepType == 6) myanswer = answer.document_url;
 
         var date = answer.answer_date;
         var month = date.getUTCMonth()+1;
+
+        console.log(stepType+" - "+myanswer);
 
         return {
             username: answer.respondent_flow.respondent.name,
