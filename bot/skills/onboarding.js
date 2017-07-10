@@ -2,6 +2,7 @@
 
 const databaseServices = require('../database_services');
 const fs = require('fs');
+const request = require('request')
 
 //GDRIVE CONF
 
@@ -334,15 +335,23 @@ module.exports = function (controller) {
         "default": true,
         "callback": function (response, convo) {
 
+          console.log(response);
+
           if (response.original_message.files) {
             console.log("OK");
             //save answer --> AQUI
             bot.retrieveFileInfo(response.original_message.files[0], function (err, file_info) {
-              bot.retrieveFile(response.original_message.files[0], function (err, file) {
-                uploadToDrive(file_info,file,step.document_step.upload_dir,function (fileId) {
-                  saveDocumentAnswer(bot, step, respondent_flow_id, fileId);
+                request({
+                    url: response.original_message.files[0],
+                    headers: {
+                        'Authorization': 'Bearer ' + process.env.access_token
+                    },
+                    encoding: null,
+                }, function(err, response, body) {
+                    uploadToDrive(file_info,body,step.document_step.upload_dir,function (fileId) {
+                        saveDocumentAnswer(bot, step, respondent_flow_id, fileId);
+                    });
                 });
-              });
             });
             //go to next
             convo.next();
@@ -421,11 +430,17 @@ module.exports = function (controller) {
                 console.log("OK");
                 //save answer
                 bot.retrieveFileInfo(response.original_message.files[0], function (err, file_info) {
-                  bot.retrieveFile(response.original_message.files[0], function (err, file) {
-                    uploadToDrive(file_info,file,step.document_step.upload_dir,function (fileId) {
-                      saveDocumentAnswer(bot, step, respondent_flow_id, fileId);
+                    request({
+                        url: response.original_message.files[0],
+                        headers: {
+                            'Authorization': 'Bearer ' + process.env.access_token
+                        },
+                        encoding: null,
+                    }, function(err, response, body) {
+                        uploadToDrive(file_info,body,step.document_step.upload_dir,function (fileId) {
+                            saveDocumentAnswer(bot, step, respondent_flow_id, fileId);
+                        });
                     });
-                  });
                 });
                 //go to next
                 convo.next();
