@@ -175,7 +175,7 @@ module.exports = {
         offset: per_page * page,
         order: sort + ' ' + order
       }).then(answers => {
-        console.log(answers);
+        //console.log(answers);
         resolve(answers);
       }, err => {
         console.error("Error getting answers");

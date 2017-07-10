@@ -141,7 +141,7 @@ $(function () {
             complete: function (data) {
                 console.log("Request to save flow complete");
                 saveStepsButton.text("Saved");
-                // location.reload();
+                location.reload();
             }
         });
     }
