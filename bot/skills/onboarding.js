@@ -546,23 +546,24 @@ module.exports = function (controller) {
         console.log('File Id: ', file.id + '\nWebContentView: ' + file.webContentLink);
         //callback(file.id);
 
-        let permission = {
-          'type': 'anyone',
-          'role': 'reader'
-        };
-        drive.permissions.create({
-          resource: permission,
-          fileId: file.id,
-          fields: 'id',
-        }, function (err2, per) {
-          if (err2) {
-            console.log("Error 2 uploading file :");
-            console.log(err2);
-          } else {
-            console.log('Permission ID: ', per.id);
-            callback(file.webContentLink);
-          }
-        });
+        // let permission = {
+        //   'type': 'anyone',
+        //   'role': 'reader'
+        // };
+        // drive.permissions.create({
+        //   resource: permission,
+        //   fileId: file.id,
+        //   fields: 'id',
+        // }, function (err2, per) {
+        //   if (err2) {
+        //     console.log("Error 2 uploading file :");
+        //     console.log(err2);
+        //   } else {
+        //     console.log('Permission ID: ', per.id);
+        //     callback(file.webContentLink);
+        //   }
+        // });
+        callback(file.webCostarntentLink);
       }
     });
   }
