@@ -4,12 +4,12 @@ const models = require('../models');
 const sparkAPIUtils = require('./spark_api_utils');
 
 module.exports = {
-  /*
-   function called after a successful login via spark oauth.
-   Check if the tenant and the user already exists, and create them if not
-   */
-  userLoggedIn: function (id, displayName, emails, orgId) {
-    return new Promise(function (resolve, reject) {
+  userLoggedIn: (id, displayName, emails, orgId) => {
+    /**
+     function called after a successful login via spark oauth.
+     Check if the tenant and the user already exists, and create them if not
+     */
+    return new Promise((resolve, reject) => {
       models.tenant.findOrCreate({
         where: {
           org_id: orgId
@@ -48,11 +48,27 @@ module.exports = {
     });
   },
 
-  getFlow: flow_id => {
-    return new Promise(function (resolve, reject) {
+  getFlows: () => {
+    console.log('getFlows()');
+    // Returns flows for the logged in tenant
+    return models.flow.findAll({
+      attributes: ['id', 'name'],
+      where: {
+        // TODO filter by logged in user !!!
+        //   ownerId: 1
+      },
+      order: [['id', 'DESC']],
+      include: [
+        {model: models.flow_status, attributes: ['description']}
+      ],
+    });
+  },
+
+  getFlow: id => {
+    return new Promise((resolve, reject) => {
       // TODO: check security
       // Get flow
-      models.flow.find({where: {id: flow_id}}).then(flow => {
+      models.flow.find({where: {id: id}}).then(flow => {
         models.step.findAll({
           where: {flow_id: flow.id},
           order: [[models.Sequelize.col('"step_order"'), 'ASC'],
@@ -83,7 +99,7 @@ module.exports = {
   },
 
   getFlowName: id => {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) => {
       // TODO: check security
       // Get flow
       models.flow.find({where: {id: id}}).then(flow => {
@@ -96,8 +112,19 @@ module.exports = {
     });
   },
 
+  createFlow: name => {
+    return models.flow.create({
+      name: name,
+      flow_status_id: 1
+    });
+  },
+
+  getStepTypes: () => {
+    return models.step_type.findAll({order: 'id'});
+  },
+
   getOldestPendingFlowForUserEmail: email => {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) => {
       models.respondent.find({where: {email: email}}).then(respondent => {
         if (respondent) {
           resolve(models.respondent_flow.find(
@@ -127,9 +154,9 @@ module.exports = {
     });
   },
 
-  getAnswers: function (flow_id, page, per_page, filter, sort, order) {
+  getAnswers: (flow_id, page, per_page, filter, sort, order) => {
     console.log('getAnswers(' + flow_id + ' , ' + page + ' , ' + per_page + ' , ' + filter + ')');
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) => {
       models.respondent_answer.findAll({
         attributes: ['id', 'answer_date', 'text', 'document_url'],
         where: {
@@ -185,9 +212,9 @@ module.exports = {
     });
   },
 
-  countAnswers: function (flow_id, filter) {
+  countAnswers: (flow_id, filter) => {
     console.log('countAnswers(' + flow_id + ' , ' + filter + ')');
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) => {
       models.respondent_answer.count({
         where: {
           answer_status_id: 2,
@@ -263,7 +290,7 @@ module.exports = {
     });
   },
 
-  getGoogleDriveCredentials: function (userId, storeId) {
+  getGoogleDriveCredentials: (userId, storeId) => {
     return new Promise((resolve, reject) => {
       models.sequelize.query('select * from ﻿document_stores');
     });

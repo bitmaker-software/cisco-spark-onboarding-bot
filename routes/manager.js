@@ -33,7 +33,7 @@ if (!gdrive_share_to) {
 // ——————————————————————————————————————————————————
 
 router.get('/', ensureAuthenticated, function (req, res, next) {
-  getFlows().then(flows => {
+  databaseServices.getFlows().then(flows => {
     res.render('manager_flows', {
       title: 'Onboarding manager',
       flows: flows,
@@ -97,14 +97,11 @@ router.get('/api/flow/:id', ensureAuthenticated, function (req, res, next) {
 //                     New Flow
 // ——————————————————————————————————————————————————
 
-router.post('/api/flow', ensureAuthenticated, function (req, res, next) {
+router.post('/api/flow', ensureAuthenticated, (req, res, next) => {
   // New flow
   console.log("Got a request to create a new flow");
   console.log(req.body);
-  models.flow.create({
-    name: req.body.name,
-    flow_status_id: 1
-  }).then(function () {
+  databaseServices.createFlow(req.body.name).then(() => {
     return res.send('OK, saved flow');
   }, err => {
     console.error("Error creating the flow");
@@ -119,12 +116,12 @@ router.post('/api/flow', ensureAuthenticated, function (req, res, next) {
 
 router.get('/flow/:id/edit', ensureAuthenticated, function (req, res, next) {
   let promises = [
-    getStepTypes(),
-    getFlow(req.params.id)
+    databaseServices.getStepTypes(),
+    databaseServices.getFlow(req.params.id)
   ];
   Promise.all(promises).then(values => {
     res.render('manager_flow_edit', {
-      title: values[1][0].name,
+      title: values[1].name,
       flowId: req.params.id,
       stepTypes: values[0],
       active: 'Manager', // left side bar icon
@@ -204,11 +201,11 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                 upload_id = step.upload_id;
                 upload_dir_name = step.upload_dir_name;
               }
-              else if (step.step_type_id === 5){
+              else if (step.step_type_id === 5) {
                 document_id = step.document_id;
                 document_name = step.document_name;
               }
-              else{
+              else {
                 upload_id = step.upload_id;
                 upload_dir_name = step.upload_dir_name;
                 document_id = step.document_id;
@@ -320,8 +317,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                   {where: {step_id: step.id}}).then(result => {
 
                   //ainda nao existe nenhum documento -> create
-                  if (result === null)
-                  {
+                  if (result === null) {
                     models.document_step.create({
                       //document_store_id: ,
                       document_url: document_id,
@@ -338,8 +334,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                     });
                   }
                   //update
-                  else
-                  {
+                  else {
                     models.document_step.update(
                       {
                         document_url: document_id,
@@ -391,12 +386,12 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
 
 router.get('/flow/:id/send', ensureAuthenticated, function (req, res, next) {
   let promises = [
-    getStepTypes(),
-    getFlow(req.params.id)
+    databaseServices.getStepTypes(),
+    databaseServices.getFlow(req.params.id)
   ];
   Promise.all(promises).then(values => {
     res.render('manager_flow_send', {
-      title: values[1][0].name,
+      title: values[1].name,
       flowId: req.params.id,
       stepTypes: values[0],
       active: 'Manager' // left side bar icon
@@ -456,13 +451,13 @@ router.post('/api/flow/:id/send', ensureAuthenticated, (req, res, next) => {
 
 router.get('/flow/:id/answers', ensureAuthenticated, function (req, res, next) {
   let promises = [
-    getStepTypes(),
-    getFlow(req.params.id),
+    databaseServices.getStepTypes(),
+    databaseServices.getFlow(req.params.id),
     databaseServices.countAnswers(req.params.id, "")
   ];
   Promise.all(promises).then(values => {
     res.render('manager_flow_answers', {
-      title: values[1][0].name,
+      title: values[1].name,
       flowId: req.params.id,
       stepTypes: values[0],
       active: 'Manager', // left side bar icon
@@ -481,12 +476,12 @@ router.get('/flow/:id/answers', ensureAuthenticated, function (req, res, next) {
 
 router.get('/flow/:id/dashboard', ensureAuthenticated, function (req, res, next) {
   let promises = [
-    getStepTypes(),
-    getFlow(req.params.id)
+    databaseServices.getStepTypes(),
+    databaseServices.getFlow(req.params.id),
   ];
   Promise.all(promises).then(values => {
     res.render('manager_flow_dashboard', {
-      title: values[1][0].name,
+      title: values[1].name,
       flowId: req.params.id,
       stepTypes: values[0],
       active: 'Manager' // left side bar icon
@@ -496,33 +491,5 @@ router.get('/flow/:id/dashboard', ensureAuthenticated, function (req, res, next)
     console.error(err);
   });
 });
-
-
-function getFlows(id) {
-  console.log('getFlows(' + id + ')');
-  // Returns flows for the logged in tenant
-  let config = {
-    attributes: ['id', 'name'],
-    where: {
-      // TODO filter by logged in user !!!
-      //   ownerId: 1
-    },
-    include: [
-      {model: models.flow_status, attributes: ['description']}
-    ],
-  };
-  if (id) {
-    config.where.id = id;
-  }
-  return models.flow.findAll(config);
-}
-
-function getFlow(id) {
-  return getFlows(id);
-}
-
-function getStepTypes() {
-  return models.step_type.findAll({order: 'id'});
-}
 
 module.exports = router;

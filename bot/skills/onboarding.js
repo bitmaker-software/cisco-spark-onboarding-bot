@@ -57,7 +57,7 @@ jwtClient.authorize(function (err, tokens) {
           console.log(response);
         })
         */
-/*
+        /*
          //delete files
          drive.files.delete({
          fileId: file.id
@@ -68,7 +68,7 @@ jwtClient.authorize(function (err, tokens) {
          }
          console.log("deleted "+file.id);
          });
-      */
+         */
       }
     }
   });
@@ -340,17 +340,17 @@ module.exports = function (controller) {
             console.log("OK");
             //save answer --> AQUI
             bot.retrieveFileInfo(response.original_message.files[0], function (err, file_info) {
-                request({
-                    url: response.original_message.files[0],
-                    headers: {
-                        'Authorization': 'Bearer ' + process.env.access_token
-                    },
-                    encoding: null,
-                }, function(err, response, body) {
-                    uploadToDrive(file_info,body,step.document_step.upload_dir,function (fileId) {
-                        saveDocumentAnswer(bot, step, respondent_flow_id, fileId);
-                    });
+              request({
+                url: response.original_message.files[0],
+                headers: {
+                  'Authorization': 'Bearer ' + process.env.access_token
+                },
+                encoding: null,
+              }, function (err, response, body) {
+                uploadToDrive(file_info, body, step.document_step.upload_dir, function (fileId) {
+                  saveDocumentAnswer(bot, step, respondent_flow_id, fileId);
                 });
+              });
             });
             //go to next
             convo.next();
@@ -429,17 +429,17 @@ module.exports = function (controller) {
                 console.log("OK");
                 //save answer
                 bot.retrieveFileInfo(response.original_message.files[0], function (err, file_info) {
-                    request({
-                        url: response.original_message.files[0],
-                        headers: {
-                            'Authorization': 'Bearer ' + process.env.access_token
-                        },
-                        encoding: null,
-                    }, function(err, response, body) {
-                        uploadToDrive(file_info,body,step.document_step.upload_dir,function (fileId) {
-                            saveDocumentAnswer(bot, step, respondent_flow_id, fileId);
-                        });
+                  request({
+                    url: response.original_message.files[0],
+                    headers: {
+                      'Authorization': 'Bearer ' + process.env.access_token
+                    },
+                    encoding: null,
+                  }, function (err, response, body) {
+                    uploadToDrive(file_info, body, step.document_step.upload_dir, function (fileId) {
+                      saveDocumentAnswer(bot, step, respondent_flow_id, fileId);
                     });
+                  });
                 });
                 //go to next
                 convo.next();
@@ -482,7 +482,7 @@ module.exports = function (controller) {
     databaseServices.saveDocumentAnswer(respondent_flow_id, step.id, url);
   }
 
-  function uploadToDrive(file_info,file,folderId,callback) {
+  function uploadToDrive(file_info, file, folderId, callback) {
 
     let fileMetadata = {
       'name': file_info.filename,
@@ -593,14 +593,15 @@ module.exports = function (controller) {
 
   function updateDownloadedDocs(flow) {
     return new Promise(function (resolve, reject) {
-      console.log("init");
+      console.log('updateDownloadedDocs()');
       let counter = 0;
       let size = flow.steps.length;
 
       flow.steps.forEach(function (step) {
         //read documents
         if (step.step_type_id === 5 || step.step_type_id === 6) {
-          if (step.document_step.document_url !== null) {
+          if (step.document_step !== null && step.document_step.document_url !== null) {
+            console.log(`Reading document (URL = ${step.document_step.document_url})`);
             drive.files.get({
               'fileId': step.document_step.document_url,
               'fields': "id,name,webContentLink"
@@ -615,8 +616,8 @@ module.exports = function (controller) {
                 resolve(flow);
               }
             });
-          }
-          else {
+          } else {
+            console.log('Null document or URL, skipping.');
             step.url = null;
             counter++;
           }
@@ -627,7 +628,7 @@ module.exports = function (controller) {
       });
 
       if (counter === size) {
-        console.log("end 1!");
+        console.log('Finished reading documents');
         resolve(flow);
       }
 
