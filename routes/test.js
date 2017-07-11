@@ -84,16 +84,16 @@ function createJSON(answers, flow_id, total, sort, page, per_page) {
     let stepType = answer.step.step_type_id;
     if (stepType === 2) {
       myanswer = answer.text;
-    }
-    else if (stepType === 3) {
+    } else if (stepType === 3) {
       myanswer = answer.step_choice.choice_order + " : " + answer.step_choice.text;
-    }
-    else if (stepType === 4 || stepType === 5 || stepType === 6) {
+    } else if (stepType === 4 || stepType === 5 || stepType === 6) {
       myanswer = answer.document_url;
     }
 
     let date = answer.answer_date;
     let month = date.getUTCMonth() + 1;
+
+    console.log(stepType + " - " + myanswer);
 
     return {
       username: answer.respondent_flow.respondent.name,
@@ -102,6 +102,7 @@ function createJSON(answers, flow_id, total, sort, page, per_page) {
       question: answer.step.text,
       answer: myanswer
     }
+
   });
 
   let last_page = Math.ceil(total / per_page);

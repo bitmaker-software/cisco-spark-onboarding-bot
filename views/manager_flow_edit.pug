@@ -11,7 +11,7 @@ block content
         div.step-type(v-for="stepType in stepTypes")
           div.btn.btn-secondary
             svg.step-icon
-              use(v-bind="{'xlink:href':'" + static.root + "/sprite.svg#'+stepTypeIcons[stepType.id]}")
+              use(v-bind="{'xlink:href':'" + static.root + "/sprite.svg#' + stepTypeIcons[stepType.id]}")
 
               // TODO: workaround for now; add column name to the database?
               span {{ stepType.name }}
@@ -72,23 +72,34 @@ block content
                   //
                   // User Upload Document
                   //
+                  div.input-group.file-type
+                    label Answer Destination Folder
+                      input(type='button', value='Google Drive', @click='getFolderId(step)')
+                      input(type='button', value='Box')
+                      input(type='button', value='SFTP')
                 template(v-if="step.step_type_id === 5")
                   //
                   // User Read Document, add the file picker
                   //
                   div.input-group.file-type
-                    input(type='button', value='Google Drive', @click='getFileId(step)')
-                    input(type='button', value='Box')
-                    input(type='button', value='SFTP')
-
+                    label Document to read
+                      input(type='button', value='Google Drive', @click='getFileId(step)')
+                      input(type='button', value='Box')
+                      input(type='button', value='SFTP')
                 template(v-if="step.step_type_id === 6")
                   //
                   // User Read and Upload Document
                   //
                   div.input-group.file-type
-                    input(type='file', value='Google Drive', @click='getFileId(step)')
-                    input(type='button', value='Box')
-                    input(type='button', value='SFTP')
+                    label Document to read
+                      input(type='button', value='Google Drive', @click='getFileId(step)')
+                      input(type='button', value='Box')
+                      input(type='button', value='SFTP')
+                  div.input-group.file-type
+                    label Answer destination folder
+                      input(type='button', value='Google Drive', @click='getFolderId(step)')
+                      input(type='button', value='Box')
+                      input(type='button', value='SFTP')
 
         // Trigger the modal with a button
         div.drag-area Drag & drop questions here or click the button below
@@ -122,13 +133,13 @@ block content
 
 block pageScripts
   script.
-    var stepTypesArray = !{JSON.stringify(stepTypes).replace(/<\//g, '<\\/')};
-    var stepTypesObj = {};
-    stepTypesArray.forEach(function (element) {
-      stepTypesObj[element.id] = element;
-    });
-    console.log(stepTypesObj);
-    var flowId = !{flowId}; // used on AJAX requests
+      var stepTypesArray = !{JSON.stringify(stepTypes).replace(/<\//g, '<\\/')};
+      var stepTypesObj = {};
+      stepTypesArray.forEach(function (element) {
+          stepTypesObj[element.id] = element;
+      });
+      console.log(stepTypesObj);
+      var flowId = !{flowId}; // used on AJAX requests
 
   script(src=static.root + '/js/manager_flow_steps.js')
 

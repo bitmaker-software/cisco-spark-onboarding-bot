@@ -33,7 +33,8 @@ let app = new Vue({
                 title: '#',
                 sortField: 'step.step_order'
             },
-            'question','answer'
+            'question',
+            'answer'
         ],
         moreParams: {},
         css: {

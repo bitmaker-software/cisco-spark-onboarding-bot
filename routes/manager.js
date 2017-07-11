@@ -188,24 +188,35 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
               });
             } // if step type === 3
 
-            if (step.step_type_id === 5 || step.step_type_id === 6) {
-              //read documents
-              console.log("step.document_step:");
-              console.log(step.document_step);
+            else if (step.step_type_id === 4 || step.step_type_id === 5 || step.step_type_id === 6) {
+              //uplaod documents
+              console.log("step.upload_id: "+step.upload_id);
+              console.log("step.document_id: "+step.document_id);
+
+              var document_id = null;
+              var upload_id = null;
+              if(step.step_type_id === 4) {
+                upload_id = step.upload_id;
+              }
+              else if (step.step_type_id === 5){
+                document_id = step.document_id;
+              }
+              else{
+                upload_id = step.upload_id;
+                document_id = step.document_id;
+              }
 
               models.document_step.create({
-                //document_store_id: ,
-                document_url: step.document_step,
-                step_id: result.id,
-                // upload_dir: ,
-              }).then(result => {
-
-              }, err => {
-                console.error("Error saving the document step:");
-                console.error(err);
-                return res.send(err);
+                  //document_store_id: ,
+                  step_id: result.id,
+                  upload_dir: upload_id,
+                  document_url: document_id,
+              }).then(result => { }, err => {
+                  console.error("Error saving the document step:");
+                  console.error(err);
+                  return res.send(err);
               });
-            }// if step type === 5 || 6
+            } // if step type === 4 5 6
 
           })
       )
@@ -267,21 +278,32 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                 });
               }
 
-              if (step.step_type_id === 5 || step.step_type_id === 6) {
-                //READ DOCUMENTS
+              else if (step.step_type_id === 4 || step.step_type_id === 5 || step.step_type_id === 6) {
+                //DOCUMENTS
+                var document_id = null;
+                var upload_id = null;
+                if(step.step_type_id === 4) {
+                  upload_id = step.upload_id;
+                }
+                else if (step.step_type_id === 5){
+                  document_id = step.document_id;
+                }
+                else{
+                  upload_id = step.upload_id;
+                  document_id = step.document_id;
+                }
+
                 models.document_step.find(
                   {where: {step_id: step.id}}).then(result => {
 
                   //ainda nao existe nenhum documento -> create
-                  if (result === null) {
-
-                    console.log("!!!! 1");
-
+                  if (result === null)
+                  {
                     models.document_step.create({
                       //document_store_id: ,
-                      document_url: step.document_step,
+                      document_url: document_id,
                       step_id: step.id,
-                      // upload_dir: ,
+                      upload_dir: upload_id,
                     }).then(result => {
                       //
                     }, err => {
@@ -291,9 +313,13 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                     });
                   }
                   //update
-                  else {
+                  else
+                  {
                     models.document_step.update(
-                      {document_url: step.document_step},
+                      {
+                        document_url: document_id,
+                        upload_dir: upload_id,
+                      },
                       {where: {step_id: step.id}}).then(
                       result => {
                       },
