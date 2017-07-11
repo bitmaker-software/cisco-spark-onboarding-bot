@@ -563,7 +563,8 @@ module.exports = function (controller) {
         //     callback(file.webContentLink);
         //   }
         // });
-        callback(file.webCostarntentLink);
+        // callback(file.webCostarntentLink);
+        callback('document**' + file_info.filename);
       }
     });
   }
