@@ -60,6 +60,11 @@ gulp.task('sprite-shortcut', function() {
     .pipe(gulp.dest('public/'));
 });
 
+gulp.task('images', function() {
+  return gulp.src('client/images/*.*')
+    .pipe(gulp.dest('public/images/'));
+});
+
 gulp.task('font-awesome', function() {
     return gulp.src('node_modules/font-awesome/fonts/*.*')
         .pipe(gulp.dest('public/fonts/'));
