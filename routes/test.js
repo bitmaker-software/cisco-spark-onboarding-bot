@@ -63,9 +63,9 @@ router.get('/answers/:flow_id/:total', ensureAuthenticated, (req, res, next) => 
       total = result;
     }, err => res.send(err));
   }
-
   databaseServices.getAnswers(flow_id, page - 1, per_page, filter, sort, order).then(answers => {
-    let dataJSON = createJSON(answers, flow_id, total, sort, page, per_page);
+    const dataJSON = createJSON(answers, flow_id, total, sort, page, per_page);
+    console.log(dataJSON);
     res.send(dataJSON);
   }, err => res.send(err));
 });
@@ -75,7 +75,6 @@ router.get('/document_stores', ensureAuthenticated, (req, res, next) => {
     res.send(models);
   }, err => res.send(err));
 });
-
 
 function createJSON(answers, flow_id, total, sort, page, per_page) {
   let answersReceived = answers.map(answer => {

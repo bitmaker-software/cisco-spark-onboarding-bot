@@ -51,13 +51,12 @@ jwtClient.authorize(function (err, tokens) {
         let file = files[i];
         console.log('%s (%s)', file.name, file.id);
         /*
-         drive.permissions.list({
-         fileId: file.id
-         }, function (err, response) {
-         console.log(response);
-         })
-         */
-
+        drive.permissions.list({
+          fileId: file.id
+        }, function (err, response) {
+          console.log(response);
+        })
+        */
         /*
          //delete files
          drive.files.delete({

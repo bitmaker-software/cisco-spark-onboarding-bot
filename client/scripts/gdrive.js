@@ -118,12 +118,14 @@
   self.pickerCallback = function (data) {
     let url;
     let docid = '';
+    let docname = '';
     if (data[google.picker.Response.ACTION] === google.picker.Action.PICKED)
     {
       let doc = data[google.picker.Response.DOCUMENTS][0];
       url = doc[google.picker.Document.URL];
       docid = doc[google.picker.Document.ID];
-      self.shareFile(docid);
+      docname = doc[google.picker.Document.NAME];
+      self.shareFile(docid,docname);
     }
     else if (data[google.picker.Response.ACTION] === google.picker.Action.CANCEL)
     {
@@ -133,11 +135,11 @@
     {
       url = 'nothing';
     }
-    let message = 'You picked: ' + url + ' (' + docid + ')';
+    let message = 'You picked: ' + url + ' (' + docid + ' ; ' + docname + ')';
     console.log(message);
   };
 
-  self.shareFile = function (fileId)
+  self.shareFile = function (fileId,fileName)
   {
     if (self.driveShareLoaded)
     {
@@ -173,7 +175,7 @@
         console.log(resp);
         if (resp.kind && resp.kind === 'drive#permission') {
           //share ok
-          self.afterSelectionCallback(fileId);
+          self.afterSelectionCallback(fileId,fileName);
         }
         self.selectMode = 'none';
         self.afterSelectionCallback = null;

@@ -77,6 +77,7 @@ block content
                       input(type='button', value='Google Drive', @click='getFolderId(step)')
                       input(type='button', value='Box')
                       input(type='button', value='SFTP')
+                  p.text-muted {{step.upload_dir_name}}
                 template(v-if="step.step_type_id === 5")
                   //
                   // User Read Document, add the file picker
@@ -86,6 +87,7 @@ block content
                       input(type='button', value='Google Drive', @click='getFileId(step)')
                       input(type='button', value='Box')
                       input(type='button', value='SFTP')
+                  p.text-muted {{step.document_name}}
                 template(v-if="step.step_type_id === 6")
                   //
                   // User Read and Upload Document
@@ -95,12 +97,14 @@ block content
                       input(type='button', value='Google Drive', @click='getFileId(step)')
                       input(type='button', value='Box')
                       input(type='button', value='SFTP')
+                  p.text-muted {{step.document_name}}
+                  hr
                   div.input-group.file-type
                     label Answer destination folder
                       input(type='button', value='Google Drive', @click='getFolderId(step)')
                       input(type='button', value='Box')
                       input(type='button', value='SFTP')
-
+                  p.text-muted {{step.upload_dir_name}}
         // Trigger the modal with a button
         div.drag-area Drag & drop questions here or click the button below
         hr
@@ -133,13 +137,13 @@ block content
 
 block pageScripts
   script.
-      var stepTypesArray = !{JSON.stringify(stepTypes).replace(/<\//g, '<\\/')};
-      var stepTypesObj = {};
-      stepTypesArray.forEach(function (element) {
-          stepTypesObj[element.id] = element;
-      });
-      console.log(stepTypesObj);
-      var flowId = !{flowId}; // used on AJAX requests
+    var stepTypesArray = !{JSON.stringify(stepTypes).replace(/<\//g, '<\\/')};
+    var stepTypesObj = {};
+    stepTypesArray.forEach(function (element) {
+      stepTypesObj[element.id] = element;
+    });
+    console.log(stepTypesObj);
+    var flowId = !{flowId}; // used on AJAX requests
 
   script(src=static.root + '/js/manager_flow_steps.js')
 
