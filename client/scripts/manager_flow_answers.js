@@ -34,7 +34,11 @@ let app = new Vue({
                 sortField: 'step.step_order'
             },
             'question',
-            'answer'
+            {
+                name:'answer',
+                title:'Answer',
+                callback: 'makeClickable'
+            }
         ],
         moreParams: {},
         css: {
@@ -64,6 +68,11 @@ let app = new Vue({
         this.$events.$on('filter-reset', e => this.onFilterReset());
     },
     methods: {
+        makeClickable: function(value) {
+            if(value.includes("http"))
+                return '<a href="'+value+'">'+value+'</a>';
+            return value;
+        },
         onClick (event) {
             console.log('my-detail-row: on-click', event.target)
         },
