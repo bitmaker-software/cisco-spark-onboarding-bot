@@ -51,12 +51,12 @@ jwtClient.authorize(function (err, tokens) {
         let file = files[i];
         console.log('%s (%s)', file.name, file.id);
         /*
-        drive.permissions.list({
-          fileId: file.id
-        }, function (err, response) {
-          console.log(response);
-        })
-        */
+         drive.permissions.list({
+         fileId: file.id
+         }, function (err, response) {
+         console.log(response);
+         })
+         */
         /*
          //delete files
          drive.files.delete({
@@ -76,32 +76,29 @@ jwtClient.authorize(function (err, tokens) {
   console.log("\n");
 });
 
-/*
- //google drive
- function getDriveDocument(fileId, callback) {
- var request = drive.files.get({
- 'fileId': fileId,
- 'fields': "id,name,webViewLink,webContentLink"
- }, function(err, file)
- {
- console.log(file);
- var filePath = "./bot/files_to_serve/"+file.name;
- var dest = fs.createWriteStream(filePath);
- dest.on('open',function(fd){
- drive.files.get({
- fileId: file.id,
- alt: 'media'
- }).on('end', function() {
- console.log('Done');
- callback(fs.createReadStream(filePath));
- }).on('error', function(err) {
- console.log('Error during download', err);
- }).pipe(dest);
- })
- callback(dest);
- });
- }
- */
+//google drive
+function getDriveDocument(fileId, callback) {
+  let request = drive.files.get({
+    'fileId': fileId,
+    'fields': "id,name,webViewLink,webContentLink"
+  }, function (err, file) {
+    console.log(file);
+    let filePath = "./bot/files_to_serve/" + file.name;
+    let dest = fs.createWriteStream(filePath);
+    dest.on('open', function (fd) {
+      drive.files.get({
+        fileId: file.id,
+        alt: 'media'
+      }).on('end', function () {
+        console.log('Done');
+        callback(fs.createReadStream(filePath));
+      }).on('error', function (err) {
+        console.log('Error during download', err);
+      }).pipe(dest);
+    });
+    // callback(dest);
+  });
+}
 
 
 module.exports = function (controller) {
@@ -371,38 +368,78 @@ module.exports = function (controller) {
 
   function addReadDocumentStep(bot, convo, step, respondent_flow_id, thread) {
     console.log("Adding read document step: " + step.text);
-    let text = step.text + '\n\nPlease type ok to continue.';
+    let text = step.text + '\n\nPlease type ok to receive the file.';
 
     if (step.document_step === null) {
       console.error("The read document step has no document!");
-    }
-    else {
-      convo.addQuestion({
-        text: text,
-        files: [step.url]
-      }, [
-        {
-          "pattern": "^ok$",
-          "callback": function (response, convo) {
-            console.log("OK");
-            // go to next
-            convo.next();
-          }
-        },
-        {
-          "default": true,
-          "callback": function (response, convo) {
-            console.log("NOT OK");
-            //repeat the question
-            //convo.say("Please type ok to continue");
-            bot.reply(convo.source_message, "Sorry, I didn't get that. Please type ok to continue");
-            //convo.repeat();
-            // convo.silentRepeat();
-            // convo.next();
-          }
-        }
-      ], {}, thread);
+    } else {
 
+      let filePath = './bot/files_to_serve/test_file.txt';
+      fs.exists(filePath, function (exists) {
+        if (exists) {
+          let readStream = fs.createReadStream(filePath);
+          // bot.reply(convo.source_message, {text: 'I made this file for you.', files: [readStream]});
+          console.log(`step.url:`);
+          console.log(step.url);
+          // bot.reply(convo.source_message, {text: 'I made this file for you.', files: [step.url]});
+          // convo.say({text: 'I made this file for you.', files: [readStream]}); // IF BEFORE addQuestion: First argument must be a string or Buffer
+          // convo.next();
+          convo.addQuestion({
+            text: text,
+            // files: [step.url] // does not work with private files
+            // files: [fs.createReadStream(filePath)] // TypeError: source.on is not a function
+          }, [
+            {
+              "pattern": "^ok$",
+              "callback": function (response, convo) {
+                // go to next
+                bot.reply(convo.source_message, {text: 'I made this file for you.', files: [step.url]});
+                convo.next();
+              }
+            },
+            {
+              "default": true,
+              "callback": function (response, convo) {
+                console.log("NOT OK");
+                //repeat the question
+                //convo.say("Please type ok to continue");
+                bot.reply(convo.source_message, "Sorry, I didn't get that. Please type ok to continue");
+                //convo.repeat();
+                // convo.silentRepeat();
+                // convo.next();
+              }
+            }
+          ], {}, thread);
+
+
+          convo.addQuestion({
+            text: 'Type ok after reading the document',
+            // files: [step.url] // does not work with private files
+            // files: [fs.createReadStream(filePath)] // TypeError: source.on is not a function
+          }, [
+            {
+              "pattern": "^ok$",
+              "callback": function (response, convo) {
+                // go to next
+                convo.next();
+              }
+            },
+            {
+              "default": true,
+              "callback": function (response, convo) {
+                console.log("NOT OK");
+                //repeat the question
+                bot.reply(convo.source_message, "Sorry, I didn't get that. Please type ok to continue");
+              }
+            }
+          ], {}, thread);
+
+
+        } else {
+          console.log('The file does not exist! Not adding the step.');
+          // convo.next();
+        }
+      });
     }
   }
 
@@ -600,22 +637,33 @@ module.exports = function (controller) {
       flow.steps.forEach(function (step) {
         //read documents
         if (step.step_type_id === 5 || step.step_type_id === 6) {
-          if (step.document_step !== null && step.document_step.document_url !== null) {
-            console.log(`Reading document (URL = ${step.document_step.document_url})`);
-            drive.files.get({
-              'fileId': step.document_step.document_url,
-              'fields': "id,name,webContentLink"
-            }, function (err, file) {
-              console.log(file);
-              //isto
-              step.url = file.webContentLink;
-              counter++;
+          const documentUrl = step.document_step.document_url;
+          if (step.document_step !== null && documentUrl !== null) {
+            console.log(`Reading document (URL = ${documentUrl})`);
+            // drive.files.get({
+            //   'fileId': step.document_step.document_url,
+            //   'fields': "id,name,webContentLink"
+            // }, function (err, file) {
+            //   console.log(file);
+            //   //isto
+            //   step.url = file.webContentLink;
+            //   counter++;
+            //
+            //   if (counter === size) {
+            //     console.log("end 2!");
+            //     resolve(flow);
+            //   }
+            // });
 
+            getDriveDocument(documentUrl, stream => {
+              step.url = stream;
+              counter++;
               if (counter === size) {
                 console.log("end 2!");
                 resolve(flow);
               }
             });
+
           } else {
             console.log('Null document or URL, skipping.');
             step.url = null;
