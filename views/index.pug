@@ -13,25 +13,25 @@ html(lang='en')
     //link(rel='stylesheet', href=static.root + '/css/index.css@' + static.suffix)
     link(rel='stylesheet', href=static.root + '/css/index.css')
   body
-    
+
 block content
   .brand-page
     .container
       .row
         .col
-          
+
           .card
             .row.no-gutters
               .col.bg-image.hidden-md-down
               .col.login-block
-                .card-block   
+                .card-block
                   .spark-logo
                   p.lead.text-muted  Cisco Spark
                   h1.text-primary Onboarding
                   p.lead.text-muted Welcome to #{title}
 
                   a(href="/auth/spark").btn.btn-primary Sign up with Cisco Spark
-      
+
     footer
       .container-fluid
         .row
@@ -39,5 +39,3 @@ block content
             svg.logo
               use(xlink:href=static.root + "/sprite.svg#logo")
             small.text-muted © Cisco Systems, Inc. 2017
-              
-              

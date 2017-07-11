@@ -23,8 +23,8 @@ block content
             each flow in flows
               div.card
                 div.card-img-top
-                  svg.icon  
-                    use(xlink:href=static.root + "/sprite.svg#flow-fill") 
+                  svg.icon
+                    use(xlink:href=static.root + "/sprite.svg#flow-fill")
                 div.card-block
                   h4.card-title= flow.name
                   div.card-text
@@ -34,19 +34,19 @@ block content
                     div.col
                       a.btn.btn-outline-dark(href='/manager/flow/' + flow.id + '/edit', role="button")
                         svg.icon.mr-2
-                          use(xlink:href=static.root + "/sprite.svg#settings") 
+                          use(xlink:href=static.root + "/sprite.svg#settings")
                         | Edit flow
                     div.col.text-right
                       div.btn-group(role="group")
                         a.btn.btn-outline-dark(href='/manager/flow/' + flow.id + '/send', role="button", data-toggle="tooltip" data-placement="bottom" title="Send")
                           svg.icon.send
-                            use(xlink:href=static.root + "/sprite.svg#send") 
+                            use(xlink:href=static.root + "/sprite.svg#send")
                         a.btn.btn-outline-dark(href='/manager/flow/' + flow.id + '/answers', role="button", data-toggle="tooltip" data-placement="bottom" title="Answers")
-                          svg.icon  
-                            use(xlink:href=static.root + "/sprite.svg#answer") 
+                          svg.icon
+                            use(xlink:href=static.root + "/sprite.svg#answer")
                         a.btn.btn-outline-dark(href='/manager/flow/' + flow.id + '/dashboard', role="button", data-toggle="tooltip" data-placement="bottom" title="Dashboard")
-                          svg.icon  
-                            use(xlink:href=static.root + "/sprite.svg#dashboard") 
+                          svg.icon
+                            use(xlink:href=static.root + "/sprite.svg#dashboard")
           // Trigger the modal with a button
           div.text-center
             button.btn.btn-outline-primary.btn-lg.mt-4(type="button", data-toggle="modal", data-target="#myModal") Add flow

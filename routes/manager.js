@@ -212,7 +212,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                 upload_id = step.upload_id;
                 upload_dir_name = step.upload_dir_name;
                 document_id = step.document_id;
-                  document_name = step.document_name;
+                document_name = step.document_name;
               }
 
               models.document_step.create({

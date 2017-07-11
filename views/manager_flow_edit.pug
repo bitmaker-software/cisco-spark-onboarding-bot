@@ -12,6 +12,7 @@ block content
           div.btn.btn-secondary
             svg.step-icon
               use(v-bind="{'xlink:href':'"+static.root +"/sprite.svg#'+stepTypeIcons[stepType.id]}")
+              use(v-bind="{'xlink:href':'" + static.root + "/sprite.svg#' + stepTypeIcons[stepType.id]}")
 
               // TODO: workaround for now; add column name to the database?
               span {{ stepType.name }}
@@ -38,7 +39,7 @@ block content
                 div.input-group
                   div.input-group-addon
                     svg.icon
-                      use(v-bind="{'xlink:href':'"+static.root +"/sprite.svg#'+stepTypeIcons[step.step_type_id]}")
+                      use(v-bind="{'xlink:href':'" + static.root + "/sprite.svg#'+stepTypeIcons[step.step_type_id]}")
                   input.form-control.question(type="text", v-model="step.text")
                 //- small {{ step.type_description }}
                 //
@@ -105,7 +106,6 @@ block content
                       input(type='button', value='Box')
                       input(type='button', value='SFTP')
                   p.text-muted {{step.upload_dir_name}}
-
         // Trigger the modal with a button
         div.drag-area Drag & drop questions here or click the button below
         hr

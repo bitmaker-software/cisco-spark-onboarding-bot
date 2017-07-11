@@ -26,9 +26,9 @@ block content
             input#btn-search-user.btn.btn-primary.btn-block(type='button', name='btn-search-user', :value='searching ? "Searching" : "Search"', @click='doSearch', :disabled='searching || searchInput.trim() === \'\'')
 
         div.row.mt-4
-          div.col(v-if='searchResultsInfo') 
+          div.col(v-if='searchResultsInfo')
             h2.mb-4.text-muted {{ searchResultsInfo }}
-        
+
         div.row(v-for='user in searchResults')
           div.col
             a
@@ -36,7 +36,7 @@ block content
               a(href="#").mb-1 {{ user.email }}
           div.col.text-right
             input.btn.btn-outline-primary(type="button", value="Send", @click="sendFlowToUser(user)")
-        hr          
+        hr
 
 block pageScripts
   script.

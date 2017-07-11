@@ -13,25 +13,25 @@ html(lang='en')
     //link(rel='stylesheet', href=static.root + '/css/index.css@' + static.suffix)
     link(rel='stylesheet', href=static.root + '/css/index.css')
   body
-    
+
 block content
   .brand-page
     .container
       .row
         .col
-          
+
           .card
             .row.no-gutters
               .col.bg-image.error.hidden-md-down
               .col.login-block
-                .card-block   
+                .card-block
                   .spark-logo
                   p.lead.text-muted  Cisco Spark
                   h1.text-primary= message
                   h2.text-muted= error.status
                   //- pre #{error.stack}
                   a(href="/").btn.btn-primary Go back to the homepage
-      
+
     footer
       .container-fluid
         .row

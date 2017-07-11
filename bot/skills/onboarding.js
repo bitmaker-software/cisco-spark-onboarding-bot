@@ -68,7 +68,7 @@ jwtClient.authorize(function (err, tokens) {
          }
          console.log("deleted "+file.id);
          });
-         */
+      */
       }
     }
   });
