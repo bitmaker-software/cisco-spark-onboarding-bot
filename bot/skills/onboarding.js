@@ -57,7 +57,6 @@ jwtClient.authorize(function (err, tokens) {
           console.log(response);
         })
         */
-
 /*
          //delete files
          drive.files.delete({
@@ -69,7 +68,7 @@ jwtClient.authorize(function (err, tokens) {
          }
          console.log("deleted "+file.id);
          });
-      */
+         */
       }
     }
   });

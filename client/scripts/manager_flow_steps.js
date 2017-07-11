@@ -15,21 +15,23 @@ $(function () {
                 1: "announcement", // Announcement
                 2: "question",  // Question
                 3: "multiplechoice", // Multiple Choice
-                4: "", // User upload Document
+                4: "document", // User upload Document
                 5: "document", // User read Document
-                6: "", // User read and upload
+                6: "document", // User read and upload
             },
             newStepTypeSelected: 1
         },
         methods: {
             addStep: stepType => addNewStep(stepType),
             getFileId: (step) => {
-                GDrive.selectFile(function (id) {
+                GDrive.selectFile(function (id,name) {
+                    step.document_name = name;
                     step.document_id = id;
                 })
             },
             getFolderId: (step) => {
-                GDrive.selectFolder(function (id) {
+                GDrive.selectFolder(function (id,name) {
+                    step.upload_dir_name = name;
                     step.upload_id = id;
                 })
             },
@@ -53,7 +55,9 @@ $(function () {
             step_type_id: stepTypeInt,
             step_choices: [],
             document_id: null,
-            upload_id: null
+            upload_id: null,
+            document_name: 'No Document Selected',
+            upload_dir_name: 'No Folder Selected',
         });
 
         $('#myModal').modal('hide');
@@ -81,6 +85,8 @@ $(function () {
                     type_description: getStepTypeFromTypeId(step.step_type_id).description,
                     document_id: getDocumentUrl(step),
                     upload_id: getUploadDir(step),
+                    document_name: getDocumentName(step),
+                    upload_dir_name: getUploadDirName(step),
                 }
             });
 
@@ -112,11 +118,33 @@ $(function () {
       return null;
     }
 
+    function getDocumentName(step){
+        if(step.document_step !== null){
+            var name = step.document_step.document_name;
+            if(name === null)
+                return "No Document Selected";
+            return name;
+            //return step.document_step.document_name;
+        }
+        return "No Document Selected";
+    }
+
     function getUploadDir(step){
       if(step.document_step !== null){
         return step.document_step.upload_dir;
       }
       return null;
+    }
+
+    function getUploadDirName(step){
+        if(step.document_step !== null){
+            var name = step.document_step.upload_dir_name;
+            if(name === null)
+                return "No Folder Selected";
+            return name;
+            //return step.document_step.upload_dir_name;
+        }
+        return "No Folder Selected";
     }
 
     function saveSteps() {

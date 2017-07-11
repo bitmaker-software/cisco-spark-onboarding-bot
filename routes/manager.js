@@ -192,25 +192,36 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
               //uplaod documents
               console.log("step.upload_id: "+step.upload_id);
               console.log("step.document_id: "+step.document_id);
+              console.log("step.document_name: "+step.document_name);
+              console.log("step.upload_dir_name: "+step.upload_dir_name);
 
               var document_id = null;
+              var document_name = null;
               var upload_id = null;
+              var upload_dir_name = null;
+
               if(step.step_type_id === 4) {
                 upload_id = step.upload_id;
+                upload_dir_name = step.upload_dir_name;
               }
               else if (step.step_type_id === 5){
                 document_id = step.document_id;
+                document_name = step.document_name;
               }
               else{
                 upload_id = step.upload_id;
+                upload_dir_name = step.upload_dir_name;
                 document_id = step.document_id;
+                  document_name = step.document_name;
               }
 
               models.document_step.create({
                   //document_store_id: ,
                   step_id: result.id,
                   upload_dir: upload_id,
+                  upload_dir_name: upload_dir_name,
                   document_url: document_id,
+                  document_name: document_name
               }).then(result => { }, err => {
                   console.error("Error saving the document step:");
                   console.error(err);
@@ -280,18 +291,30 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
 
               else if (step.step_type_id === 4 || step.step_type_id === 5 || step.step_type_id === 6) {
                 //DOCUMENTS
-                var document_id = null;
-                var upload_id = null;
-                if(step.step_type_id === 4) {
-                  upload_id = step.upload_id;
-                }
-                else if (step.step_type_id === 5){
-                  document_id = step.document_id;
-                }
-                else{
-                  upload_id = step.upload_id;
-                  document_id = step.document_id;
-                }
+                  console.log("step.upload_id: "+step.upload_id);
+                  console.log("step.document_id: "+step.document_id);
+                  console.log("step.document_name: "+step.document_name);
+                  console.log("step.upload_dir_name: "+step.upload_dir_name);
+
+                  var document_id = null;
+                  var document_name = null;
+                  var upload_id = null;
+                  var upload_dir_name = null;
+
+                  if(step.step_type_id === 4) {
+                      upload_id = step.upload_id;
+                      upload_dir_name = step.upload_dir_name;
+                  }
+                  else if (step.step_type_id === 5){
+                      document_id = step.document_id;
+                      document_name = step.document_name;
+                  }
+                  else{
+                      upload_id = step.upload_id;
+                      upload_dir_name = step.upload_dir_name;
+                      document_id = step.document_id;
+                      document_name = step.document_name;
+                  }
 
                 models.document_step.find(
                   {where: {step_id: step.id}}).then(result => {
@@ -302,8 +325,10 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                     models.document_step.create({
                       //document_store_id: ,
                       document_url: document_id,
+                      document_name: document_name,
                       step_id: step.id,
                       upload_dir: upload_id,
+                      upload_dir_name: upload_dir_name,
                     }).then(result => {
                       //
                     }, err => {
@@ -318,7 +343,9 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                     models.document_step.update(
                       {
                         document_url: document_id,
+                        document_name: document_name,
                         upload_dir: upload_id,
+                        upload_dir_name: upload_dir_name,
                       },
                       {where: {step_id: step.id}}).then(
                       result => {
