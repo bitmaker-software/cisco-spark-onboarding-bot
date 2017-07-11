@@ -76,87 +76,66 @@ router.get('/document_stores', ensureAuthenticated, (req, res, next) => {
   }, err => res.send(err));
 });
 
-function createJSON(answers,flow_id,total,sort,page,per_page)
-{
+function createJSON(answers, flow_id, total, sort, page, per_page) {
     let answersReceived = answers.map(answer => {
         //colocar a resposta de acordo com o que recebe
-        var myanswer;
-        var stepType = answer.step.step_type_id;
-        if (stepType == 2) myanswer = answer.text;
-        else if (stepType == 3) myanswer = answer.step_choice.choice_order + " : " + answer.step_choice.text;
-        else if (stepType == 4 || stepType == 6) myanswer = answer.document_url;
+        let myanswer;
+        let stepType = answer.step.step_type_id;
+        if (stepType === 2) {
+            myanswer = answer.text;
+        } else if (stepType === 3) {
+            myanswer = answer.step_choice.choice_order + " : " + answer.step_choice.text;
+        } else if (stepType === 4 || stepType === 5 || stepType === 6) {
+            myanswer = answer.document_url;
+        }
 
-        var date = answer.answer_date;
-        var month = date.getUTCMonth()+1;
+        let date = answer.answer_date;
+        let month = date.getUTCMonth() + 1;
 
-        console.log(stepType+" - "+myanswer);
+        console.log(stepType + " - " + myanswer);
 
         return {
             username: answer.respondent_flow.respondent.name,
-            date: date.getUTCDate()+"-"+month+"-"+date.getUTCFullYear(),
+            date: date.getUTCDate() + "-" + month + "-" + date.getUTCFullYear(),
             question_num: answer.step.step_order,
             question: answer.step.text,
             answer: myanswer
         }
+
     });
 
-    var last_page = Math.ceil(total/per_page);
-    var nextPageUrl = "";
-    var prevPageUrl = "";
-    var nextPage = page+1;
-    var prevPage = page-1;
+    let last_page = Math.ceil(total / per_page);
+    let nextPageUrl = "";
+    let prevPageUrl = "";
+    let nextPage = page + 1;
+    let prevPage = page - 1;
 
-    if(nextPage <= last_page){
-        nextPageUrl = "../../../test/answers/"+flow_id+"/"+total+"?sort="+sort+"&page="+nextPage+"&per_page="+per_page
+    if (nextPage <= last_page) {
+        nextPageUrl = "../../../test/answers/" + flow_id + "/" + total + "?sort=" + sort + "&page=" + nextPage + "&per_page=" + per_page
+    }
+    if (prevPage >= 1) {
+        prevPageUrl = "../../../test/answers/" + flow_id + "/" + total + "?sort=" + sort + "&page=" + prevPage + "&per_page=" + per_page
     }
 
-    let date = answer.answer_date;
-    let month = date.getUTCMonth() + 1;
+    let to = 0;
+    if (page === last_page)
+        to = total - (page - 1) * per_page;
+    else
+        to = (page) * per_page
 
-    console.log(stepType + " - " + myanswer);
+    let dataJSON = {
+        total: parseInt(total),
+        per_page: parseInt(per_page),
+        current_page: parseInt(page),
+        last_page: parseInt(last_page),
+        next_page_url: nextPageUrl,
+        prev_page_url: prevPageUrl,
+        data: answersReceived,
+        from: (page - 1) * per_page + 1,
+        to: to
+    };
 
-    return {
-      username: answer.respondent_flow.respondent.name,
-      date: date.getUTCDate() + "-" + month + "-" + date.getUTCFullYear(),
-      question_num: answer.step.step_order,
-      question: answer.step.text,
-      answer: myanswer
-    }
-
-  });
-
-  let last_page = Math.ceil(total / per_page);
-  let nextPageUrl = "";
-  let prevPageUrl = "";
-  let nextPage = page + 1;
-  let prevPage = page - 1;
-
-  if (nextPage <= last_page) {
-    nextPageUrl = "../../../test/answers/" + flow_id + "/" + total + "?sort=" + sort + "&page=" + nextPage + "&per_page=" + per_page
-  }
-  if (prevPage >= 1) {
-    prevPageUrl = "../../../test/answers/" + flow_id + "/" + total + "?sort=" + sort + "&page=" + prevPage + "&per_page=" + per_page
-  }
-
-  let to = 0;
-  if (page === last_page)
-    to = total - (page - 1) * per_page;
-  else
-    to = (page) * per_page
-
-  let dataJSON = {
-    total: parseInt(total),
-    per_page: parseInt(per_page),
-    current_page: parseInt(page),
-    last_page: parseInt(last_page),
-    next_page_url: nextPageUrl,
-    prev_page_url: prevPageUrl,
-    data: answersReceived,
-    from: (page - 1) * per_page + 1,
-    to: to
-  };
-
-  return dataJSON;
+    return dataJSON;
 }
 
 module.exports = router;
