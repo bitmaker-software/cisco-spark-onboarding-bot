@@ -119,24 +119,43 @@
     let url;
     let docid = '';
     let docname = '';
-    if (data[google.picker.Response.ACTION] === google.picker.Action.PICKED)
-    {
+    if (data[google.picker.Response.ACTION] === google.picker.Action.PICKED) {
       let doc = data[google.picker.Response.DOCUMENTS][0];
       url = doc[google.picker.Document.URL];
       docid = doc[google.picker.Document.ID];
       docname = doc[google.picker.Document.NAME];
-      self.shareFile(docid,docname);
+      mimetype = doc[google.picker.Document.MIME_TYPE];
+
+      console.log(">> "+mimetype)
+
+      self.verifyMimeType(mimetype,docid,docname);
     }
-    else if (data[google.picker.Response.ACTION] === google.picker.Action.CANCEL)
-    {
+    else if (data[google.picker.Response.ACTION] === google.picker.Action.CANCEL) {
       self.selectMode = 'none';
     }
-    else
-    {
+    else {
       url = 'nothing';
     }
     let message = 'You picked: ' + url + ' (' + docid + ' ; ' + docname + ')';
     console.log(message);
+  };
+
+  self.verifyMimeType = function (mimetype,docid,docname) {
+
+    if(mimetype.includes('google-apps')){
+      //google apps different than the known ones
+      if(!mimetype.includes('document') && !mimetype.includes('spreadsheet') &&
+          !mimetype.includes('drawing') && !mimetype.includes('presentation')){
+          self.afterSelectionCallback('wrong',docname);
+      }
+      else{
+          self.shareFile(docid,docname);
+      }
+    }
+    else{
+        self.shareFile(docid,docname);
+    }
+
   };
 
   self.shareFile = function (fileId,fileName)

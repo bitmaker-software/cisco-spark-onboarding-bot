@@ -51,13 +51,6 @@ jwtClient.authorize(function (err, tokens) {
         let file = files[i];
         console.log('%s (%s)', file.name, file.id);
         /*
-         drive.permissions.list({
-         fileId: file.id
-         }, function (err, response) {
-         console.log(response);
-         })
-         */
-/*
          //delete files
          drive.files.delete({
          fileId: file.id
@@ -69,7 +62,6 @@ jwtClient.authorize(function (err, tokens) {
          console.log("deleted "+file.id);
          });
          */
-
       }
     }
   });
@@ -78,26 +70,78 @@ jwtClient.authorize(function (err, tokens) {
 });
 
 //google drive
-function getDriveDocument(fileId, callback) {
+function getDriveDocument(fileId, callback)
+{
   let request = drive.files.get({
     'fileId': fileId,
-    'fields': "id,name,webViewLink,webContentLink"
-  }, function (err, file) {
+    'fields': "id,mimeType,name"
+  }, function (err, file)
+  {
     console.log(file);
-    let filePath = "./bot/files_to_serve/" + file.name;
-    let dest = fs.createWriteStream(filePath);
-    dest.on('open', function (fd) {
-      drive.files.get({
-        fileId: file.id,
-        alt: 'media'
-      }).on('end', function () {
-        console.log('Done');
-        callback(fs.createReadStream(filePath));
-      }).on('error', function (err) {
-        console.log('Error during download', err);
-      }).pipe(dest);
-    });
-    // callback(dest);
+    let mimetype = file.mimeType;
+    let parts = file.mimeType.split('google-apps');
+
+    //google files => export
+    if(parts.length > 1)
+    {
+      console.log(parts[1])
+
+      let mimetype;
+      let extension;
+      if(parts[1] === '.document'){
+        mimetype = 'application/vnd.oasis.opendocument.text';
+        extension = '.odt';
+      }
+      else if(parts[1] === '.spreadsheet'){
+        mimetype = 'application/x-vnd.oasis.opendocument.spreadsheet';
+        extension = '.ods';
+      }
+      else if(parts[1] === '.drawing'){
+        mimetype = 'image/png';
+        extension = '.png';
+      }
+      else if(parts[1] === '.presentation'){
+        mimetype = 'application/vnd.oasis.opendocument.presentation';
+        extension = '.odp';
+      }
+      else{
+        mimetype = 'application/pdf';
+        extension = '.pdf';
+      }
+
+      let filePath = "./bot/files_to_serve/"+file.name+extension;
+      let dest = fs.createWriteStream(filePath);
+
+      dest.on('open', function (fd) {
+        drive.files.export({
+            fileId: file.id,
+            mimeType: mimetype
+        }).on('end', function () {
+            console.log('Done');
+            callback(fs.createReadStream(filePath));
+        }).on('error', function (err) {
+            console.log('Error during download', err);
+        }).pipe(dest);
+      });
+    }
+    //download
+    else
+    {
+      let filePath = "./bot/files_to_serve/"+file.name;
+      let dest = fs.createWriteStream(filePath);
+
+      dest.on('open', function (fd) {
+        drive.files.get({
+            fileId: fileId,
+            alt:'media'
+        }).on('end', function () {
+            console.log('Download Done');
+            callback(fs.createReadStream(filePath));
+        }).on('error', function (err) {
+            console.log('Error during download', err);
+        }).pipe(dest);
+      });
+    }
   });
 }
 
@@ -331,12 +375,9 @@ module.exports = function (controller) {
       {
         "default": true,
         "callback": function (response, convo) {
-
-          console.log(response);
-
           if (response.original_message.files) {
             console.log("OK");
-            //save answer --> AQUI
+            //save answer
             bot.retrieveFileInfo(response.original_message.files[0], function (err, file_info) {
               request({
                 url: response.original_message.files[0],
@@ -374,27 +415,24 @@ module.exports = function (controller) {
     if (step.document_step === null) {
       console.error("The read document step has no document!");
     } else {
-
-      let filePath = './bot/files_to_serve/test_file.txt';
-      fs.exists(filePath, function (exists) {
-        if (exists) {
-          let readStream = fs.createReadStream(filePath);
+      //let filePath = './bot/files_to_serve/test_file.txt';
+      //fs.exists(filePath, function (exists) {
+        //if (exists) {
+          //let readStream = fs.createReadStream(filePath);
           // bot.reply(convo.source_message, {text: 'I made this file for you.', files: [readStream]});
-          console.log(`step.url:`);
-          console.log(step.url);
-          // bot.reply(convo.source_message, {text: 'I made this file for you.', files: [step.url]});
+          // bot.reply(convo.source_message, {text: 'I made this file for you.', files: [step.stream]});
           // convo.say({text: 'I made this file for you.', files: [readStream]}); // IF BEFORE addQuestion: First argument must be a string or Buffer
           // convo.next();
           convo.addQuestion({
             text: text,
-            // files: [step.url] // does not work with private files
+            // files: [step.stream] // does not work with private files
             // files: [fs.createReadStream(filePath)] // TypeError: source.on is not a function
           }, [
             {
               "pattern": "^ok$",
               "callback": function (response, convo) {
                 // go to next
-                bot.reply(convo.source_message, {text: 'I made this file for you.', files: [step.url]});
+                bot.reply(convo.source_message, {text: 'I made this file for you.', files: [step.stream]});
                 convo.next();
               }
             },
@@ -412,10 +450,9 @@ module.exports = function (controller) {
             }
           ], {}, thread);
 
-
           convo.addQuestion({
             text: 'Type ok after reading the document',
-            // files: [step.url] // does not work with private files
+            // files: [step.stream] // does not work with private files
             // files: [fs.createReadStream(filePath)] // TypeError: source.on is not a function
           }, [
             {
@@ -435,12 +472,11 @@ module.exports = function (controller) {
             }
           ], {}, thread);
 
-
-        } else {
+        /*} else {
           console.log('The file does not exist! Not adding the step.');
           // convo.next();
         }
-      });
+      });*/
     }
   }
 
@@ -457,7 +493,7 @@ module.exports = function (controller) {
       convo.addQuestion(
         {
           text: text,
-          files: [step.url]
+          //files: [step.stream]
         },
         [
           {
@@ -620,23 +656,23 @@ module.exports = function (controller) {
 
       flow.steps.forEach(function (step) {
         //read documents
-        if (step.step_type_id === 5 || step.step_type_id === 6) {
+        if (step.step_type_id === 5 || step.step_type_id === 6)
+        {
           const documentUrl = step.document_step.document_url;
-          if (step.document_step !== null && documentUrl !== null) {
+          if (step.document_step !== null && documentUrl !== null)
+          {
             console.log(`Reading document (URL = ${documentUrl})`);
-
             getDriveDocument(documentUrl, stream => {
-              step.url = stream;
+              step.stream = stream;
               counter++;
               if (counter === size) {
-                console.log("All Documents Read");
+                console.log('Finished reading documents');
                 resolve(flow);
               }
             });
-
           } else {
             console.log('Null document or URL, skipping.');
-            step.url = null;
+            step.stream = null;
             counter++;
           }
         }

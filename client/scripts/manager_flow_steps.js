@@ -25,8 +25,13 @@ $(function () {
             addStep: stepType => addNewStep(stepType),
             getFileId: (step) => {
                 GDrive.selectFile(function (id,name) {
-                    step.document_name = name;
-                    step.document_id = id;
+                    if(id === 'wrong'){
+                        alert('The document '+name+' can not be shared due to incompatible document type.')
+                    }
+                    else{
+                        step.document_name = name;
+                        step.document_id = id;
+                    }
                 })
             },
             getFolderId: (step) => {
