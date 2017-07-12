@@ -37,7 +37,7 @@ let app = new Vue({
       {
         name: 'answer',
         title: 'Answer',
-        callback: 'makeClickable'
+        callback: 'makeBold'
       }
     ],
     moreParams: {},
@@ -68,11 +68,12 @@ let app = new Vue({
     this.$events.$on('filter-reset', e => this.onFilterReset());
   },
   methods: {
-    makeClickable: function (value) {
-      if (value.includes("http")) {
-        return '<a href="'+value+'">'+value+'</a>';
+    makeBold: function (value) {
+      let all = value.split('\"');
+      if (all.length > 1) {
+        return all[0]+'<b>'+all[1]+'</b>'+all[2]+'<b>'+all[3]+'</b>'+all[4];
       } else {
-        return value;
+          return value;
       }
     },
     onClick (event) {

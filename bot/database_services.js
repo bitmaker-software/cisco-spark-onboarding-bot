@@ -185,13 +185,19 @@ module.exports = {
             model: models.step,
             attributes: ['step_order', 'text', 'step_type_id'],
             where: {
-              $or: [
-                {step_type_id: 2},
-                {step_type_id: 3},
-                {step_type_id: 4},
-                {step_type_id: 6}
-              ],
-            }
+                $or: [
+                    {step_type_id: 2},
+                    {step_type_id: 3},
+                    {step_type_id: 4},
+                    {step_type_id: 6}
+                ],
+            },
+            include: [
+                {
+                  model: models.document_step,
+                  attributes: ['upload_dir_name'],
+                },
+            ]
           },
           {
             model: models.step_choice,

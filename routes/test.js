@@ -86,7 +86,8 @@ function createJSON(answers, flow_id, total, sort, page, per_page) {
     } else if (stepType === 3) {
       myanswer = answer.step_choice.choice_order + " : " + answer.step_choice.text;
     } else if (stepType === 4 || stepType === 6) { //|| stepType === 5
-      myanswer = answer.document_url;
+      myanswer = 'Check your "'+answer.step.document_step.upload_dir_name+
+          '" shared folder to download the "'+answer.document_url+'" document.';
     }
 
     let date = answer.answer_date;

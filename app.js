@@ -29,7 +29,7 @@ const botWebhooks = require('./bot/components/routes/incoming_webhooks'); // TOD
 // ——————————————————————————————————————————————————
 
 let bot;
-const REGISTER_WITH_SPARK = false; // set to false to avoid registering with Spark
+const REGISTER_WITH_SPARK = true; // set to false to avoid registering with Spark
 if (REGISTER_WITH_SPARK) {
   bot = require('./bot/bot');
   global.bot = bot;
@@ -223,7 +223,7 @@ app.use(function (err, req, res, next) {
 //
 // {force: true} means DROP TABLE IF EXISTS before trying to create the table
 //
-const CREATE_DB_AND_LOAD_FIXTURES = true;
+const CREATE_DB_AND_LOAD_FIXTURES = false;
 if (CREATE_DB_AND_LOAD_FIXTURES) {
   sequelize.sync({force: true}).then(() => {
     console.log("Database models synced, will load the fixtures");
