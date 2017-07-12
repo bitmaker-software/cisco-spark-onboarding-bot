@@ -85,7 +85,7 @@ function createJSON(answers, flow_id, total, sort, page, per_page) {
       myanswer = answer.text;
     } else if (stepType === 3) {
       myanswer = answer.step_choice.choice_order + " : " + answer.step_choice.text;
-    } else if (stepType === 4 || stepType === 5 || stepType === 6) {
+    } else if (stepType === 4 || stepType === 6) { //|| stepType === 5
       myanswer = answer.document_url;
     }
 

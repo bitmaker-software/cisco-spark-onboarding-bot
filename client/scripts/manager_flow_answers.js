@@ -69,10 +69,8 @@ let app = new Vue({
   },
   methods: {
     makeClickable: function (value) {
-      if (value.includes("document**")) {
-        // return '<a href="'+value+'">'+value+'</a>';
-        let filename = value.split('**')[1];
-        return 'Check your shared folder to see the document "' + filename + '".';
+      if (value.includes("http")) {
+        return '<a href="'+value+'">'+value+'</a>';
       } else {
         return value;
       }

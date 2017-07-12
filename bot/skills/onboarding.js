@@ -57,7 +57,7 @@ jwtClient.authorize(function (err, tokens) {
          console.log(response);
          })
          */
-        /*
+/*
          //delete files
          drive.files.delete({
          fileId: file.id
@@ -69,6 +69,7 @@ jwtClient.authorize(function (err, tokens) {
          console.log("deleted "+file.id);
          });
          */
+
       }
     }
   });
@@ -521,8 +522,11 @@ module.exports = function (controller) {
 
   function uploadToDrive(file_info, file, folderId, callback) {
 
+    var timeStamp = Math.floor(Date.now() / 1000);
+    var name = timeStamp+file_info.filename;
+
     let fileMetadata = {
-      'name': file_info.filename,
+      'name': name,
       'parents': [folderId],
       'mimeType': file_info['content-type'],
     };
@@ -536,35 +540,13 @@ module.exports = function (controller) {
       resource: fileMetadata,
       media: media,
       //uploadType: 'media',
-      fields: 'id,webContentLink'
     }, function (err1, file) {
       if (err1) {
-        console.log("Error 1 uploading file :");
+        console.log("Error uploading file :");
         console.log(err1);
       } else {
         //isto
-        console.log('File Id: ', file.id + '\nWebContentView: ' + file.webContentLink);
-        //callback(file.id);
-
-        // let permission = {
-        //   'type': 'anyone',
-        //   'role': 'reader'
-        // };
-        // drive.permissions.create({
-        //   resource: permission,
-        //   fileId: file.id,
-        //   fields: 'id',
-        // }, function (err2, per) {
-        //   if (err2) {
-        //     console.log("Error 2 uploading file :");
-        //     console.log(err2);
-        //   } else {
-        //     console.log('Permission ID: ', per.id);
-        //     callback(file.webContentLink);
-        //   }
-        // });
-        // callback(file.webCostarntentLink);
-        callback('document**' + file_info.filename);
+        callback(name);
       }
     });
   }
@@ -642,26 +624,12 @@ module.exports = function (controller) {
           const documentUrl = step.document_step.document_url;
           if (step.document_step !== null && documentUrl !== null) {
             console.log(`Reading document (URL = ${documentUrl})`);
-            // drive.files.get({
-            //   'fileId': step.document_step.document_url,
-            //   'fields': "id,name,webContentLink"
-            // }, function (err, file) {
-            //   console.log(file);
-            //   //isto
-            //   step.url = file.webContentLink;
-            //   counter++;
-            //
-            //   if (counter === size) {
-            //     console.log("end 2!");
-            //     resolve(flow);
-            //   }
-            // });
 
             getDriveDocument(documentUrl, stream => {
               step.url = stream;
               counter++;
               if (counter === size) {
-                console.log("end 2!");
+                console.log("All Documents Read");
                 resolve(flow);
               }
             });
