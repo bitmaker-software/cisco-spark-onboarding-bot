@@ -20,6 +20,7 @@ const routes_auth = require('./routes/auth');
 const routes_test = require('./routes/test');
 
 const databaseServices = require('./bot/database_services');
+const sparkAPIUtils = require('./bot/spark_api_utils');
 
 const botWebhooks = require('./bot/components/routes/incoming_webhooks'); // TODO: not in use?
 
@@ -51,11 +52,11 @@ env(__dirname + '/bot/.env');
 //             Passport configuration
 // ——————————————————————————————————————————————————
 
-passport.serializeUser(function (user, done) {
+passport.serializeUser((user, done) => {
   done(null, user);
 });
 
-passport.deserializeUser(function (obj, done) {
+passport.deserializeUser((obj, done) => {
   done(null, obj);
 });
 
@@ -68,7 +69,7 @@ passport.use(new CiscoSparkStrategy({
       'spark:all'
     ]
   },
-  function (accessToken, refreshToken, profile, done) {
+  (accessToken, refreshToken, profile, done) => {
     databaseServices.userLoggedIn(profile.id, profile.displayName, profile.emails, profile._json.orgId).then(user => {
       const sessionUser = {id: user.id, name: user.name, avatar: profile._json.avatar, spark_token: accessToken};
       return done(null, sessionUser);
@@ -152,7 +153,7 @@ app.use(passport.session());
 // ——————————————————————————————————————————————————
 
 const middleware = {
-  globalLocals: function (req, res, next) {
+  globalLocals: (req, res, next) => {
     res.locals = {
       user: {
         isAuthenticated: req.isAuthenticated(),
@@ -183,7 +184,7 @@ app.use('/test', routes_test);
 // import all the pre-defined bot routes that are present in /bot/components/routes
 if (typeof bot !== 'undefined') {
   const normalizedPath = require("path").join(__dirname, "bot/components/routes");
-  require("fs").readdirSync(normalizedPath).forEach(function (file) {
+  require("fs").readdirSync(normalizedPath).forEach(file => {
     console.log(file);
     require("./bot/components/routes/" + file)(app, bot);
   });
@@ -196,14 +197,14 @@ if (typeof bot !== 'undefined') {
 //      Catch 404 and forward to error handler
 // ——————————————————————————————————————————————————
 
-app.use(function (req, res, next) {
+app.use((req, res, next) => {
   const err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
 
 // error handler
-app.use(function (err, req, res, next) {
+app.use((err, req, res, next) => {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -242,7 +243,20 @@ function startTheServer() {
   console.log('Will now start the server.');
   app.listen(config.port, config.host, () => {
     console.log(`Application listening on ${config.host}:${config.port}...`);
+    resumeOngoingFlowsAfterServerStart();
   });
+}
+
+function resumeOngoingFlowsAfterServerStart() {
+ console.log('resumeOngoingFlowsAfterServerStart()');
+ databaseServices.getOngoingFlows().then(respondentFlows => {
+  // console.log('Pending flows:');
+  // console.log(flows);
+   respondentFlows.forEach(respondentFlow => {
+    console.log(`Resuming flow ${respondentFlow.id}`); // TODO
+    sparkAPIUtils.resumeFlowForUser(respondentFlow.flow_id, respondentFlow.respondent.spark_id);
+  });
+ });
 }
 
 

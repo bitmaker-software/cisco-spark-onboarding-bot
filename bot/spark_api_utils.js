@@ -3,6 +3,36 @@
 const request = require('request');
 // const databaseServices = require('./database_services'); // this would be a circular dependency and would give an empty object; load it later when needed
 
+function spawnBotAndStartConversation(flowId, sparkUserId, resume) {
+  //
+  // NOTE: we need a message object to pass to createConversation(), because if we just pass a context {toPersonId: ...},
+  //       the bot will send the initial flow message but the user will not be inside/engaged into the conversation.
+  //
+
+  //
+  // NOTE: startPrivateConversation and startPrivateConversationWithPersonId are not
+  //       setting the user/channel in the returning convo object
+
+  let bot = global.bot.spawn({});
+  bot.startPrivateConversationWithPersonId(sparkUserId, function (err, convo) {
+    if (!err && convo) {
+      const databaseServices = require('./database_services');
+      console.log(`Fetching flow ${flowId}`);
+      console.log("Called help");
+      databaseServices.getFlowName(flowId).then(flowName => {
+        console.log(`Got flow name: ${flowName}`);
+        if (resume) {
+          convo.say(`Resuming onboarding for "${flowName}". Please say "Start" to resume.`);
+        } else {
+          convo.say(`Starting onboarding for "${flowName}". Please say "Start" to begin.`);
+        }
+      }, error => {
+        console.log(`Error fetching the flow: ${error}`);
+      });
+    }
+  });
+}
+
 module.exports = {
   getUserFromSpark: (params, bearer) => {
     return new Promise((resolve, reject) => {
@@ -51,32 +81,15 @@ module.exports = {
     });
   },
 
-  initiateFlowForUser: (flowId, sparkUserId) => {
+  startFlowForUser: (flowId, sparkUserId) => {
+    console.log(`startFlowForUser(flowId=${flowId}, sparkUserId=${sparkUserId})`);
+    const resume = false;
+    spawnBotAndStartConversation(flowId, sparkUserId, resume);
+  },
 
-    console.log(`initiateFlowForUser(flowId=${flowId}, sparkUserId=${sparkUserId})`);
-
-    //
-    // NOTE: we need a message object to pass to createConversation(), because if we just pass a context {toPersonId: ...},
-    //       the bot will send the initial flow message but the user will not be inside/engaged into the conversation.
-    //
-
-    //
-    // NOTE: startPrivateConversation and startPrivateConversationWithPersonId are not
-    //       setting the user/channel in the returning convo object
-
-    let bot = global.bot.spawn({});
-    bot.startPrivateConversationWithPersonId(sparkUserId, function (err, convo) {
-      if (!err && convo) {
-        const databaseServices = require('./database_services');
-        console.log(`Fetching flow ${flowId}`);
-        console.log("Called help");
-        databaseServices.getFlowName(flowId).then(flowName => {
-          console.log(`Got flow name: ${flowName}`);
-          convo.say(`Starting onboarding for "${flowName}". Please say "Start" to begin.`);
-        }, error => {
-          console.log(`Error fetching the flow: ${error}`);
-        });
-      }
-    });
+  resumeFlowForUser: (flowId, sparkUserId) => {
+    console.log(`resumeFlowForUser(flowId=${flowId}, sparkUserId=${sparkUserId})`);
+    const resume = true;
+    spawnBotAndStartConversation(flowId, sparkUserId, resume);
   }
 };

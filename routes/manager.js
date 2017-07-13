@@ -428,7 +428,7 @@ router.post('/api/flow/:id/send', ensureAuthenticated, (req, res, next) => {
       // Continue
       databaseServices.findOrCreateRespondentFlow(assignerId, user.id, flowId, assignDate).then(respondentFlow => {
         // OK
-        sparkAPIUtils.initiateFlowForUser(flowId, user.spark_id);
+        sparkAPIUtils.startFlowForUser(flowId, user.spark_id);
         return res.status(200).send();
       }, error => {
         // findOrCreateRespondentFlow error
