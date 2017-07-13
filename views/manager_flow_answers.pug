@@ -11,6 +11,7 @@ block content
       input.mb-4(type="text", v-model="filterText", @keyup.enter="doFilter", placeholder="username")
       button.btn.btn-info(style='margin-left: 15px;', @click="doFilter") Go
       button.btn.btn-border(style='margin: 15px;', @click="resetFilter") Reset
+      button.btn.btn-success.pull-right(@click="exportCSV") Export to CSV
     vuetable(
     ref="vuetable",
     api-url= "../../../test/answers/" + flowId + "/" + totalAnswers ,

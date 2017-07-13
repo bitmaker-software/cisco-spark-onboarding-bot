@@ -6,6 +6,9 @@ const databaseServices = require('../bot/database_services');
 let env = require('node-env-file');
 env(__dirname + '/../bot/.env');
 
+const json2csv = require('json2csv');
+const fs = require('fs');
+
 let gdrive_client_id = process.env.gdrive_client_id;
 let gdrive_developer_key = process.env.gdrive_developer_key;
 let gdrive_share_to = 'spark-drive@testdriveintegration-167213.iam.gserviceaccount.com';
@@ -57,16 +60,41 @@ router.get('/answers/:flow_id/:total', ensureAuthenticated, (req, res, next) => 
     sort = sort.substring(0, n - 1);
   }
 
-  if (typeof filter === 'undefined') filter = "";
+  if (typeof filter === 'undefined'){
+    filter = "";
+  }
   else {
     databaseServices.countAnswers(flow_id, filter).then(result => {
       total = result;
     }, err => res.send(err));
   }
+
   databaseServices.getAnswers(flow_id, page - 1, per_page, filter, sort, order).then(answers => {
-    const dataJSON = createJSON(answers, flow_id, total, sort, page, per_page);
+    const dataJSON = createDataJSON(answers, flow_id, total, sort, page, per_page);
     console.log(dataJSON);
     res.send(dataJSON);
+  }, err => res.send(err));
+});
+
+router.get('/export/:flow_id', ensureAuthenticated, (req, res, next) => {
+  let fields = ['username','date','question_num','question','answer'];
+  databaseServices.totalAnswers(req.params.flow_id).then(answers => {
+
+    let allAnswers = createAnswersJSON(answers);
+    let csv = json2csv({ data: allAnswers, fields: fields });
+    let file = './public/file.csv';
+
+    fs.writeFile(file, csv, function(err) {
+      if (err) throw err;
+
+      res.set('Content-disposition', 'attachment; filename=file.csv');
+      res.set('Content-Type', 'text/csv');
+      res.download('./public/file.csv','file.csv', function (error) {
+          console.log(error);
+      });
+
+      //res.send(file);
+    });
   }, err => res.send(err));
 });
 
@@ -76,35 +104,9 @@ router.get('/document_stores', ensureAuthenticated, (req, res, next) => {
   }, err => res.send(err));
 });
 
-function createJSON(answers, flow_id, total, sort, page, per_page) {
-  let answersReceived = answers.map(answer => {
-    //colocar a resposta de acordo com o que recebe
-    let myanswer;
-    let stepType = answer.step.step_type_id;
-    if (stepType === 2) {
-      myanswer = answer.text;
-    } else if (stepType === 3) {
-      myanswer = answer.step_choice.choice_order + " : " + answer.step_choice.text;
-    } else if (stepType === 4 || stepType === 6) { //|| stepType === 5
-      myanswer = 'Check your "'+answer.step.document_step.upload_dir_name+
-          '" shared folder to download the "'+answer.document_url+'" document.';
-    }
+function createDataJSON(answers, flow_id, total, sort, page, per_page) {
 
-    let date = answer.answer_date;
-    let month = date.getUTCMonth() + 1;
-
-    console.log(stepType + " - " + myanswer);
-
-    return {
-      username: answer.respondent_flow.respondent.name,
-      date: date.getUTCDate() + "-" + month + "-" + date.getUTCFullYear(),
-      question_num: answer.step.step_order,
-      question: answer.step.text,
-      answer: myanswer
-    }
-
-  });
-
+  let answersReceived = createAnswersJSON(answers);
   let last_page = Math.ceil(total / per_page);
   let nextPageUrl = "";
   let prevPageUrl = "";
@@ -138,5 +140,35 @@ function createJSON(answers, flow_id, total, sort, page, per_page) {
 
   return dataJSON;
 }
+
+function createAnswersJSON(answers){
+
+    return answers.map(answer => {
+        //colocar a resposta de acordo com o que recebe
+        let myanswer;
+        let stepType = answer.step.step_type_id;
+        if (stepType === 2) {
+            myanswer = answer.text;
+        } else if (stepType === 3) {
+            myanswer = answer.step_choice.choice_order + " : " + answer.step_choice.text;
+        } else if (stepType === 4 || stepType === 6) { //|| stepType === 5
+            myanswer = 'Check your "'+answer.step.document_step.upload_dir_name+
+                '" shared folder to download the "'+answer.document_url+'" document.';
+        }
+
+        let date = answer.answer_date;
+        let month = date.getUTCMonth() + 1;
+
+        return {
+            username: answer.respondent_flow.respondent.name,
+            date: date.getUTCDate() + "-" + month + "-" + date.getUTCFullYear(),
+            question_num: answer.step.step_order,
+            question: answer.step.text,
+            answer: myanswer
+        }
+
+    });
+}
+
 
 module.exports = router;

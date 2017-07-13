@@ -454,7 +454,7 @@ router.get('/flow/:id/answers', ensureAuthenticated, function (req, res, next) {
   let promises = [
     databaseServices.getStepTypes(),
     databaseServices.getFlow(req.params.id),
-    databaseServices.countAnswers(req.params.id, "")
+    databaseServices.countAnswers(req.params.id,"") //ir buscar TODAS as respostas
   ];
   Promise.all(promises).then(values => {
     res.render('manager_flow_answers', {

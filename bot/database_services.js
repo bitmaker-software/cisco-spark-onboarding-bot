@@ -57,7 +57,7 @@ module.exports = {
         // TODO filter by logged in user !!!
         //   ownerId: 1
       },
-      order: [['id', 'DESC']],
+      order: [['id', 'ASC']],
       include: [
         {model: models.flow_status, attributes: ['description']}
       ],
@@ -218,45 +218,53 @@ module.exports = {
     });
   },
 
-  countAnswers: (flow_id, filter) => {
-    console.log('countAnswers(' + flow_id + ' , ' + filter + ')');
+  totalAnswers: (flow_id) => {
+    console.log('totalAnswers(' + flow_id + ')');
     return new Promise((resolve, reject) => {
-      models.respondent_answer.count({
+      models.respondent_answer.findAll({
         where: {
           answer_status_id: 2,
         },
         include: [
-          {
-            model: models.respondent_flow,
-            where: {
-              flow_id: flow_id
-            },
-            include: [
-              {
-                model: models.respondent,
-                where: {
-                  name: {
-                    $like: '%' + filter + '%',
+            {
+              model: models.respondent_flow,
+              attributes: ['id'],
+              where: {
+                flow_id: flow_id
+              },
+              include: [
+                  {
+                    model: models.respondent,
+                    attributes: ['name'],
                   }
-                }
-              }
-            ]
-          },
-          {
-            model: models.step,
-            where: {
-              $or: [
-                {step_type_id: 2},
-                {step_type_id: 3},
-                {step_type_id: 4},
-                {step_type_id: 6}
-              ],
+              ]
+            },
+            {
+              model: models.step,
+              attributes: ['step_order', 'text', 'step_type_id'],
+              where: {
+                $or: [
+                    {step_type_id: 2},
+                    {step_type_id: 3},
+                    {step_type_id: 4},
+                    {step_type_id: 6}
+                ],
+              },
+              include: [
+                  {
+                    model: models.document_step,
+                    attributes: ['upload_dir_name'],
+                  },
+              ]
+            },
+            {
+              model: models.step_choice,
+              attributes: ['choice_order', 'text'],
             }
-          },
         ]
       }).then(res => {
         console.log("----");
-        console.log(res);
+        console.log(res.length);
         resolve(res);
       }, err => {
         console.error("Error getting answers");
@@ -273,6 +281,54 @@ module.exports = {
       answer_date: new Date(),
       respondent_flow_id: respondent_flow_id,
       step_id: step_id,
+    });
+  },
+
+  countAnswers: (flow_id, filter) => {
+    console.log('countAnswers(' + flow_id + ' , ' + filter + ')');
+    return new Promise((resolve, reject) => {
+      models.respondent_answer.count({
+          where: {
+            answer_status_id: 2,
+          },
+          include: [
+              {
+                model: models.respondent_flow,
+                where: {
+                  flow_id: flow_id
+                },
+                include: [
+                    {
+                      model: models.respondent,
+                      where: {
+                        name: {
+                          $like: '%' + filter + '%',
+                        }
+                      }
+                    }
+                ]
+              },
+              {
+                model: models.step,
+                where: {
+                  $or: [
+                      {step_type_id: 2},
+                      {step_type_id: 3},
+                      {step_type_id: 4},
+                      {step_type_id: 6}
+                  ],
+                }
+              },
+          ]
+      }).then(res => {
+        console.log("----");
+        console.log(res);
+        resolve(res);
+      }, err => {
+        console.error("Error getting answers");
+        console.error(err);
+        reject(err);
+      });
     });
   },
 

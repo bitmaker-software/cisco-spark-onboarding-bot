@@ -417,22 +417,26 @@ module.exports = function (controller) {
     } else {
       //let filePath = './bot/files_to_serve/test_file.txt';
       //fs.exists(filePath, function (exists) {
-        //if (exists) {
-          //let readStream = fs.createReadStream(filePath);
-          // bot.reply(convo.source_message, {text: 'I made this file for you.', files: [readStream]});
-          // bot.reply(convo.source_message, {text: 'I made this file for you.', files: [step.stream]});
-          // convo.say({text: 'I made this file for you.', files: [readStream]}); // IF BEFORE addQuestion: First argument must be a string or Buffer
-          // convo.next();
+        //  if (exists) {
+              //let readStream = fs.createReadStream(filePath);
+              // bot.reply(convo.source_message, {text: 'I made this file for you.', files: [readStream]});
+              // bot.reply(convo.source_message, {text: 'I made this file for you.', files: [step.stream]});
+              // convo.say({text: 'I made this file for you.', files: [readStream]}); // IF BEFORE addQuestion: First argument must be a string or Buffer
+              // convo.next();
+              //convo.addMessage({files: [step.stream]}, thread);
+         // }
+      //});
+
           convo.addQuestion({
             text: text,
-            // files: [step.stream] // does not work with private files
+            //files: [step.stream], // does not work with private files
             // files: [fs.createReadStream(filePath)] // TypeError: source.on is not a function
           }, [
             {
               "pattern": "^ok$",
               "callback": function (response, convo) {
                 // go to next
-                bot.reply(convo.source_message, {text: 'I made this file for you.', files: [step.stream]});
+                bot.reply(convo.source_message, {files: [step.stream]});
                 convo.next();
               }
             },

@@ -76,9 +76,6 @@ let app = new Vue({
           return value;
       }
     },
-    onClick (event) {
-      console.log('my-detail-row: on-click', event.target)
-    },
     onPaginationData (paginationData) {
       this.$refs.pagination.setPaginationData(paginationData);
       this.$refs.paginationInfo.setPaginationData(paginationData);
@@ -102,6 +99,16 @@ let app = new Vue({
     onFilterReset () {
       this.moreParams = {};
       Vue.nextTick(() => this.$refs.vuetable.refresh());
+    },
+    exportCSV () {
+          window.location.replace('/test/export/'+flowId);
+      // this.$http.get('/test/export/'+flowId).then(response => {
+      //   alert('Export completed');
+      // }, error => {
+      //   if (error.status === 401) {
+      //     window.location.replace('/auth/spark');
+      //   }
+     // });
     }
   }
 });
