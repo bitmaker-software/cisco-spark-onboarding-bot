@@ -64,37 +64,77 @@ module.exports = {
     });
   },
 
-  getFlow: id => {
+  getFlow: (flowId, startingStepId) => {
     return new Promise((resolve, reject) => {
-      // TODO: check security
-      // Get flow
-      models.flow.find({where: {id: id}}).then(flow => {
-        models.step.findAll({
-          where: {flow_id: flow.id},
-          order: [[models.Sequelize.col('"step_order"'), 'ASC'],
-            [models.step_choice, '"choice_order"', 'ASC']],
-          include: [
-            {model: models.step_choice},
-            {model: models.document_step}
-          ]
-        }).then(steps => {
-          resolve({
-            // respondent_flow_id: 345,
-            flowId: flow.id,
-            name: flow.name,
-            status: flow.flow_status_id,
-            steps: steps
-          })
-        }, err => {
-          console.error("Error fetching the steps:");
-          console.error(err);
-          reject(err)
-        });
-      }, err => {
-        console.error("Error fetching the flow:");
-        console.error(err);
-        reject(err)
-      })
+      const SEND_DUMMY = false;
+      if (!SEND_DUMMY) {
+        // Get from the database
+        if (startingStepId) {
+          // Get the step order for this step so we get only the steps after this (including it)
+          models.step.find({
+            attributes: ['id', 'step_order'],
+            where: {id: startingStepId}
+          }).then(step => {
+            console.log(`Found the step order of the current step: ${step.step_order}`);
+            getFlowStartingOnStepOrder(resolve, reject, flowId, step.step_order);
+          });
+        } else {
+          getFlowStartingOnStepOrder(resolve, reject, flowId, 0);
+        }
+      } else {
+        return new Promise(
+          function (resolve, reject) {
+            resolve({
+              "respondent_flow_id": 345,
+              "flow_id": 123,
+              "name": "HR onboarding",
+              "status": "running",
+              "steps": [
+                {
+                  "step_id": 51,
+                  // "step_type": "announcement",
+                  "stepTypeId": 1,
+                  "text": "Welcome to bitmaker! I will ask you some questions. Please provide accurate answers."
+                },
+                {
+                  "step_id": 52,
+                  // "step_type": "free_text",
+                  "stepTypeId": 2,
+                  "text": "Please provide a brief description about you."
+                },
+                {
+                  "step_id": 53,
+                  // "step_type": "multiple_choice",
+                  "stepTypeId": 4,
+                  "text": "How many years of experience do you have",
+                  "step_choices": [
+                    {
+                      "id": 91,
+                      "choice_order": 1,
+                      "text": "none"
+                    },
+                    {
+                      "id": 92,
+                      "choice_order": 2,
+                      "text": "less than 2 years"
+                    },
+                    {
+                      "id": 93,
+                      "choice_order": 3,
+                      "text": "between 2 and 5 years"
+                    },
+                    {
+                      "id": 94,
+                      "choice_order": 4,
+                      "text": "more than 5 years"
+                    }
+                  ]
+                }
+              ]
+            });
+          }
+        );
+      }
     });
   },
 
@@ -127,19 +167,84 @@ module.exports = {
     return new Promise((resolve, reject) => {
       models.respondent.find({where: {email: email}}).then(respondent => {
         if (respondent) {
-          resolve(models.respondent_flow.find(
+          models.respondent_flow.find(
             {
               where: {
                 respondent_id: respondent.id,
                 respondent_flow_status_id: 1 // 1 === Not started
               }
+              // TODO: sort by ID and resolve the oldest?
             }
-          )); // TODO: sort by ID and resolve the oldest?
+          ).then(respondentFlow => {
+            if (respondentFlow) {
+              resolve(respondentFlow);
+            } else {
+              reject('No flow for this respondent');
+            }
+          });
         } else {
           reject('Respondent not found');
         }
       })
     });
+  },
+
+  getOngoingFlowForUserEmail: email => {
+    return new Promise((resolve, reject) => {
+      models.respondent.find({where: {email: email}}).then(respondent => {
+        if (respondent) {
+          models.respondent_flow.find(
+            {
+              where: {
+                respondent_id: respondent.id,
+                respondent_flow_status_id: 2 // 2 === In progress
+              },
+              include: [
+                {model: models.flow, attributes: ['name']}
+              ],
+              // TODO: limit to the oldest per user
+            }
+          ).then(respondentFlow => {
+            if (respondentFlow) {
+              resolve(respondentFlow);
+            } else {
+              reject('No flow for this respondent');
+            }
+          });
+        } else {
+          reject('Respondent not found');
+        }
+      })
+    });
+  },
+
+  getOngoingFlows: () => {
+    // return new Promise((resolve, reject) => {
+    // models.respondent.find({
+    //   where: {email: email}
+    // }).then(respondent => {
+    //   if (respondent) {
+    return models.respondent_flow.findAll({
+      where: {
+        // respondent_id: respondent.id,
+        respondent_flow_status_id: 2 // 2 === In progress
+      },
+      include: [
+        {model: models.respondent},
+      ]
+      // TODO: limit to the oldest per user
+    });//.then(flows => {
+    // if (respondentFlow) {
+    //   resolve(respondentFlow);
+    // } else {
+    //   reject('No flow for this respondent');
+    // }
+    // });
+    // } else {
+    //   reject('Respondent not found');
+    // }
+    // })
+    // });
   },
 
   setRespondentFlowStarted: respondentFlow => {
@@ -185,18 +290,18 @@ module.exports = {
             model: models.step,
             attributes: ['step_order', 'text', 'step_type_id'],
             where: {
-                $or: [
-                    {step_type_id: 2},
-                    {step_type_id: 3},
-                    {step_type_id: 4},
-                    {step_type_id: 6}
-                ],
+              $or: [
+                {step_type_id: 2},
+                {step_type_id: 3},
+                {step_type_id: 4},
+                {step_type_id: 6}
+              ],
             },
             include: [
-                {
-                  model: models.document_step,
-                  attributes: ['upload_dir_name'],
-                },
+              {
+                model: models.document_step,
+                attributes: ['upload_dir_name'],
+              },
             ]
           },
           {
@@ -226,41 +331,41 @@ module.exports = {
           answer_status_id: 2,
         },
         include: [
-            {
-              model: models.respondent_flow,
-              attributes: ['id'],
-              where: {
-                flow_id: flow_id
-              },
-              include: [
-                  {
-                    model: models.respondent,
-                    attributes: ['name'],
-                  }
-              ]
+          {
+            model: models.respondent_flow,
+            attributes: ['id'],
+            where: {
+              flow_id: flow_id
             },
-            {
-              model: models.step,
-              attributes: ['step_order', 'text', 'step_type_id'],
-              where: {
-                $or: [
-                    {step_type_id: 2},
-                    {step_type_id: 3},
-                    {step_type_id: 4},
-                    {step_type_id: 6}
-                ],
-              },
-              include: [
-                  {
-                    model: models.document_step,
-                    attributes: ['upload_dir_name'],
-                  },
-              ]
+            include: [
+              {
+                model: models.respondent,
+                attributes: ['name'],
+              }
+            ]
+          },
+          {
+            model: models.step,
+            attributes: ['step_order', 'text', 'step_type_id'],
+            where: {
+              $or: [
+                {step_type_id: 2},
+                {step_type_id: 3},
+                {step_type_id: 4},
+                {step_type_id: 6}
+              ],
             },
-            {
-              model: models.step_choice,
-              attributes: ['choice_order', 'text'],
-            }
+            include: [
+              {
+                model: models.document_step,
+                attributes: ['upload_dir_name'],
+              },
+            ]
+          },
+          {
+            model: models.step_choice,
+            attributes: ['choice_order', 'text'],
+          }
         ]
       }).then(res => {
         console.log("----");
@@ -274,52 +379,42 @@ module.exports = {
     });
   },
 
-  saveTextAnswer: (respondent_flow_id, step_id, text) => {
-    models.respondent_answer.create({
-      text: text,
-      answer_status_id: 2, // 2 === Answered
-      answer_date: new Date(),
-      respondent_flow_id: respondent_flow_id,
-      step_id: step_id,
-    });
-  },
-
   countAnswers: (flow_id, filter) => {
     console.log('countAnswers(' + flow_id + ' , ' + filter + ')');
     return new Promise((resolve, reject) => {
       models.respondent_answer.count({
-          where: {
-            answer_status_id: 2,
-          },
-          include: [
+        where: {
+          answer_status_id: 2,
+        },
+        include: [
+          {
+            model: models.respondent_flow,
+            where: {
+              flow_id: flow_id
+            },
+            include: [
               {
-                model: models.respondent_flow,
+                model: models.respondent,
                 where: {
-                  flow_id: flow_id
-                },
-                include: [
-                    {
-                      model: models.respondent,
-                      where: {
-                        name: {
-                          $like: '%' + filter + '%',
-                        }
-                      }
-                    }
-                ]
-              },
-              {
-                model: models.step,
-                where: {
-                  $or: [
-                      {step_type_id: 2},
-                      {step_type_id: 3},
-                      {step_type_id: 4},
-                      {step_type_id: 6}
-                  ],
+                  name: {
+                    $like: '%' + filter + '%',
+                  }
                 }
-              },
-          ]
+              }
+            ]
+          },
+          {
+            model: models.step,
+            where: {
+              $or: [
+                {step_type_id: 2},
+                {step_type_id: 3},
+                {step_type_id: 4},
+                {step_type_id: 6}
+              ],
+            }
+          },
+        ]
       }).then(res => {
         console.log("----");
         console.log(res);
@@ -332,24 +427,48 @@ module.exports = {
     });
   },
 
-  saveMultipleChoiceAnswer: (respondentFlowId, stepId, choiceId) => {
+  saveAnnouncementAnswer: (respondentFlow, step, nextStep) => {
+    updateRespondentFlowCurrentStep(respondentFlow, nextStep);
+  },
+
+  saveTextAnswer: (respondentFlow, step, nextStep, text) => {
     models.respondent_answer.create({
+      text: text,
       answer_status_id: 2, // 2 === Answered
       answer_date: new Date(),
-      respondent_flow_id: respondentFlowId,
-      step_id: stepId,
-      step_choice_id: choiceId,
+      respondent_flow_id: respondentFlow.id,
+      step_id: step.id,
+    }).then(() => {
+      updateRespondentFlowCurrentStep(respondentFlow, nextStep);
     });
   },
 
-  saveDocumentAnswer: (respondent_flow_id, step_id, url) => {
+  saveMultipleChoiceAnswer: (respondentFlow, step, nextStep, choiceId) => {
+    models.respondent_answer.create({
+      answer_status_id: 2, // 2 === Answered
+      answer_date: new Date(),
+      respondent_flow_id: respondentFlow.id,
+      step_id: step.id,
+      step_choice_id: choiceId,
+    }).then(() => {
+      updateRespondentFlowCurrentStep(respondentFlow, nextStep);
+    });
+  },
+
+  saveDocumentUploadAnswer: (respondentFlow, step, nextStep, url) => {
     models.respondent_answer.create({
       document_url: url,
       answer_status_id: 2, // 2 === Answered
       answer_date: new Date(),
-      respondent_flow_id: respondent_flow_id,
-      step_id: step_id
+      respondent_flow_id: respondentFlow.id,
+      step_id: step.id
+    }).then(() => {
+      updateRespondentFlowCurrentStep(respondentFlow, nextStep);
     });
+  },
+
+  saveDocumentDownloadAnswer: (respondentFlow, step, nextStep) => {
+    updateRespondentFlowCurrentStep(respondentFlow, nextStep);
   },
 
   getGoogleDriveCredentials: (userId, storeId) => {
@@ -389,13 +508,18 @@ module.exports = {
       });
     });
   },
+
   findOrCreateRespondentFlow: (assignerId, userId, flowId, date) => {
     console.log(`At findOrCreateRespondentFlow(assignerId = ${assignerId}, userId = ${userId}, flowId = ${flowId}, date = ${date})`);
     return new Promise((resolve, reject) => {
       models.respondent_flow.findOrCreate({
         where: {
           respondent_id: userId,
-          flow_id: flowId
+          flow_id: flowId,
+          $or: [
+            {respondent_flow_status_id: 1}, // 1 === Not started
+            {respondent_flow_status_id: 2}, // 2 === In progress
+          ],
         },
         defaults: {
           assigner_id: assignerId,
@@ -413,3 +537,57 @@ module.exports = {
   }
 
 };
+
+function getFlowStartingOnStepOrder(resolve, reject, flowId, startingStepOrder) {
+  // TODO: check security
+  // Get flow
+  models.flow.find({
+    where: {
+      id: flowId
+    }
+  }).then(flow => {
+    models.step.findAll({
+      where: {
+        flow_id: flow.id,
+        step_order: {gte: startingStepOrder}
+      },
+      order: [[models.Sequelize.col('"step_order"'), 'ASC'],
+        [models.step_choice, '"choice_order"', 'ASC']],
+      include: [
+        {model: models.step_choice},
+        {model: models.document_step}
+      ]
+    }).then(steps => {
+      const result = {
+        // respondent_flow_id: 345,
+        flowId: flow.id,
+        name: flow.name,
+        status: flow.flow_status_id,
+        steps: steps
+      };
+      console.log('Got the flow with its steps, resolving:');
+      console.log(result);
+      resolve(result);
+    }, err => {
+      console.error("Error fetching the steps:");
+      console.error(err);
+      reject(err)
+    });
+  }, err => {
+    console.error("Error fetching the flow:");
+    console.error(err);
+    reject(err)
+  })
+}
+
+function updateRespondentFlowCurrentStep(respondentFlow, nextStep) {
+  if (!nextStep) {
+    // Last step?
+    console.log('No next step');
+    return;
+  }
+  console.log(`Next step will be ${nextStep.id}`);
+  respondentFlow.updateAttributes({
+    current_step_id: nextStep.id
+  });
+}

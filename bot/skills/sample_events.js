@@ -1,5 +1,7 @@
 "use strict";
 
+const databaseServices = require('../database_services');
+
 module.exports = function (controller) {
 
   // reply to any incoming message
@@ -16,10 +18,12 @@ module.exports = function (controller) {
   // reply to a direct message
   controller.on('direct_message', function (bot, message) {
     // reply to _message_ by using the _bot_ object
-    bot.reply(message, 'Hello, there is no onboarding process in progress.');
 
-    // TODO: find flow in progress and resume it!
-
+    databaseServices.getOngoingFlowForUserEmail(message.user).then(respondentFlow => {
+      bot.reply(message, `Hello, there is one onboarding process in progress, ${respondentFlow.flow.name}. Type "Start" to resume it.`);
+    }, err => {
+      bot.reply(message, 'Hello, there is no onboarding process in progress.');
+    });
   });
 
   controller.on('bot_space_join', function (bot, message) {

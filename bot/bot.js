@@ -19,7 +19,7 @@
 
 
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-var env = require('node-env-file');
+const env = require('node-env-file');
 env(__dirname + '/.env');
 
 
@@ -35,11 +35,11 @@ if (!process.env.public_address) {
   process.exit(1);
 }
 
-var Botkit = require('botkit');
-var debug = require('debug')('botkit:main');
+const Botkit = require('botkit');
+const debug = require('debug')('botkit:main');
 
 // Create the Botkit controller, which controls all instances of the bot.
-var controller = Botkit.sparkbot({
+const controller = Botkit.sparkbot({
   stats_optout: true, // Opt-out of Botkit Statistics Gathering
   // debug: true,
   // limit_to_domain: ['mycompany.com'],
@@ -63,7 +63,7 @@ require(__dirname + '/components/subscribe_events.js')(controller);
 // require(__dirname + '/components/plugin_dashbot.js')(controller);
 
 // Load bot skills
-var normalizedPath = require("path").join(__dirname, "skills");
+const normalizedPath = require("path").join(__dirname, "skills");
 require("fs").readdirSync(normalizedPath).forEach(function (file) {
   require("./skills/" + file)(controller);
 });
