@@ -125,7 +125,7 @@ $(function () {
 
     function getDocumentName(step){
         if(step.document_step !== null){
-            var name = step.document_step.document_name;
+            const name = step.document_step.document_name;
             if(name === null)
                 return "No Document Selected";
             return name;
@@ -143,7 +143,7 @@ $(function () {
 
     function getUploadDirName(step){
         if(step.document_step !== null){
-            var name = step.document_step.upload_dir_name;
+            const name = step.document_step.upload_dir_name;
             if(name === null)
                 return "No Folder Selected";
             return name;

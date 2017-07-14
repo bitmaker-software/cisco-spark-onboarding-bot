@@ -1,16 +1,16 @@
 'use strict';
 
-var fs = require('fs');
-var path = require('path');
-var Sequelize = require('sequelize');
-var basename = path.basename(module.filename);
-var db = {};
+const fs = require('fs');
+const path = require('path');
+const Sequelize = require('sequelize');
+const basename = path.basename(module.filename);
+const db = {};
 
-var env = require('node-env-file');
+const env = require('node-env-file');
 env(__dirname + '/../bot/.env');
 
 //Create a Sequelize connection to the database
-var sequelize = new Sequelize(process.env.db_db, process.env.db_user, process.env.db_pass, {
+const sequelize = new Sequelize(process.env.db_db, process.env.db_user, process.env.db_pass, {
   host: process.env.db_host,
   port: process.env.db_port,
   dialect: 'postgres',

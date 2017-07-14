@@ -1,8 +1,8 @@
 "use strict";
 
-var express = require('express');
-var router = express.Router();
-var ensureAuthenticated = require('./auth_middleware');
+const express = require('express');
+const router = express.Router();
+const ensureAuthenticated = require('./auth_middleware');
 
 router.get('/', ensureAuthenticated, function (req, res, next) {
   res.render('settings', {
@@ -12,7 +12,7 @@ router.get('/', ensureAuthenticated, function (req, res, next) {
 });
 
 router.post('/api/saveToken', ensureAuthenticated, function (req, res, next) {
-  var token = req.body.token;
+  const token = req.body.token;
   if (token) {
     models.tenant.create({
       name: 'auto',

@@ -59,7 +59,9 @@ module.exports = {
         // TODO filter by logged in user !!!
         //   ownerId: 1
       },
-      order: [['id', 'ASC']],
+      order: [
+        ['id', 'ASC']
+      ],
       include: [
         {model: models.flow_status, attributes: ['description']}
       ],
@@ -109,8 +111,10 @@ module.exports = {
         {model: models.step_choice},
         {model: models.document_step}
       ],
-      order: [[models.Sequelize.col('"step_order"'), 'ASC'],
-        [models.step_choice, '"choice_order"', 'ASC']],
+      order: [
+        [models.Sequelize.col('"step_order"'), 'ASC'],
+        [models.step_choice, '"choice_order"', 'ASC']
+      ],
     });
   },
 
@@ -185,7 +189,9 @@ module.exports = {
   },
 
   getStepTypes: () => {
-    return models.step_type.findAll({order: 'id'});
+    return models.step_type.findAll({
+      order: ['id']
+    });
   },
 
   getOldestPendingFlowForUserEmail: email => {
@@ -330,7 +336,9 @@ module.exports = {
         ],
         limit: per_page,
         offset: per_page * page,
-        order: sort + ' ' + order
+        order: [
+          [sort, order]
+        ]
       }).then(answers => {
         //console.log(answers);
         resolve(answers);
@@ -570,8 +578,10 @@ function getFlowStartingOnStepOrder(resolve, reject, flowId, startingStepOrder) 
         flow_id: flow.id,
         step_order: {gte: startingStepOrder}
       },
-      order: [[models.Sequelize.col('"step_order"'), 'ASC'],
-        [models.step_choice, '"choice_order"', 'ASC']],
+      order: [
+        [models.Sequelize.col('"step_order"'), 'ASC'],
+        [models.step_choice, '"choice_order"', 'ASC']
+      ],
       include: [
         {model: models.step_choice},
         {model: models.document_step}

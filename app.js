@@ -8,7 +8,7 @@ import compression    from 'compression';
 import cookieParser   from 'cookie-parser';
 import bodyParser     from 'body-parser';
 import mime           from 'mime';
-// var sassMiddleware = require('node-sass-middleware');
+// const sassMiddleware = require('node-sass-middleware');
 
 import config from './app.config';
 
@@ -223,10 +223,11 @@ app.use((err, req, res, next) => {
 // sync() will create all table if they doesn't exist in database
 //
 // {force: true} means DROP TABLE IF EXISTS before trying to create the table
+// {alter: true} uses ALTER TABLE
 //
 const CREATE_DB_AND_LOAD_FIXTURES = false;
 if (CREATE_DB_AND_LOAD_FIXTURES) {
-  sequelize.sync({force: true}).then(() => {
+  sequelize.sync({alter: true}).then(() => {
     console.log("Database models synced, will load the fixtures");
     // Load database fixtures
     models.startLoadingDatabaseFixtures();

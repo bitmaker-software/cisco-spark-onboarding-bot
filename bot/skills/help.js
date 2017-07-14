@@ -10,7 +10,7 @@ module.exports = function (controller) {
 
     // is there a parameter on the help command?
     // if so, change topic.
-    var matches;
+    let matches;
     if (matches = convo.source_message.text.match(/^help (.*)/i)) {
       if (convo.hasThread(matches[1])) {
         convo.gotoThread(matches[1]);

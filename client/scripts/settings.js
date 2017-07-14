@@ -4,19 +4,19 @@ $(function () {
   //
   // Bot token
   //
-  var button = {
+  const button = {
     element: $("#save-bot-token"),
     saving: false,
     value: 'Save',
     savingTitle: 'Saving',
     savedTitle: 'Saved'
   };
-  var submitBotToken = function () {
+  const submitBotToken = function () {
     if (button.saving) {
       return;
     }
     changeButtonToSaving();
-    var token = $('#bot-token').val();
+    const token = $('#bot-token').val();
     $.post('/settings/api/saveToken', {token: token}, function (data) {
       $('#results').html(data);
       changeButtonToSaved();

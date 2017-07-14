@@ -54,7 +54,7 @@ const controller = Botkit.sparkbot({
 });
 
 // Set up an Express-powered webserver to expose oauth and webhook endpoints
-// var webserver = require(__dirname + '/components/express_webserver.js')(controller);
+// const webserver = require(__dirname + '/components/express_webserver.js')(controller);
 
 // Tell Cisco Spark to start sending events to this application
 require(__dirname + '/components/subscribe_events.js')(controller);

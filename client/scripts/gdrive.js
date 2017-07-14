@@ -95,7 +95,7 @@
         alert("Failed to load picker API");
       } else {
         //all preconditions are met, show the picker
-        var view = new google.picker.DocsView(google.picker.ViewId.DOCS);
+        const view = new google.picker.DocsView(google.picker.ViewId.DOCS);
         view.setIncludeFolders(true);
 
         if (self.selectMode === 'folder') {

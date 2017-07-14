@@ -11,15 +11,15 @@
 
  */
 
-var wordfilter = require('wordfilter');
+const wordfilter = require('wordfilter');
 
 module.exports = function (controller) {
 
   /* Collect some very simple runtime stats for use in the uptime/debug command */
-  var stats = {
+  const stats = {
     triggers: 0,
     convos: 0,
-  }
+  };
 
   controller.on('heard_trigger', function () {
     stats.triggers++;
@@ -67,7 +67,7 @@ module.exports = function (controller) {
   /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
   /* Utility function to format uptime */
   function formatUptime(uptime) {
-    var unit = 'second';
+    let unit = 'second';
     if (uptime > 60) {
       uptime = uptime / 60;
       unit = 'minute';
@@ -76,7 +76,7 @@ module.exports = function (controller) {
       uptime = uptime / 60;
       unit = 'hour';
     }
-    if (uptime != 1) {
+    if (uptime !== 1) {
       unit = unit + 's';
     }
 

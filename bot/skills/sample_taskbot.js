@@ -31,11 +31,11 @@ module.exports = function (controller) {
     controller.storage.users.get(message.user, function (err, user) {
 
       // user object can contain arbitary keys. we will store tasks in .tasks
-      if (!user || !user.tasks || user.tasks.length == 0) {
+      if (!user || !user.tasks || user.tasks.length === 0) {
         bot.reply(message, 'There are no tasks on your list. Say `add _task_` to add something.');
       } else {
 
-        var text = 'Here are your current tasks: \n' +
+        const text = 'Here are your current tasks: \n' +
           generateTaskList(user) +
           'Reply with `done _number_` to mark a task completed.';
 
@@ -51,7 +51,7 @@ module.exports = function (controller) {
   // store the new list in the storage system
   controller.hears(['add (.*)'], 'direct_message,direct_mention', function (bot, message) {
 
-    var newtask = message.match[1];
+    const newtask = message.match[1];
     controller.storage.users.get(message.user, function (err, user) {
 
       if (!user) {
@@ -78,7 +78,7 @@ module.exports = function (controller) {
   // listen for a user saying "done <number>" and mark that item as done.
   controller.hears(['done (.*)'], 'direct_message,direct_mention', function (bot, message) {
 
-    var number = message.match[1];
+    let number = message.match[1];
 
     if (isNaN(number)) {
       bot.reply(message, 'Please specify a number.');
@@ -99,7 +99,7 @@ module.exports = function (controller) {
           bot.reply(message, 'Sorry, your input is out of range. Right now there are ' + user.tasks.length + ' items on your list.');
         } else {
 
-          var item = user.tasks.splice(number, 1);
+          const item = user.tasks.splice(number, 1);
 
           // reply with a strikethrough message...
           bot.reply(message, '~' + item + '~');
@@ -119,9 +119,9 @@ module.exports = function (controller) {
   // it can be used in various places
   function generateTaskList(user) {
 
-    var text = '';
+    let text = '';
 
-    for (var t = 0; t < user.tasks.length; t++) {
+    for (let t = 0; t < user.tasks.length; t++) {
       text = text + '> `' + (t + 1) + '`) ' + user.tasks[t] + '\n';
     }
 

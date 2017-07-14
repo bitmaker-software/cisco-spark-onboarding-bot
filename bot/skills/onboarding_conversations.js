@@ -9,7 +9,7 @@
 
 module.exports = function (controller) {
 
-  var currentThread = 0;
+  const currentThread = 0;
 
   const THREADS = {
     cheese: {
@@ -77,7 +77,7 @@ module.exports = function (controller) {
     }
   };
 
-  var questions = [];
+  const questions = [];
   questions.push(
     function cheese(convo, bot) {
       // Create a yes/no question in the default thread...

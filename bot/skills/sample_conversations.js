@@ -107,7 +107,7 @@ module.exports = function (controller) {
   // });
 
   controller.hears('Come on baby light my (.*)', ['direct_message'], function (bot, message) {
-    var type = message.match[1]; // match[0] is the entire group.Come on baby light my fire
+    const type = message.match[1]; // match[0] is the entire group.Come on baby light my fire
     if (type === 'fire') {
       return bot.reply(message, 'That\'s dangerous, ' + message.original_message.data.personDisplayName + '.');
     }
@@ -115,11 +115,11 @@ module.exports = function (controller) {
   });
 
   controller.hears('file', 'direct_message', function (bot, message) {
-    var fs = require('fs');
-    var filePath = './bot/files_to_serve/test_file.txt';
+    const fs = require('fs');
+    const filePath = './bot/files_to_serve/test_file.txt';
     fs.exists(filePath, function (exists) {
       if (exists) {
-        var readStream = fs.createReadStream(filePath);
+        const readStream = fs.createReadStream(filePath);
         bot.reply(message, {text: 'I made this file for you.', files: [readStream]});
       } else {
         bot.reply(message, {text: 'Sorry, there was a problem reading the file. Please contact your supervisor.'});

@@ -275,8 +275,8 @@ module.exports = function (controller) {
       console.log("Adding announcement step: " + step.text);
       let text = step.text + '\n\nPlease type ok to continue.';
 
-      // var fs = require('fs');
-      // var filePath = './bot/files_to_serve/test_file.txt';
+      // const fs = require('fs');
+      // const filePath = './bot/files_to_serve/test_file.txt';
       // bot.say({channel: convo.source_message.channel, text: text, files: [fs.createReadStream(filePath)]}); // OK
       // convo.say({text: text}); // OK
       // convo.say({text: text, files: ['http://pre10.deviantart.net/3354/th/pre/i/2012/175/9/6/af_monogrammatic_type____logos_for_sale_by_aeldesign-d54ngvf.png']});
