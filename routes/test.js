@@ -3,15 +3,19 @@
 let router = require('express').Router();
 let ensureAuthenticated = require('./auth_middleware');
 const databaseServices = require('../bot/database_services');
+const googleDriveConfig = require('../bot/keys/Integration test-6661fdb0c0a7.json');
 let env = require('node-env-file');
 env(__dirname + '/../bot/.env');
+
+const STATUS_TYPES = require('../bot/status_types');
+
 
 const json2csv = require('json2csv');
 const fs = require('fs');
 
 let gdrive_client_id = process.env.gdrive_client_id;
 let gdrive_developer_key = process.env.gdrive_developer_key;
-let gdrive_share_to = 'spark-drive@testdriveintegration-167213.iam.gserviceaccount.com';
+let gdrive_share_to = googleDriveConfig.client_email; //'spark-drive@testdriveintegration-167213.iam.gserviceaccount.com';
 
 let bot = require('../app').bot;
 
@@ -60,7 +64,7 @@ router.get('/answers/:flow_id/:total', ensureAuthenticated, (req, res, next) => 
     sort = sort.substring(0, n - 1);
   }
 
-  if (typeof filter === 'undefined'){
+  if (typeof filter === 'undefined') {
     filter = "";
   }
   else {
@@ -77,20 +81,20 @@ router.get('/answers/:flow_id/:total', ensureAuthenticated, (req, res, next) => 
 });
 
 router.get('/export/:flow_id', ensureAuthenticated, (req, res, next) => {
-  let fields = ['username','date','question_num','question','answer'];
+  let fields = ['username', 'date', 'question_num', 'question', 'answer'];
   databaseServices.totalAnswers(req.params.flow_id).then(answers => {
 
     let allAnswers = createAnswersJSON(answers);
-    let csv = json2csv({ data: allAnswers, fields: fields });
+    let csv = json2csv({data: allAnswers, fields: fields});
     let file = './public/file.csv';
 
-    fs.writeFile(file, csv, function(err) {
+    fs.writeFile(file, csv, function (err) {
       if (err) throw err;
 
       res.set('Content-disposition', 'attachment; filename=file.csv');
       res.set('Content-Type', 'text/csv');
-      res.download('./public/file.csv','file.csv', function (error) {
-          console.log(error);
+      res.download('./public/file.csv', 'file.csv', function (error) {
+        console.log(error);
       });
 
       //res.send(file);
@@ -124,9 +128,9 @@ function createDataJSON(answers, flow_id, total, sort, page, per_page) {
   if (page === last_page)
     to = total - (page - 1) * per_page;
   else
-    to = (page) * per_page
+    to = (page) * per_page;
 
-  let dataJSON = {
+  return {
     total: parseInt(total),
     per_page: parseInt(per_page),
     current_page: parseInt(page),
@@ -137,38 +141,36 @@ function createDataJSON(answers, flow_id, total, sort, page, per_page) {
     from: (page - 1) * per_page + 1,
     to: to
   };
-
-  return dataJSON;
 }
 
-function createAnswersJSON(answers){
+function createAnswersJSON(answers) {
 
-    return answers.map(answer => {
-        //colocar a resposta de acordo com o que recebe
-        let myanswer;
-        let stepType = answer.step.step_type_id;
-        if (stepType === 2) {
-            myanswer = answer.text;
-        } else if (stepType === 3) {
-            myanswer = answer.step_choice.choice_order + " : " + answer.step_choice.text;
-        } else if (stepType === 4 || stepType === 6) { //|| stepType === 5
-            myanswer = 'Check your "'+answer.step.document_step.upload_dir_name+
-                '" shared folder to download the "'+answer.document_url+'" document.';
-        }
+  return answers.map(answer => {
+    //colocar a resposta de acordo com o que recebe
+    let myanswer;
+    let stepType = answer.step.step_type_id;
+    if (stepType === STATUS_TYPES.STEP_TYPES.FREE_TEXT) {
+      myanswer = answer.text;
+    } else if (stepType === STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE) {
+      myanswer = answer.step_choice.choice_order + " : " + answer.step_choice.text;
+    } else if (stepType === STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT ||
+      stepType === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK) { //|| stepType === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT
+      myanswer = 'Check your "' + answer.step.document_step.upload_dir_name +
+        '" shared folder to download the "' + answer.document_url + '" document.';
+    }
 
-        let date = answer.answer_date;
-        let month = date.getUTCMonth() + 1;
+    let date = answer.answer_date;
+    let month = date.getUTCMonth() + 1;
 
-        return {
-            username: answer.respondent_flow.respondent.name,
-            date: date.getUTCDate() + "-" + month + "-" + date.getUTCFullYear(),
-            question_num: answer.step.step_order,
-            question: answer.step.text,
-            answer: myanswer
-        }
+    return {
+      username: answer.respondent_flow.respondent.name,
+      date: date.getUTCDate() + "-" + month + "-" + date.getUTCFullYear(),
+      question_num: answer.step.step_order,
+      question: answer.step.text,
+      answer: myanswer
+    }
 
-    });
+  });
 }
-
 
 module.exports = router;

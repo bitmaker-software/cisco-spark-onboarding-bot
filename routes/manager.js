@@ -5,15 +5,17 @@ const router = require('express').Router();
 const ensureAuthenticated = require('./auth_middleware');
 const databaseServices = require('../bot/database_services');
 const sparkAPIUtils = require('../bot/spark_api_utils');
-const key = require('../bot/keys/Integration test-6661fdb0c0a7.json');
+const googleDriveConfig = require('../bot/keys/Integration test-6661fdb0c0a7.json');
+
+const STATUS_TYPES = require('../bot/status_types');
 
 //aqui
 let env = require('node-env-file');
 env(__dirname + '/../bot/.env');
 
-let gdrive_client_id = process.env.gdrive_client_id;
-let gdrive_developer_key = process.env.gdrive_developer_key;
-let gdrive_share_to = key.client_email;
+const gdrive_client_id = process.env.gdrive_client_id;
+const gdrive_developer_key = process.env.gdrive_developer_key;
+const gdrive_share_to = googleDriveConfig.client_email;
 
 //let bot = require('../app').bot;
 
@@ -54,42 +56,27 @@ router.get('/', ensureAuthenticated, function (req, res, next) {
 
 router.get('/api/flow/:id', ensureAuthenticated, function (req, res, next) {
   // Returns the flow steps
-  const SEND_DUMMY = false;
+  // TODO filter the user; add attributes [] to filter columns
 
-  if (!SEND_DUMMY) {
-    // TODO filter the user; add attributes [] to filter columns
-    models.step.findAll({
-      where: {flow_id: req.params.id},
-      include: [
-        {model: models.step_choice},
-        {model: models.document_step}
-      ],
-      order: [[models.Sequelize.col('"step_order"'), 'ASC'],
-        [models.step_choice, '"choice_order"', 'ASC']],
-    }).then(steps => {
-      return res.send({
-        flowId: req.params.id,
-        steps: steps
-      });
-    }, err => {
-      console.error("Error fetching the flow steps:");
-      console.error(err);
-    });
-  } else {
-    // Dummy data
+  // TODO: USE THE DATABASE SERVICES!
+
+  models.step.findAll({
+    where: {flow_id: req.params.id},
+    include: [
+      {model: models.step_choice},
+      {model: models.document_step}
+    ],
+    order: [[models.Sequelize.col('"step_order"'), 'ASC'],
+      [models.step_choice, '"choice_order"', 'ASC']],
+  }).then(steps => {
     return res.send({
       flowId: req.params.id,
-      steps: [
-        {id: '0', step_order: '1', text: 'Step number one', step_type: 0},
-        {id: '1', step_order: '2', text: 'Step number two', step_type: 1},
-        {id: '2', step_order: '3', text: 'Step number three', step_type: 0},
-        {id: '3', step_order: '4', text: 'Step number four', step_type: 2},
-        {id: '4', step_order: '5', text: 'Step number five', step_type: 1},
-        {id: '5', step_order: '6', text: 'Step number six', step_type: 3},
-        {id: '6', step_order: '7', text: 'Step number seven', step_type: 4}
-      ]
+      steps: steps
     });
-  }
+  }, err => {
+    console.error("Error fetching the flow steps:");
+    console.error(err);
+  });
 });
 
 
@@ -163,8 +150,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
             console.log("Result from new step");
             console.log(result);
 
-            if (step.step_type_id === 3) {
-              // Multiple choice
+            if (step.step_type_id === STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE) {
               console.log("step.step_choices:");
               console.log(step.step_choices);
               step.step_choices.forEach((choice, index) => {
@@ -183,9 +169,11 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                   return res.send(err);
                 });
               });
-            } // if step type === 3
+            } // Multiple choice
 
-            else if (step.step_type_id === 4 || step.step_type_id === 5 || step.step_type_id === 6) {
+            else if (step.step_type_id === STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT ||
+              step.step_type_id === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT ||
+              step.step_type_id === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK) {
               //uplaod documents
               console.log("step.upload_id: " + step.upload_id);
               console.log("step.document_id: " + step.document_id);
@@ -197,11 +185,11 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
               let upload_id = null;
               let upload_dir_name = null;
 
-              if (step.step_type_id === 4) {
+              if (step.step_type_id === STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT) {
                 upload_id = step.upload_id;
                 upload_dir_name = step.upload_dir_name;
               }
-              else if (step.step_type_id === 5) {
+              else if (step.step_type_id === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT) {
                 document_id = step.document_id;
                 document_name = step.document_name;
               }
@@ -225,8 +213,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                 console.error(err);
                 return res.send(err);
               });
-            } // if step type === 4 5 6
-
+            } // Documents
           })
       )
     } else {
@@ -250,8 +237,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
             if (affectedCount === 1) {
               // Check if is multiple choice
               console.log("Step updated (type = " + step.step_type_id + ")");
-              if (step.step_type_id === 3) {
-                // Multiple choice
+              if (step.step_type_id === STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE) {
                 // TODO: what if the user removed options? etc.
                 step.step_choices.forEach((choice, index) => {
                   console.log("Choice index: " + index);
@@ -285,9 +271,11 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                     });
                   }
                 });
-              }
+              } // Multiple choice
 
-              else if (step.step_type_id === 4 || step.step_type_id === 5 || step.step_type_id === 6) {
+              else if (step.step_type_id === STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT ||
+                step.step_type_id === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT ||
+                step.step_type_id === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK) {
                 //DOCUMENTS
                 console.log("step.upload_id: " + step.upload_id);
                 console.log("step.document_id: " + step.document_id);
@@ -299,11 +287,11 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                 let upload_id = null;
                 let upload_dir_name = null;
 
-                if (step.step_type_id === 4) {
+                if (step.step_type_id === STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT) {
                   upload_id = step.upload_id;
                   upload_dir_name = step.upload_dir_name;
                 }
-                else if (step.step_type_id === 5) {
+                else if (step.step_type_id === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT) {
                   document_id = step.document_id;
                   document_name = step.document_name;
                 }
@@ -353,7 +341,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                       });
                   }
                 });
-              }// if step type === 5 || 6
+              } // Documents
 
             }
           })
@@ -454,7 +442,7 @@ router.get('/flow/:id/answers', ensureAuthenticated, function (req, res, next) {
   let promises = [
     databaseServices.getStepTypes(),
     databaseServices.getFlow(req.params.id),
-    databaseServices.countAnswers(req.params.id,"") //ir buscar TODAS as respostas
+    databaseServices.countAnswers(req.params.id, "") //ir buscar TODAS as respostas
   ];
   Promise.all(promises).then(values => {
     res.render('manager_flow_answers', {

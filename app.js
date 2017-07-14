@@ -249,7 +249,7 @@ function startTheServer() {
 
 function resumeOngoingFlowsAfterServerStart() {
  console.log('resumeOngoingFlowsAfterServerStart()');
- databaseServices.getOngoingFlows().then(respondentFlows => {
+ databaseServices.getAllOngoingFlows().then(respondentFlows => {
   // console.log('Pending flows:');
   // console.log(flows);
    respondentFlows.forEach(respondentFlow => {

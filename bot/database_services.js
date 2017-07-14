@@ -3,6 +3,8 @@
 const models = require('../models');
 const sparkAPIUtils = require('./spark_api_utils');
 
+const STATUS_TYPES = require('./status_types');
+
 module.exports = {
   userLoggedIn: (id, displayName, emails, orgId) => {
     /**
@@ -66,74 +68,17 @@ module.exports = {
 
   getFlow: (flowId, startingStepId) => {
     return new Promise((resolve, reject) => {
-      const SEND_DUMMY = false;
-      if (!SEND_DUMMY) {
-        // Get from the database
-        if (startingStepId) {
-          // Get the step order for this step so we get only the steps after this (including it)
-          models.step.find({
-            attributes: ['id', 'step_order'],
-            where: {id: startingStepId}
-          }).then(step => {
-            console.log(`Found the step order of the current step: ${step.step_order}`);
-            getFlowStartingOnStepOrder(resolve, reject, flowId, step.step_order);
-          });
-        } else {
-          getFlowStartingOnStepOrder(resolve, reject, flowId, 0);
-        }
+      if (startingStepId) {
+        // Get the step order for this step so we get only the steps after this (including it)
+        models.step.find({
+          attributes: ['id', 'step_order'],
+          where: {id: startingStepId}
+        }).then(step => {
+          console.log(`Found the step order of the current step: ${step.step_order}`);
+          getFlowStartingOnStepOrder(resolve, reject, flowId, step.step_order);
+        });
       } else {
-        return new Promise(
-          function (resolve, reject) {
-            resolve({
-              "respondent_flow_id": 345,
-              "flow_id": 123,
-              "name": "HR onboarding",
-              "status": "running",
-              "steps": [
-                {
-                  "step_id": 51,
-                  // "step_type": "announcement",
-                  "stepTypeId": 1,
-                  "text": "Welcome to bitmaker! I will ask you some questions. Please provide accurate answers."
-                },
-                {
-                  "step_id": 52,
-                  // "step_type": "free_text",
-                  "stepTypeId": 2,
-                  "text": "Please provide a brief description about you."
-                },
-                {
-                  "step_id": 53,
-                  // "step_type": "multiple_choice",
-                  "stepTypeId": 4,
-                  "text": "How many years of experience do you have",
-                  "step_choices": [
-                    {
-                      "id": 91,
-                      "choice_order": 1,
-                      "text": "none"
-                    },
-                    {
-                      "id": 92,
-                      "choice_order": 2,
-                      "text": "less than 2 years"
-                    },
-                    {
-                      "id": 93,
-                      "choice_order": 3,
-                      "text": "between 2 and 5 years"
-                    },
-                    {
-                      "id": 94,
-                      "choice_order": 4,
-                      "text": "more than 5 years"
-                    }
-                  ]
-                }
-              ]
-            });
-          }
-        );
+        getFlowStartingOnStepOrder(resolve, reject, flowId, 0);
       }
     });
   },
@@ -155,7 +100,7 @@ module.exports = {
   createFlow: name => {
     return models.flow.create({
       name: name,
-      flow_status_id: 1
+      flow_status_id: STATUS_TYPES.FLOW_STATUS.EDITING
     });
   },
 
@@ -171,7 +116,7 @@ module.exports = {
             {
               where: {
                 respondent_id: respondent.id,
-                respondent_flow_status_id: 1 // 1 === Not started
+                respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.NOT_STARTED
               }
               // TODO: sort by ID and resolve the oldest?
             }
@@ -197,7 +142,7 @@ module.exports = {
             {
               where: {
                 respondent_id: respondent.id,
-                respondent_flow_status_id: 2 // 2 === In progress
+                respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.IN_PROGRESS
               },
               include: [
                 {model: models.flow, attributes: ['name']}
@@ -218,16 +163,10 @@ module.exports = {
     });
   },
 
-  getOngoingFlows: () => {
-    // return new Promise((resolve, reject) => {
-    // models.respondent.find({
-    //   where: {email: email}
-    // }).then(respondent => {
-    //   if (respondent) {
+  getAllOngoingFlows: () => {
     return models.respondent_flow.findAll({
       where: {
-        // respondent_id: respondent.id,
-        respondent_flow_status_id: 2 // 2 === In progress
+        respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.IN_PROGRESS
       },
       include: [
         {model: models.respondent},
@@ -249,13 +188,13 @@ module.exports = {
 
   setRespondentFlowStarted: respondentFlow => {
     respondentFlow.updateAttributes({
-      respondent_flow_status_id: 2 // 2 === Started / In progress
+      respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.IN_PROGRESS
     });
   },
 
   setRespondentFlowFinished: respondentFlow => {
     respondentFlow.updateAttributes({
-      respondent_flow_status_id: 3 // 3 === Finished
+      respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.FINISHED
     });
   },
 
@@ -265,7 +204,7 @@ module.exports = {
       models.respondent_answer.findAll({
         attributes: ['id', 'answer_date', 'text', 'document_url'],
         where: {
-          answer_status_id: 2,
+          answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED,
         },
         include: [
           {
@@ -291,10 +230,10 @@ module.exports = {
             attributes: ['step_order', 'text', 'step_type_id'],
             where: {
               $or: [
-                {step_type_id: 2},
-                {step_type_id: 3},
-                {step_type_id: 4},
-                {step_type_id: 6}
+                {step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT},
+                {step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE},
+                {step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT},
+                {step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK}
               ],
             },
             include: [
@@ -328,7 +267,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       models.respondent_answer.findAll({
         where: {
-          answer_status_id: 2,
+          answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED,
         },
         include: [
           {
@@ -349,10 +288,10 @@ module.exports = {
             attributes: ['step_order', 'text', 'step_type_id'],
             where: {
               $or: [
-                {step_type_id: 2},
-                {step_type_id: 3},
-                {step_type_id: 4},
-                {step_type_id: 6}
+                {step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT},
+                {step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE},
+                {step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT},
+                {step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK}
               ],
             },
             include: [
@@ -407,10 +346,10 @@ module.exports = {
             model: models.step,
             where: {
               $or: [
-                {step_type_id: 2},
-                {step_type_id: 3},
-                {step_type_id: 4},
-                {step_type_id: 6}
+                {step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT},
+                {step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE},
+                {step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT},
+                {step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK}
               ],
             }
           },
@@ -517,15 +456,15 @@ module.exports = {
           respondent_id: userId,
           flow_id: flowId,
           $or: [
-            {respondent_flow_status_id: 1}, // 1 === Not started
-            {respondent_flow_status_id: 2}, // 2 === In progress
+            {respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.NOT_STARTED},
+            {respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.IN_PROGRESS},
           ],
         },
         defaults: {
           assigner_id: assignerId,
           respondent_id: userId,
           flow_id: flowId,
-          respondent_flow_status_id: 1, // 1 === Not started
+          respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.NOT_STARTED,
           assign_date: date, // TODO
           start_date: date, // TODO
         },

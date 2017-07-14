@@ -4,6 +4,8 @@ const databaseServices = require('../database_services');
 const fs = require('fs');
 const request = require('request');
 
+const STATUS_TYPES = require('../status_types');
+
 //GDRIVE CONF
 
 //require google apis
@@ -11,16 +13,6 @@ const google = require('googleapis');
 
 //this is the json file with the private key
 const key = require('../keys/Integration test-6661fdb0c0a7.json');
-
-const STEP_TYPES = {
-  // Must be the same as defined on fixtures/1_step_type.js
-  ANNOUNCEMENT: 1,
-  FREE_TEXT: 2,
-  MULTIPLE_CHOICE: 3,
-  UPLOAD_TO_BOT: 4,
-  DOWNLOAD_FROM_BOT: 5,
-  DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK: 6,
-};
 
 // create an access token for read only access
 let jwtClient = new google.auth.JWT(
@@ -218,22 +210,22 @@ module.exports = function (controller) {
                 thread
               };
               switch (step.step_type_id) {
-                case STEP_TYPES.ANNOUNCEMENT:
+                case STATUS_TYPES.STEP_TYPES.ANNOUNCEMENT:
                   addStepToConversation.announcement(stepArguments);
                   break;
-                case STEP_TYPES.FREE_TEXT:
+                case STATUS_TYPES.STEP_TYPES.FREE_TEXT:
                   addStepToConversation.freeText(stepArguments);
                   break;
-                case STEP_TYPES.MULTIPLE_CHOICE:
+                case STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE:
                   addStepToConversation.multipleChoice(stepArguments);
                   break;
-                case STEP_TYPES.UPLOAD_TO_BOT:
+                case STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT:
                   addStepToConversation.uploadDocumentToTheBot(stepArguments);
                   break;
-                case STEP_TYPES.DOWNLOAD_FROM_BOT:
+                case STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT:
                   addStepToConversation.downloadDocumentFromTheBot(stepArguments);
                   break;
-                case STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK:
+                case STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK:
                   addStepToConversation.downloadDocumentFromTheBotAndUploadItBack(stepArguments);
                   break;
                 default:
@@ -627,7 +619,7 @@ module.exports = function (controller) {
       flow.steps.forEach((step, index) => {
         //read documents
         console.log(index);
-        if (step.step_type_id === 5 || step.step_type_id === 6) {
+        if (step.step_type_id === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT || step.step_type_id === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK) {
           // console.log(`Step ${step.id} is a download (or download+upload) document step`);
 
           if (step.document_step !== null) {

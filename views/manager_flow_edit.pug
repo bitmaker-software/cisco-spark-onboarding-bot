@@ -12,8 +12,6 @@ block content
           div.btn.btn-secondary
             svg.step-icon
               use(v-bind="{'xlink:href':'" + static.root + "/sprite.svg#' + stepTypeIcons[stepType.id]}")
-
-              // TODO: workaround for now; add column name to the database?
               span {{ stepType.name }}
               span(data-toggle="tooltip", data-placement="top", title, v-bind:title="stepType.description")
                 i.material-icons info              
