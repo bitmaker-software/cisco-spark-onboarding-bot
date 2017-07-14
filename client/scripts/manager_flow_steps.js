@@ -23,22 +23,45 @@ $(function () {
         },
         methods: {
             addStep: stepType => addNewStep(stepType),
+            deleteStep : (stepid,index) => {
+              app.steps.splice(index,1);
+              //delete at bd
+              app.$http.delete('/manager/api/delete_step/'+stepid).then(response => {
+                  console.log('Delete step '+stepid);
+              }, error => {
+                  if (error.status === 401) {
+                      window.location.replace('/auth/spark');
+                  }
+              });
+            },
+            deleteStepChoice : (step,index) => {
+              let stepChoiceId = step.step_choices[index].id;
+              step.step_choices.splice(index, 1);
+              //delete at bd
+              app.$http.delete('/manager/api/delete_step_choice/'+step.id+'/'+stepChoiceId).then(response => {
+                  console.log('Delete step '+stepid);
+              }, error => {
+                  if (error.status === 401) {
+                      window.location.replace('/auth/spark');
+                  }
+              });
+            },
             getFileId: (step) => {
-                GDrive.selectFile(function (id,name) {
-                    if(id === 'wrong'){
-                        alert('The document '+name+' can not be shared due to incompatible document type.')
-                    }
-                    else{
-                        step.document_name = name;
-                        step.document_id = id;
-                    }
-                })
+              GDrive.selectFile(function (id,name) {
+                if(id === 'wrong'){
+                  alert('The document '+name+' can not be shared due to incompatible document type.')
+                }
+                else{
+                  step.document_name = name;
+                  step.document_id = id;
+                }
+              })
             },
             getFolderId: (step) => {
-                GDrive.selectFolder(function (id,name) {
-                    step.upload_dir_name = name;
-                    step.upload_id = id;
-                })
+              GDrive.selectFolder(function (id,name) {
+                step.upload_dir_name = name;
+                step.upload_id = id;
+              })
             },
             saveSteps: saveSteps,
             startDraggingStepTypes: () => {
@@ -95,7 +118,7 @@ $(function () {
                 }
             });
 
-            console.log('Steps');
+            console.log('Steps : ');
             console.log(app.steps);
 
             if (flow.steps.length === 0) {
@@ -158,6 +181,11 @@ $(function () {
         console.log('Clicked save steps');
         saveStepsButton.text("Saving…");
 
+        console.log('Save Steps : ');
+        console.log(app.steps);
+        for(let i = 0; i < app.steps.length; i++)
+            console.log(app.steps[i].id)
+
         let postData = {
             flow_id: flowId,
             steps: app.steps
@@ -172,7 +200,7 @@ $(function () {
             complete: function (data) {
                 console.log("Request to save flow complete");
                 saveStepsButton.text("Saved");
-                location.reload();
+                //location.reload();
             }
         });
     }

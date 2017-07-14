@@ -113,6 +113,34 @@ router.get('/flow/:id/edit', ensureAuthenticated, function (req, res, next) {
   });
 });
 
+router.delete('/api/delete_step/:step_id', (req, res, next) => {
+
+  let step_id = req.params.step_id;
+
+  models.step.findById(step_id).then(step => {
+    step.destroy();
+  });
+});
+
+router.delete('/api/delete_step_choice/:step_id/:step_choice_id', (req, res, next) => {
+
+    let step_id = req.params.step_id;
+    let step_choice_id = req.params.step_choice_id;
+
+    console.log(step_id+" - "+step_choice_id)
+
+    models.step.findById(step_id).then(step => {
+      //escolha multipla
+      if(step.step_type_id == 3){
+        models.step_choice.findById(step_choice_id).then(step_choice => {
+          step_choice.destroy();
+        });
+      }else{
+        res.sendStatus(401);
+      }
+    });
+});
+
 router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
   console.log(`————————————————————————————————————————————————————————————————————————————————————————————————————`);
   console.log(`Update flow, got:`);
