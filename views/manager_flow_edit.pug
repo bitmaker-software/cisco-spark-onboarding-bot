@@ -9,12 +9,13 @@ block content
         p.lead.text-center Available step types do be added to the flow
 
         div.step-type(v-for="stepType in stepTypes")
-          div.btn.btn-secondary
-            svg.step-icon
-              use(v-bind="{'xlink:href':'" + static.root + "/sprite.svg#' + stepTypeIcons[stepType.id]}")
-              span {{ stepType.name }}
-              span(data-toggle="tooltip", data-placement="top", title, v-bind:title="stepType.description")
-                i.material-icons info              
+          draggable(v-model="stepTypes",:options="{group:{name:'elem',pull:'clone',put:false}}")
+            div.btn.btn-secondary
+              svg.step-icon
+                use(v-bind="{'xlink:href':'" + static.root + "/sprite.svg#' + stepTypeIcons[stepType.id]}")
+                span {{ stepType.name }}
+                span(data-toggle="tooltip", data-placement="top", title, v-bind:title="stepType.description")
+                  i.material-icons info
 
       div.col-md-9.flow-container
         h2.title.text-primary Steps
@@ -106,7 +107,7 @@ block content
               span.input-group-addon.delete-answer(@click="deleteStep(step.id,index1)")
                 i.material-icons delete
         // Trigger the modal with a button
-        div.drag-area Drag & drop questions here or click the button below
+        draggable(v-model="stepTypes2",:options="{group:'elem'}",@add="addStepByDrop").drag-area Drag & drop questions here or click the button below
         hr
         div.row
           div.col
@@ -141,8 +142,9 @@ block pageScripts
     var stepTypesObj = {};
     stepTypesArray.forEach(function (element) {
       stepTypesObj[element.id] = element;
+        console.log(element)
     });
-    console.log(stepTypesObj);
+    console.log(stepTypesArray);
     var flowId = !{flowId}; // used on AJAX requests
 
   script(src=static.root + '/js/manager_flow_steps.js')

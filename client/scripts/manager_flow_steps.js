@@ -10,7 +10,8 @@ $(function () {
         // app initial state
         data: {
             steps: [],
-            stepTypes: stepTypesObj,
+            stepTypes: stepTypesArray,
+            stepTypes2 : [],
             stepTypeIcons: {
                 1: "announcement", // Announcement
                 2: "question",  // Question
@@ -22,7 +23,18 @@ $(function () {
             newStepTypeSelected: 1
         },
         methods: {
-            addStep: stepType => addNewStep(stepType),
+            addStepByDrop: () => {
+                //verify step to add
+                console.log(app.stepTypes2)
+                console.log(app.stepTypes2[0])
+                console.log(app.stepTypes2[0].id);
+
+                addNewStep(app.stepTypes2[0].id,false);
+                
+                //empty
+                app.stepTypes2 = [];
+            },
+            addStep: stepType => addNewStep(stepType,true),
             deleteStep : (stepid,index) => {
               app.steps.splice(index,1);
               //delete at bd
@@ -76,7 +88,7 @@ $(function () {
         }
     });
 
-    let addNewStep = stepType => {
+    let addNewStep = (stepType,isModal) => {
         let stepTypeInt = parseInt(stepType);
 
         app.steps.push({
@@ -88,12 +100,14 @@ $(function () {
             upload_dir_name: 'No Folder Selected',
         });
 
-        $('#myModal').modal('hide');
         $('#empty-flow').addClass('hidden');
         $('#save-steps').removeClass('hidden');
 
-        // reset selected type, so the next time we open the modal the first one is selected
-        app.newStepTypeSelected = 1;
+        if(isModal){
+            // reset selected type, so the next time we open the modal the first one is selected
+            app.newStepTypeSelected = 1;
+            $('#myModal').modal('hide');
+        }
     };
 
     //
@@ -200,7 +214,7 @@ $(function () {
             complete: function (data) {
                 console.log("Request to save flow complete");
                 saveStepsButton.text("Saved");
-                //location.reload();
+                location.reload();
             }
         });
     }
