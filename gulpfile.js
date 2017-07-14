@@ -1,13 +1,13 @@
-const gulp         = require('gulp');
-const sass         = require('gulp-sass');
-const postcss      = require('gulp-postcss');
+const gulp = require('gulp');
+const sass = require('gulp-sass');
+const postcss = require('gulp-postcss');
 const autoprefixer = require('autoprefixer');
-const cssnano      = require('cssnano');
-const sourcemaps   = require('gulp-sourcemaps');
-var svgSprite = require('gulp-svg-sprite');
+const cssnano = require('cssnano');
+const sourcemaps = require('gulp-sourcemaps');
+const svgSprite = require('gulp-svg-sprite');
 
 // SVG Config
-var config = {
+const svgConfig = {
   mode: {
     symbol: { // symbol mode to build the SVG
       dest: 'sprite', // destination foldeer
@@ -28,16 +28,16 @@ const run = (cb, production) => {
     .pipe(sass().on('error', sass.logError))
     .pipe(postcss(
       production
-        ? [autoprefixer(), cssnano({ discardComments: { removeAll: true } })]
+        ? [autoprefixer(), cssnano({discardComments: {removeAll: true}})]
         : [autoprefixer()]
     ))
     .pipe(
       production
-        ? sourcemaps.write('./', { addComment: false })
+        ? sourcemaps.write('./', {addComment: false})
         : sourcemaps.write()
     )
     .pipe(gulp.dest('public/css'));
-  if (typeof cb == 'function') cb();
+  if (typeof cb === 'function') cb();
 };
 
 gulp.task('scss:build', cb => {
@@ -49,23 +49,32 @@ gulp.task('scss:watch', () => {
   return gulp.watch('client/styles/*.scss', run);
 });
 
-gulp.task('sprite-page', function() {
+gulp.task('sprite-page', function () {
   return gulp.src('client/svg/**/*.svg')
-    .pipe(svgSprite(config))
+    .pipe(svgSprite(svgConfig))
     .pipe(gulp.dest('client/'));
 });
 
-gulp.task('sprite-shortcut', function() {
+gulp.task('sprite-shortcut', function () {
   return gulp.src('client/sprite/sprite.svg')
     .pipe(gulp.dest('public/'));
 });
 
-gulp.task('images', function() {
+gulp.task('copy-static', function () {
+  gulp.start('images', 'font-awesome', 'sprites');
+});
+
+gulp.task('images', function () {
   return gulp.src('client/images/*.*')
     .pipe(gulp.dest('public/images/'));
 });
 
-gulp.task('font-awesome', function() {
-    return gulp.src('node_modules/font-awesome/fonts/*.*')
-        .pipe(gulp.dest('public/fonts/'));
+gulp.task('font-awesome', function () {
+  return gulp.src('node_modules/font-awesome/fonts/*.*')
+    .pipe(gulp.dest('public/fonts/'));
+});
+
+gulp.task('sprites', function () {
+  return gulp.src('client/sprite/sprite.svg')
+    .pipe(gulp.dest('public/'));
 });

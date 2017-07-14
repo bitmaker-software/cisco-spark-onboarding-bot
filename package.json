@@ -6,10 +6,10 @@
     "start": "bash -c 'NODE_ENV=production node index.js'",
     "clean": "bash -c 'rm -rf public/{js,css}'",
     "dev:js": "node --inspect=12345 index dev",
-    "dev:css": "gulp scss:watch font-awesome images",
+    "dev:css": "gulp scss:watch copy-static",
     "dev": "npm-run-all clean -p dev:*",
     "build:js": "webpack",
-    "build:css": "gulp scss:build font-awesome images",
+    "build:css": "gulp scss:build copy-static",
     "compress": "bash -c 'gzip -9 -q public/**/*.{css,js,map}'",
     "build": "npm-run-all clean -p build:* -s compress",
     "tool": "node index"
