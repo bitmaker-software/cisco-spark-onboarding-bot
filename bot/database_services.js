@@ -38,12 +38,12 @@ module.exports = {
         }).spread((user, userCreated) => {
           resolve(user);
         }, err => {
-          console.error("Error fetching the user:");
+          console.error(`Error fetching the user:`);
           console.error(err);
           reject(err)
         });
       }, err => {
-        console.error("Error fetching the tenant:");
+        console.error(`Error fetching the tenant:`);
         console.error(err);
         reject(err);
       });
@@ -51,7 +51,7 @@ module.exports = {
   },
 
   getFlows: () => {
-    console.log('getFlows()');
+    console.log(`getFlows()`);
     // Returns flows for the logged in tenant
     return models.flow.findAll({
       attributes: ['id', 'name'],
@@ -90,10 +90,27 @@ module.exports = {
       models.flow.find({where: {id: id}}).then(flow => {
         resolve(flow.name);
       }, err => {
-        console.error("Error fetching the flow:");
+        console.error(`Error fetching the flow:`);
         console.error(err);
         reject(err)
       });
+    });
+  },
+
+  getFlowSteps: flowId => {
+    /**
+     Used to show the steps at the edit flow page
+     */
+    // TODO: filter by user, do not allow accessing other users flows
+    // TODO: add attributes [] to filter columns
+    return models.step.findAll({
+      where: {flow_id: flowId},
+      include: [
+        {model: models.step_choice},
+        {model: models.document_step}
+      ],
+      order: [[models.Sequelize.col('"step_order"'), 'ASC'],
+        [models.step_choice, '"choice_order"', 'ASC']],
     });
   },
 
@@ -101,6 +118,69 @@ module.exports = {
     return models.flow.create({
       name: name,
       flow_status_id: STATUS_TYPES.FLOW_STATUS.EDITING
+    });
+  },
+
+  createStep: (stepText, stepOrder, flowId, stepTypeId) => {
+    return models.step.create({
+      text: stepText,
+      step_order: stepOrder,
+      flow_id: flowId,
+      step_type_id: stepTypeId,
+    });
+  },
+
+  updateStep: (stepText, stepOrder, stepId) => {
+    return models.step.update({
+      text: stepText,
+      step_order: stepOrder,
+    }, {
+      where: {id: stepId}
+    });
+  },
+
+  createStepChoice: (choiceText, choiceOrder, stepId) => {
+    return models.step_choice.create({
+      text: choiceText,
+      choice_order: choiceOrder,
+      step_id: stepId,
+    });
+  },
+
+  updateStepChoice: (choiceText, choiceOrder, stepChoiceId) => {
+    return models.step_choice.update({
+      text: choiceText,
+      choice_order: choiceOrder,
+    }, {
+      where: {id: stepChoiceId}
+    });
+  },
+
+  getDocumentStep: stepId => {
+    return models.document_step.find({
+      where: {step_id: stepId}
+    });
+  },
+
+  createDocumentStep: (stepId, uploadDir, uploadDirName, documentUrl, documentName) => {
+    return models.document_step.create({
+      //document_store_id: ,
+      step_id: stepId,
+      upload_dir: uploadDir,
+      upload_dir_name: uploadDirName,
+      document_url: documentUrl,
+      document_name: documentName
+    });
+  },
+
+  updateDocumentStep: (stepId, uploadDir, uploadDirName, documentUrl, documentName) => {
+    return models.document_step.update({
+      upload_dir: uploadDir,
+      upload_dir_name: uploadDirName,
+      document_url: documentUrl,
+      document_name: documentName,
+    }, {
+      where: {step_id: stepId}
     });
   },
 
@@ -199,7 +279,7 @@ module.exports = {
   },
 
   getAnswers: (flow_id, page, per_page, filter, sort, order) => {
-    console.log('getAnswers(' + flow_id + ' , ' + page + ' , ' + per_page + ' , ' + filter + ')');
+    console.log(`getAnswers(…)`);
     return new Promise((resolve, reject) => {
       models.respondent_answer.findAll({
         attributes: ['id', 'answer_date', 'text', 'document_url'],
@@ -255,7 +335,7 @@ module.exports = {
         //console.log(answers);
         resolve(answers);
       }, err => {
-        console.error("Error getting answers");
+        console.error(`Error getting answers`);
         console.error(err);
         reject(err);
       });
@@ -263,7 +343,7 @@ module.exports = {
   },
 
   totalAnswers: (flow_id) => {
-    console.log('totalAnswers(' + flow_id + ')');
+    console.log(`totalAnswers(${flow_id})`);
     return new Promise((resolve, reject) => {
       models.respondent_answer.findAll({
         where: {
@@ -307,11 +387,11 @@ module.exports = {
           }
         ]
       }).then(res => {
-        console.log("----");
+        console.log(`----`);
         console.log(res.length);
         resolve(res);
       }, err => {
-        console.error("Error getting answers");
+        console.error(`Error getting answers`);
         console.error(err);
         reject(err);
       });
@@ -319,7 +399,7 @@ module.exports = {
   },
 
   countAnswers: (flow_id, filter) => {
-    console.log('countAnswers(' + flow_id + ' , ' + filter + ')');
+    console.log(`countAnswers(${flow_id}, ${filter})`);
     return new Promise((resolve, reject) => {
       models.respondent_answer.count({
         where: {
@@ -355,11 +435,11 @@ module.exports = {
           },
         ]
       }).then(res => {
-        console.log("----");
+        console.log(`----`);
         console.log(res);
         resolve(res);
       }, err => {
-        console.error("Error getting answers");
+        console.error(`Error getting answers`);
         console.error(err);
         reject(err);
       });
@@ -421,7 +501,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       // Get user info from Spark
       sparkAPIUtils.getUserFromSpark({sparkId: sparkId}, bearer).then(users => {
-        console.log('Result from Spark search:');
+        console.log(`Result from Spark search:`);
         console.log(users);
 
         if (users.length !== 1) {
@@ -442,7 +522,7 @@ module.exports = {
           }
         }).then(result => resolve(result[0]));
       }, error => {
-        console.log('Error fetching the user from Spark:');
+        console.log(`Error fetching the user from Spark:`);
         console.log(error);
       });
     });
@@ -504,16 +584,16 @@ function getFlowStartingOnStepOrder(resolve, reject, flowId, startingStepOrder) 
         status: flow.flow_status_id,
         steps: steps
       };
-      console.log('Got the flow with its steps, resolving:');
+      console.log(`Got the flow with its steps, resolving:`);
       console.log(result);
       resolve(result);
     }, err => {
-      console.error("Error fetching the steps:");
+      console.error(`Error fetching the steps:`);
       console.error(err);
       reject(err)
     });
   }, err => {
-    console.error("Error fetching the flow:");
+    console.error(`Error fetching the flow:`);
     console.error(err);
     reject(err)
   })
@@ -522,7 +602,7 @@ function getFlowStartingOnStepOrder(resolve, reject, flowId, startingStepOrder) 
 function updateRespondentFlowCurrentStep(respondentFlow, nextStep) {
   if (!nextStep) {
     // Last step?
-    console.log('No next step');
+    console.log(`No next step`);
     return;
   }
   console.log(`Next step will be ${nextStep.id}`);
