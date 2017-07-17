@@ -51,16 +51,20 @@ $(function () {
               }
             },
             deleteStepChoice : (step,index) => {
+              //frontend
               let stepChoiceId = step.step_choices[index].id;
               step.step_choices.splice(index, 1);
-              //delete at bd
-              app.$http.delete('/manager/api/delete_step_choice/'+step.id+'/'+stepChoiceId).then(response => {
-                  console.log('Delete step '+stepid);
-              }, error => {
+              //backend
+              if (typeof step.id !== 'undefined') {
+                app.$http.delete('/manager/api/delete_step_choice/' + step.id + '/' + stepChoiceId).then(response => {
+                  console.log('Delete step ' + stepid);
+                }, error => {
                   if (error.status === 401) {
-                      window.location.replace('/auth/spark');
+                    window.location.replace('/auth/spark');
                   }
-              });
+                });
+              }
+
             },
             getFileId: (step) => {
               GDrive.selectFile(function (id,name) {
