@@ -8,7 +8,7 @@ block content
         h1.title= title
         p.lead.text-center Available step types do be added to the flow
 
-        draggable(v-model="stepTypes",:options="{group:{name:'elem',pull:'clone',put:false}, sort:false}")
+        draggable.sticky-top-left(v-model="stepTypes",:options="{group:{name:'elem',pull:'clone',put:false}, sort:false}")
           div.step-type(v-for="stepType in stepTypes")
             div.btn.btn-secondary
               svg.step-icon

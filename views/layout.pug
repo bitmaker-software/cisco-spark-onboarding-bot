@@ -43,7 +43,7 @@ html(lang='en')
     .container-fluid
       .row
         .sidenav#sidenav
-          ul.nav.flex-column
+          ul.nav.flex-column(style={position:'fixed'})
             +item('Home', '/', 'home')
             +item('Manager', '/manager', 'manager')
             +item('Search user', '/test', 'search')
