@@ -25,26 +25,30 @@ $(function () {
         methods: {
             addStepByDrop: () => {
                 //verify step to add
-                console.log(app.stepTypes2)
-                console.log(app.stepTypes2[0])
-                console.log(app.stepTypes2[0].id);
-
                 addNewStep(app.stepTypes2[0].id,false);
-                
+
                 //empty
                 app.stepTypes2 = [];
             },
             addStep: stepType => addNewStep(stepType,true),
             deleteStep : (stepid,index) => {
+              //frontend
               app.steps.splice(index,1);
-              //delete at bd
-              app.$http.delete('/manager/api/delete_step/'+stepid).then(response => {
+              //change background
+              if(app.steps.length == 0){
+                $('#empty-flow').removeClass('hidden');
+              }
+              //backend
+              if (typeof stepid !== 'undefined'){
+                //delete at bd
+                app.$http.delete('/manager/api/delete_step/'+stepid).then(response => {
                   console.log('Delete step '+stepid);
-              }, error => {
+                }, error => {
                   if (error.status === 401) {
-                      window.location.replace('/auth/spark');
+                    window.location.replace('/auth/spark');
                   }
-              });
+                });
+              }
             },
             deleteStepChoice : (step,index) => {
               let stepChoiceId = step.step_choices[index].id;
@@ -114,34 +118,34 @@ $(function () {
     // Get data
     //
     function fetchSteps() {
-        $.get('/manager/api/flow/' + flowId, {}, function (flow) {
-            // console.log("Raw flow steps from the server:");
-            // console.log(flow.steps);
-            // console.log("Flow steps curated to be handled by Vue:"); // TODO: do it on server-side?
-            app.steps = flow.steps.map(step => {
-                return {
-                    id: step.id,
-                    text: step.text,
-                    step_type_id: step.step_type_id,
-                    step_choices: step.step_choices, // multiple choice questions
-                    type_description: getStepTypeFromTypeId(step.step_type_id).description,
-                    document_id: getDocumentUrl(step),
-                    upload_id: getUploadDir(step),
-                    document_name: getDocumentName(step),
-                    upload_dir_name: getUploadDirName(step),
-                }
-            });
-
-            console.log('Steps : ');
-            console.log(app.steps);
-
-            if (flow.steps.length === 0) {
-                // TODO: do it on Vue, template side
-                $('#empty-flow').removeClass('hidden');
-            } else {
-                $('#save-steps').removeClass('hidden');
+      $.get('/manager/api/flow/' + flowId, {}, function (flow) {
+          // console.log("Raw flow steps from the server:");
+          // console.log(flow.steps);
+          // console.log("Flow steps curated to be handled by Vue:"); // TODO: do it on server-side?
+          app.steps = flow.steps.map(step => {
+            return {
+                id: step.id,
+                text: step.text,
+                step_type_id: step.step_type_id,
+                step_choices: step.step_choices, // multiple choice questions
+                type_description: getStepTypeFromTypeId(step.step_type_id).description,
+                document_id: getDocumentUrl(step),
+                upload_id: getUploadDir(step),
+                document_name: getDocumentName(step),
+                upload_dir_name: getUploadDirName(step),
             }
-        });
+          });
+
+          console.log('Steps : ');
+          console.log(app.steps);
+
+          if (flow.steps.length === 0) {
+              // TODO: do it on Vue, template side
+              $('#empty-flow').removeClass('hidden');
+          } else {
+              $('#save-steps').removeClass('hidden');
+          }
+      });
     }
 
     fetchSteps();
@@ -161,7 +165,7 @@ $(function () {
     }
 
     function getDocumentName(step){
-        if(step.document_step !== null){
+        if(step.document_step !== null) {
             const name = step.document_step.document_name;
             if(name === null)
                 return "No Document Selected";
