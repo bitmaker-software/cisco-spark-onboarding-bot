@@ -21,7 +21,7 @@ let app = new Vue({
       {
         name: 'username',
         title: "Username",
-        sortField: '"respondent_flow.respondent".name',
+        sortField: '"respondent_flow->respondent"."name"',
       },
       {
         name: 'date',

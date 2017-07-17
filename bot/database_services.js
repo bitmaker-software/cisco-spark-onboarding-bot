@@ -337,7 +337,7 @@ module.exports = {
         limit: per_page,
         offset: per_page * page,
         order: [
-          [sort, order]
+          [models.Sequelize.col(sort), order]
         ]
       }).then(answers => {
         //console.log(answers);
