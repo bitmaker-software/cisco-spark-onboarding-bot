@@ -456,7 +456,7 @@ module.exports = {
     console.log(`getAnswersByQuestion(${flowId})`);
     return new Promise((resolve, reject) => {
       models.step.findAll({
-        attributes: [['id','name'],'text'],
+        attributes: [['id','name'],'text','step_type_id'],
         where: {
           flow_id: flowId,
           $or: [
@@ -473,11 +473,20 @@ module.exports = {
         res.forEach(function(element){
           models.respondent_answer.count({
             where:{
-              step_id: element.dataValues.name
+              step_id: element.dataValues.name,
+              answer_status_id: 2,
             }
           }).then(count => {
-            element.dataValues.data = [count];
             element.dataValues.name = element.dataValues.name + " : "+element.dataValues.text;
+            element.dataValues.y = count;
+
+            if(element.dataValues.step_type_id === STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE){
+              element.dataValues.drilldown = element.dataValues.name;
+            }
+            else{
+              element.dataValues.drilldown = null;
+            }
+
             counter++;
             //termina se ja percorreu todas
             if(counter === res.length){
@@ -500,36 +509,77 @@ module.exports = {
   getStepChoiceAnswersByQuestion: (flowId) => {
     console.log(`getStepChoiceAnswersByQuestion(${flowId})`);
     return new Promise((resolve, reject) => {
-      models.respondent_answer.findAll({
-        attributes: [['step_id','question']],
-        include: [
-          {
-            attributes: [],
-            model: models.respondent_flow,
-            where: {
-              flow_id: flowId
-            }
-          },
-          {
-            attributes: [],
-            model: models.step,
-            where: {
-              step_type_id: 3  //escolha multipla
-            }
-          },
-          {
-            model: models.step_choice
-          }
-        ],
+      //conjunto de questoes de escolha multipla
+      models.step.findAll({
+        attributes: ['id',['step_order','order'],['text','name']],
         where: {
-          answer_status_id: 2
+          flow_id: flowId,
+          step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE
         },
-        //group : ['step_id'],
-        //order: [[models.Sequelize.col('"step_id"'), 'ASC']]
+        order: [[models.Sequelize.col('"step_order"'), 'ASC']]
       }).then(res => {
-        console.log("<<<<<<<<<<");
-        console.log(res);
-        console.log(">>>>>>>>>>");
+        //sincronizar
+        let counter = 0;
+
+        //conjunto de escolhas possiveis para essa escolha multipla
+        res.forEach(function(element)
+        {
+          let step_id = element.dataValues.id;
+          let name = element.dataValues.order + " : " + element.dataValues.name;
+          element.dataValues.id = name;
+          element.dataValues.name = name;
+          element.dataValues.data = [];
+
+          models.step_choice.findAll({
+            attributes: ['id','choice_order','text'],
+            where:{
+              step_id: step_id
+            },
+            order: [[models.Sequelize.col('"choice_order"'), 'ASC']]
+          }).then(options => {
+            //sincronizar
+            let counterOpt = 0;
+
+            //contar o numero de respostas para cada opcao da escolha multipla
+            options.forEach(function(option)
+            {
+              models.respondent_answer.count({
+                where:{
+                  step_id: step_id,
+                  step_choice_id: option.dataValues.id,
+                  answer_status_id: 2
+                },
+              }).then(count => {
+                let optionName = option.dataValues.choice_order + " : " + option.dataValues.text;
+                let myOption = [optionName,count];
+                element.dataValues.data.push(myOption);
+
+                counterOpt++;
+                if(counterOpt === options.length){
+                  counter++;
+                  //end
+                  if(counter === res.length) {
+                    resolve(res);
+                  }
+                }
+              });
+
+            }, err => {
+              console.error(`Error (complete)`);
+              console.error(err);
+              reject(err);
+            });
+
+          }, err => {
+            console.error(`Error (complete)`);
+            console.error(err);
+            reject(err);
+          });
+        }); // fim do ciclo
+
+        if(counter === res.length) {
+          resolve(res);
+        }
       }, err => {
         console.error(`Error getting step choice answers`);
         console.error(err);

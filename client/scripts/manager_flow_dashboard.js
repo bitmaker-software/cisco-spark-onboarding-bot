@@ -2,15 +2,22 @@
 
 var Highcharts = require('highcharts');
 
+require('highcharts/modules/no-data-to-display')(Highcharts);
+require('highcharts/modules/drilldown')(Highcharts);
+
 // Load module after Highcharts is loaded
 require('highcharts/modules/exporting')(Highcharts);
-
-// Create the chart
-//Highcharts.chart('container', { /*Highcharts options*/ });
 
 $(function () {
   //users
   Highcharts.chart('containerU', {
+    lang: {
+      noData: '<img class="illustration" src="../../../static/0.0.0/images/bot.svg"></img>' +
+              '<h6 class="text-center"> No data to display!</h6>'
+    },
+    noData: {
+      useHTML: true,
+    },
     chart: {
       plotBackgroundColor: null,
       plotBorderWidth: null,
@@ -38,37 +45,63 @@ $(function () {
       name: 'Users',
       colorByPoint: true,
       data: app.users
-    }]
+    }],
+    credits: {
+      enabled: false
+    }
   });
 
   Highcharts.chart('containerQ', {
+    lang: {
+      noData: '<img class="illustration" src="../../../static/0.0.0/images/bot.svg"></img>' +
+              '<h6 class="text-center"> No data to display!</h6>'
+    },
+    noData: {
+      useHTML: true,
+    },
+    credits: {
+      enabled: false
+    },
     chart: {
       type: 'column',
     },
     title: {
       text: 'Number of collected answers by question'
     },
+    subtitle: {
+      text: 'Click the columns to view details.'
+    },
     xAxis: {
-      categories: ['Questions'],
+      type: 'category'
     },
     yAxis: {
       min: 0,
       max: app.totalUsers,
-      minTickInterval: 1,
+      tickInterval: 1,
       title: {
         text: 'Users'
       }
     },
     legend: {
-      layout: 'vertical',
-      floating: false,
-      verticalAlign: 'bottom',
+      enabled: false
+    },
+    plotOptions: {
+      series: {
+        borderWidth: 0,
+        dataLabels: {
+          enabled: true,
+          format: '{point.y}'
+        }
+      }
     },
     tooltip: {
-    headerFormat: 'Question: <b>{series.name}</b><br>',
-    pointFormat: 'Users: <b>{point.y}</b>'
+      headerFormat: 'Question: <b>{series.name}</b><br>',
+      pointFormat: 'Users: <b>{point.y}</b>'
     },
-    series: app.answers
+    series: app.answers,
+    drilldown: {
+      series: app.multipleChoices,
+    }
   });
 });
 
@@ -80,8 +113,15 @@ let app = new Vue({
       totalUsers: sumUsers,
       totalAnswered: sumAnswered,
       totalAnswers: allAnswers,
+      multipleChoices: stepChoiceArray
     },
     methods:{
-
+      getCategories: () => {
+        let categories = [];
+        app.answers[0].data.forEach(function(elem){
+          categories.push(elem.name);
+        });
+        return categories;
+      }
     }
 });
