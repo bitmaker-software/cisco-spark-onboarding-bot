@@ -59,9 +59,7 @@ module.exports = {
         // TODO filter by logged in user !!!
         //   ownerId: 1
       },
-      order: [
-        ['id', 'ASC']
-      ],
+      order: [['id', 'ASC']],
       include: [
         {model: models.flow_status, attributes: ['description']}
       ],
@@ -454,6 +452,92 @@ module.exports = {
     });
   },
 
+  getAnswersByQuestion: (flowId) => {
+    console.log(`getAnswersByQuestion(${flowId})`);
+    return new Promise((resolve, reject) => {
+      models.step.findAll({
+        attributes: [['id','name'],'text'],
+        where: {
+          flow_id: flowId,
+          $or: [
+              {step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT},
+              {step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE},
+              {step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT},
+              {step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK}],
+        },
+        order: [['id','ASC']]
+      }).then(res => {
+        //so avanca depois de preencher todos os elementos
+        let counter = 0;
+        //contar respostas por cada elemento
+        res.forEach(function(element){
+          models.respondent_answer.count({
+            where:{
+              step_id: element.dataValues.name
+            }
+          }).then(count => {
+            element.dataValues.data = [count];
+            element.dataValues.name = element.dataValues.name + " : "+element.dataValues.text;
+            counter++;
+            //termina se ja percorreu todas
+            if(counter === res.length){
+              resolve(res);
+            }
+          });
+        });
+        //termina se ja percorreu todas
+        if(counter === res.length){
+          resolve(res);
+        }
+      }, err => {
+        console.error(`Error getting answers`);
+        console.error(err);
+        reject(err);
+      });
+    });
+  },
+
+  getStepChoiceAnswersByQuestion: (flowId) => {
+    console.log(`getStepChoiceAnswersByQuestion(${flowId})`);
+    return new Promise((resolve, reject) => {
+      models.respondent_answer.findAll({
+        attributes: [['step_id','question']],
+        include: [
+          {
+            attributes: [],
+            model: models.respondent_flow,
+            where: {
+              flow_id: flowId
+            }
+          },
+          {
+            attributes: [],
+            model: models.step,
+            where: {
+              step_type_id: 3  //escolha multipla
+            }
+          },
+          {
+            model: models.step_choice
+          }
+        ],
+        where: {
+          answer_status_id: 2
+        },
+        //group : ['step_id'],
+        //order: [[models.Sequelize.col('"step_id"'), 'ASC']]
+      }).then(res => {
+        console.log("<<<<<<<<<<");
+        console.log(res);
+        console.log(">>>>>>>>>>");
+      }, err => {
+        console.error(`Error getting step choice answers`);
+        console.error(err);
+        reject(err);
+      });
+    });
+  },
+
   saveAnnouncementAnswer: (respondentFlow, step, nextStep) => {
     updateRespondentFlowCurrentStep(respondentFlow, nextStep);
   },
@@ -560,6 +644,36 @@ module.exports = {
           model: models.flow
         }]
       }).then(result => resolve(result[0]));
+    });
+  },
+
+  getRespondentsByStatus: (flowId) => {
+    console.log("getRespondentsByStatus(flow_id)");
+    return new Promise((resolve, reject) => {
+      models.respondent_flow.count({
+        attributes: [['respondent_flow_status_id','name']],
+        where: {
+          flow_id: flowId,
+        },
+        group: ['respondent_flow_status_id'],
+        order: [[models.Sequelize.col('"respondent_flow_status_id"'), 'ASC']]
+      }).then(res => {
+        res.forEach(function(element){
+          models.respondent_flow_status.find({
+            attributes: ['description'],
+            where:{
+              id: element.name
+            }
+          }).then(text => {
+            element.name = text.description;
+          });
+        });
+        resolve(res);
+      }, err => {
+        console.error(`Error getting answers by question`);
+        console.error(err);
+        reject(err);
+      });
     });
   }
 

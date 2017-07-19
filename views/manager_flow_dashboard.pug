@@ -2,4 +2,41 @@ extends layout
 
 block content
   div#root
-    p Dashboard
+    div.card-deck.mt-4
+      div.card.card-outline-primary.text-center
+        div.card-block
+          h5.card-title Total Users
+          p.card-subtitle.mb-2.text-muted Number of users whose flow was sent
+          h5.card-text {{ totalUsers }}
+      div.card.card-outline-primary.text-center
+        div.card-block
+          h5.card-title Total Collected Answers
+          p.card-subtitle.mb-2.text-muted Number of gathered answers so far
+          h5.card-text {{ totalAnswered }}
+      div.card.card-outline-primary.text-center
+        div.card-block
+          h5.card-title Total Expected Answers
+          p.card-subtitle.mb-2.text-muted Total answers when all the users finish the flow
+          h5.card-text {{ totalAnswers }}
+    div.row.mt-5
+      div.col-5#containerU(style={width:'100%',height:'300px'})
+      div.col-7#containerQ(style={width:'100%',height:'300px'})
+
+
+block pageScripts
+  script.
+    var usersArray = !{JSON.stringify(usersArray).replace(/<\//g, '<\\/')};
+    var sumUsers = 0;
+    usersArray.forEach(function (element) {
+        sumUsers += parseInt(element.count);
+        element.y = parseInt(element.count);
+    });
+
+    var answersArray = !{JSON.stringify(answersArray).replace(/<\//g, '<\\/')};
+    var allAnswers = sumUsers * answersArray.length;
+    var sumAnswered = 0;
+    answersArray.forEach(function (element) {
+        sumAnswered += parseInt(element.data[0]);
+    });
+
+  script(src=static.root + '/js/manager_flow_dashboard.js')
