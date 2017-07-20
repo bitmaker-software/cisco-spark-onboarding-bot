@@ -595,15 +595,15 @@ module.exports = function (controller) {
       'mimeType': file_info['content-type'],
       'body': file
     };
-
+      
     drive.files.create({
       resource: fileMetadata,
       media: media,
       //uploadType: 'media',
-    }, function (err1, file) {
-      if (err1) {
+    }, function (err, file) {
+      if (err) {
         console.log("Error uploading file :");
-        console.log(err1);
+        console.log(err);
       } else {
         //isto
         callback(name);

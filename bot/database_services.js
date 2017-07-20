@@ -639,6 +639,7 @@ module.exports = {
   },
 
   saveDocumentUploadAnswer: (respondentFlow, step, nextStep, url) => {
+    console.log("--------->>>>>>>>>" + url)
     models.respondent_answer.create({
       document_url: url,
       answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED, // 2 === Answered
