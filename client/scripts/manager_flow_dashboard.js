@@ -19,6 +19,7 @@ $(function () {
       useHTML: true,
     },
     chart: {
+      zoomType: 'xy',
       plotBackgroundColor: null,
       plotBorderWidth: null,
       plotShadow: false,
@@ -64,6 +65,7 @@ $(function () {
     },
     chart: {
       type: 'column',
+      zoomType: 'xy',
     },
     title: {
       text: 'Number of collected answers by question'

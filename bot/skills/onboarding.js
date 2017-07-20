@@ -595,7 +595,7 @@ module.exports = function (controller) {
       'mimeType': file_info['content-type'],
       'body': file
     };
-      
+
     drive.files.create({
       resource: fileMetadata,
       media: media,
