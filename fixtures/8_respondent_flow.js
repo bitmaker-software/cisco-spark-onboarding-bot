@@ -9,6 +9,7 @@ module.exports = {
       current_step_id: 5,  //pergunta
       flow_id: 1,          //editing sales
       respondent_flow_status_id: 3,
+      duration_seconds: 100,
     },
     //user 2 flow SALES a responder
     {
@@ -18,6 +19,7 @@ module.exports = {
       current_step_id: 3,  //pergunta
       flow_id: 1,          //editing sales
       respondent_flow_status_id: 3,
+      duration_seconds: 352,
     },
     //user 1 flow Marketing  a responder
     {
@@ -27,6 +29,7 @@ module.exports = {
       current_step_id: 4,  //pergunta
       flow_id: 2,          //editing sales
       respondent_flow_status_id: 3,
+      duration_seconds: 575,
     },
     //user 2 flow Marketing, ainda nao respondeu
     {
@@ -36,6 +39,7 @@ module.exports = {
       current_step_id: 1,  //pergunta
       flow_id: 2,          //editing sales
       respondent_flow_status_id: 3,
+      duration_seconds: 8500,
     },
   ]
 };

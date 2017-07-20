@@ -52,7 +52,7 @@ jwtClient.authorize(function (err, tokens) {
       for (let i = 0; i < files.length; i++) {
         let file = files[i];
         console.log('%s (%s)', file.name, file.id);
-        /*
+/*
          //delete files
          drive.files.delete({
          fileId: file.id
@@ -63,7 +63,7 @@ jwtClient.authorize(function (err, tokens) {
          }
          console.log("deleted "+file.id);
          });
-         */
+*/
       }
     }
   });
@@ -611,6 +611,7 @@ module.exports = function (controller) {
     });
   }
 
+  //faz download dos documentos que o utilizador precisa de ler para um ficheiro local
   function updateDownloadedDocs(flow) {
     return new Promise(function (resolve, reject) {
       console.log('updateDownloadedDocs()');
@@ -618,13 +619,12 @@ module.exports = function (controller) {
 
       flow.steps.forEach((step, index) => {
         //read documents
-        console.log(index);
+        console.log(index+ " in "+stepsMax);
         if (step.step_type_id === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT || step.step_type_id === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK) {
           // console.log(`Step ${step.id} is a download (or download+upload) document step`);
-
           if (step.document_step !== null) {
+            const documentUrl = step.document_step.document_url;
             if (documentUrl !== null) {
-              const documentUrl = step.document_step.document_url;
               console.log(`Reading document (URL = ${documentUrl})`);
               getDriveDocument(documentUrl, stream => {
                 step.stream = stream;

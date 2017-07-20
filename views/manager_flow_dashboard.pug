@@ -7,17 +7,22 @@ block content
         div.card-block
           h5.card-title Total Users
           p.card-subtitle.mb-2.text-muted Number of users whose flow was sent
-          h5.card-text {{ totalUsers }}
+          h5.card-text {{totalUsers}}
       div.card.card-outline-primary.text-center
         div.card-block
-          h5.card-title Total Collected Answers
-          p.card-subtitle.mb-2.text-muted Number of gathered answers so far
-          h5.card-text {{ totalAnswered }}
+          h5.card-title Average time
+          p.card-subtitle.mb-2.text-muted Average time an user takes to answer the flow
+          h5.card-text !{avgTime}
       div.card.card-outline-primary.text-center
         div.card-block
-          h5.card-title Total Expected Answers
-          p.card-subtitle.mb-2.text-muted Total answers when all the users finish the flow
-          h5.card-text {{ totalAnswers }}
+          h5.card-title Minimum time
+          p.card-subtitle.mb-2.text-muted Least amount of time taken to answer the flow
+          h5.card-text !{minTime}
+      div.card.card-outline-primary.text-center
+        div.card-block
+          h5.card-title Maximum time
+          p.card-subtitle.mb-2.text-muted ⁠⁠⁠Maximum amount of time taken to answer the flow
+          h5.card-text !{maxTime}
     div.row.mt-5
       div.col-5#containerU(style={width:'100%',height:'300px'})
       div.col-7#containerQ(style={width:'100%',height:'300px'})
@@ -37,11 +42,6 @@ block pageScripts
         colorByPoint: true,
         data: answersArrayData
     }];
-    var allAnswers = sumUsers * answersArrayData.length;
-    var sumAnswered = 0;
-    answersArrayData.forEach(function (element) {
-        sumAnswered += parseInt(element.y);
-    });
 
     var stepChoiceArray = !{JSON.stringify(stepChoiceArray).replace(/<\//g, '<\\/')};
 

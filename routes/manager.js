@@ -486,6 +486,9 @@ router.get('/flow/:id/dashboard', ensureAuthenticated, function (req, res, next)
     databaseServices.getRespondentsByStatus(req.params.id),
     databaseServices.getAnswersByQuestion(req.params.id),
     databaseServices.getStepChoiceAnswersByQuestion(req.params.id),
+    databaseServices.getMinFlowTime(req.params.id),
+    databaseServices.getMaxFlowTime(req.params.id),
+    databaseServices.getAvgFlowTime(req.params.id),
   ];
   Promise.all(promises).then(values => {
     res.render('manager_flow_dashboard', {
@@ -495,7 +498,10 @@ router.get('/flow/:id/dashboard', ensureAuthenticated, function (req, res, next)
       active: 'Manager', // left side bar icon
       usersArray: values[2],
       answersArray: values[3],
-      stepChoiceArray: values[4]
+      stepChoiceArray: values[4],
+      minTime: values[5],
+      maxTime: values[6],
+      avgTime: values[7],
     });
   }, err => {
     console.error(`Error fetching the step types or flow:`);

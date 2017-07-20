@@ -110,10 +110,8 @@ let app = new Vue({
     data: {
       answers : answersArray,
       users : usersArray,
+      multipleChoices: stepChoiceArray,
       totalUsers: sumUsers,
-      totalAnswered: sumAnswered,
-      totalAnswers: allAnswers,
-      multipleChoices: stepChoiceArray
     },
     methods:{
       getCategories: () => {
