@@ -145,7 +145,9 @@
     if(mimetype.includes('google-apps')){
       //google apps different than the known ones
       if(!mimetype.includes('document') && !mimetype.includes('spreadsheet') &&
-          !mimetype.includes('drawing') && !mimetype.includes('presentation')){
+          !mimetype.includes('drawing') && !mimetype.includes('presentation') &&
+          !mimetype === 'application/vnd.google-apps.folder'  //folders
+      ){
           self.afterSelectionCallback('wrong',docname);
       }
       else{

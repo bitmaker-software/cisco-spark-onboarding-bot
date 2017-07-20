@@ -59,9 +59,7 @@ module.exports = {
         // TODO filter by logged in user !!!
         //   ownerId: 1
       },
-      order: [
-        ['id', 'ASC']
-      ],
+      order: [['id', 'ASC']],
       include: [
         {model: models.flow_status, attributes: ['description']}
       ],
@@ -208,6 +206,10 @@ module.exports = {
             }
           ).then(respondentFlow => {
             if (respondentFlow) {
+                //update START_DATE
+                respondentFlow.updateAttributes({
+                  start_date: new Date(),
+                });
               resolve(respondentFlow);
             } else {
               reject('No flow for this respondent');
@@ -279,8 +281,26 @@ module.exports = {
   },
 
   setRespondentFlowFinished: respondentFlow => {
+    let date = new Date();
     respondentFlow.updateAttributes({
-      respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.FINISHED
+      respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.FINISHED,
+      end_date: date,
+    });
+
+    models.respondent_flow.find({
+      attributes: ['start_date'],
+      where: {
+        id: respondentFlow.dataValues.id
+      }
+    }).then(times => {
+      //update duration
+      let duration = Math.floor(date/1000) - Math.floor(times.dataValues.start_date/1000);
+      respondentFlow.updateAttributes({
+        duration_seconds: duration,
+      });
+    }, err => {
+      console.error(`Error updating flow duration`);
+      console.error(err);
     });
   },
 
@@ -411,7 +431,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       models.respondent_answer.count({
         where: {
-          answer_status_id: 2,
+          answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED,
         },
         include: [
           {
@@ -454,6 +474,142 @@ module.exports = {
     });
   },
 
+  getAnswersByQuestion: (flowId) => {
+    console.log(`getAnswersByQuestion(${flowId})`);
+    return new Promise((resolve, reject) => {
+      models.step.findAll({
+        attributes: [['id','name'],'text','step_type_id'],
+        where: {
+          flow_id: flowId,
+          $or: [
+              {step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT},
+              {step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE},
+              {step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT},
+              {step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK}],
+        },
+        order: [['id','ASC']]
+      }).then(res => {
+        //so avanca depois de preencher todos os elementos
+        let counter = 0;
+        //contar respostas por cada elemento
+        res.forEach(function(element){
+          models.respondent_answer.count({
+            where:{
+              step_id: element.dataValues.name,
+              answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED,
+            }
+          }).then(count => {
+            element.dataValues.name = element.dataValues.name + " : "+element.dataValues.text;
+            element.dataValues.y = count;
+
+            if(element.dataValues.step_type_id === STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE){
+              element.dataValues.drilldown = element.dataValues.name;
+            }
+            else{
+              element.dataValues.drilldown = null;
+            }
+
+            counter++;
+            //termina se ja percorreu todas
+            if(counter === res.length){
+              resolve(res);
+            }
+          });
+        });
+        //termina se ja percorreu todas
+        if(counter === res.length){
+          resolve(res);
+        }
+      }, err => {
+        console.error(`Error getting answers`);
+        console.error(err);
+        reject(err);
+      });
+    });
+  },
+
+  getStepChoiceAnswersByQuestion: (flowId) => {
+    console.log(`getStepChoiceAnswersByQuestion(${flowId})`);
+    return new Promise((resolve, reject) => {
+      //conjunto de questoes de escolha multipla
+      models.step.findAll({
+        attributes: ['id',['step_order','order'],['text','name']],
+        where: {
+          flow_id: flowId,
+          step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE
+        },
+        order: [[models.Sequelize.col('"step_order"'), 'ASC']]
+      }).then(res => {
+        //sincronizar
+        let counter = 0;
+
+        //conjunto de escolhas possiveis para essa escolha multipla
+        res.forEach(function(element)
+        {
+          let step_id = element.dataValues.id;
+          let name = element.dataValues.order + " : " + element.dataValues.name;
+          element.dataValues.id = name;
+          element.dataValues.name = name;
+          element.dataValues.data = [];
+
+          models.step_choice.findAll({
+            attributes: ['id','choice_order','text'],
+            where:{
+              step_id: step_id
+            },
+            order: [[models.Sequelize.col('"choice_order"'), 'ASC']]
+          }).then(options => {
+            //sincronizar
+            let counterOpt = 0;
+
+            //contar o numero de respostas para cada opcao da escolha multipla
+            options.forEach(function(option)
+            {
+              models.respondent_answer.count({
+                where:{
+                  step_id: step_id,
+                  step_choice_id: option.dataValues.id,
+                  answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED
+                },
+              }).then(count => {
+                let optionName = option.dataValues.choice_order + " : " + option.dataValues.text;
+                let myOption = [optionName,count];
+                element.dataValues.data.push(myOption);
+
+                counterOpt++;
+                if(counterOpt === options.length){
+                  counter++;
+                  //end
+                  if(counter === res.length) {
+                    resolve(res);
+                  }
+                }
+              });
+
+            }, err => {
+              console.error(`Error (complete)`);
+              console.error(err);
+              reject(err);
+            });
+
+          }, err => {
+            console.error(`Error (complete)`);
+            console.error(err);
+            reject(err);
+          });
+        }); // fim do ciclo
+
+        if(counter === res.length) {
+          resolve(res);
+        }
+      }, err => {
+        console.error(`Error getting step choice answers`);
+        console.error(err);
+        reject(err);
+      });
+    });
+  },
+
   saveAnnouncementAnswer: (respondentFlow, step, nextStep) => {
     updateRespondentFlowCurrentStep(respondentFlow, nextStep);
   },
@@ -461,7 +617,7 @@ module.exports = {
   saveTextAnswer: (respondentFlow, step, nextStep, text) => {
     models.respondent_answer.create({
       text: text,
-      answer_status_id: 2, // 2 === Answered
+      answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED, // 2 === Answered
       answer_date: new Date(),
       respondent_flow_id: respondentFlow.id,
       step_id: step.id,
@@ -472,7 +628,7 @@ module.exports = {
 
   saveMultipleChoiceAnswer: (respondentFlow, step, nextStep, choiceId) => {
     models.respondent_answer.create({
-      answer_status_id: 2, // 2 === Answered
+      answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED, // 2 === Answered
       answer_date: new Date(),
       respondent_flow_id: respondentFlow.id,
       step_id: step.id,
@@ -483,9 +639,10 @@ module.exports = {
   },
 
   saveDocumentUploadAnswer: (respondentFlow, step, nextStep, url) => {
+    console.log("--------->>>>>>>>>" + url)
     models.respondent_answer.create({
       document_url: url,
-      answer_status_id: 2, // 2 === Answered
+      answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED, // 2 === Answered
       answer_date: new Date(),
       respondent_flow_id: respondentFlow.id,
       step_id: step.id
@@ -554,14 +711,108 @@ module.exports = {
           flow_id: flowId,
           respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.NOT_STARTED,
           assign_date: date, // TODO
-          start_date: date, // TODO
         },
         include: [{
           model: models.flow
         }]
       }).then(result => resolve(result[0]));
     });
-  }
+  },
+
+  getRespondentsByStatus: (flowId) => {
+    console.log("getRespondentsByStatus(flow_id)");
+    return new Promise((resolve, reject) => {
+      models.respondent_flow.count({
+        attributes: [['respondent_flow_status_id','name']],
+        where: {
+          flow_id: flowId,
+        },
+        group: ['respondent_flow_status_id'],
+        order: [[models.Sequelize.col('"respondent_flow_status_id"'), 'ASC']]
+      }).then(res => {
+        res.forEach(function(element){
+          models.respondent_flow_status.find({
+            attributes: ['description'],
+            where:{
+              id: element.name
+            }
+          }).then(text => {
+            element.name = text.description;
+          });
+        });
+        resolve(res);
+      }, err => {
+        console.error(`Error getting answers by question`);
+        console.error(err);
+        reject(err);
+      });
+    });
+  },
+
+  getAvgFlowTime: (flowId) => {
+    console.log("getAvgFlowTime(flow_id)");
+    return new Promise((resolve, reject) => {
+      models.respondent_flow.find({
+        attributes: [[models.Sequelize.fn('AVG', models.Sequelize.col('duration_seconds')),'avg']],
+        where: {
+          respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.FINISHED,
+          flow_id: flowId,
+        }
+      }).then(avg => {
+        let sec = Math.floor(avg.dataValues.avg);
+        if(sec === 0)
+          resolve("No Data");
+        else
+          resolve(secondsToTime(sec));
+      }, err => {
+        console.error(`Error getting average flow time`);
+        console.error(err);
+        reject(err);
+      });
+    });
+  },
+
+  getMinFlowTime: (flowId) => {
+    console.log("getMinFlowTime(flow_id)");
+    return new Promise((resolve, reject) => {
+      models.respondent_flow.min('duration_seconds',{
+          where: {
+            respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.FINISHED,
+            flow_id: flowId,
+          }
+      }).then(min => {
+        if(isNaN(min))
+          resolve("No Data");
+        else
+          resolve(secondsToTime(min));
+      }, err => {
+        console.error(`Error getting min flow time`);
+        console.error(err);
+        reject(err);
+      });
+    });
+  },
+
+  getMaxFlowTime: (flowId) => {
+    console.log("getMaxFlowTime(flow_id)");
+    return new Promise((resolve, reject) => {
+      models.respondent_flow.max('duration_seconds',{
+          where: {
+            respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.FINISHED,
+            flow_id: flowId,
+          }
+      }).then(max => {
+        if(isNaN(max))
+          resolve("No Data");
+        else
+          resolve(secondsToTime(max));
+      }, err => {
+          console.error(`Error getting max flow time`);
+          console.error(err);
+          reject(err);
+      });
+    });
+  },
 
 };
 
@@ -619,4 +870,21 @@ function updateRespondentFlowCurrentStep(respondentFlow, nextStep) {
   respondentFlow.updateAttributes({
     current_step_id: nextStep.id
   });
+}
+
+function secondsToTime(seconds){
+  let date = new Date(null);
+  date.setSeconds(seconds); // specify value for SECONDS here
+  let dateStr = date.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
+
+  //mais que um dia
+  if(seconds >= 86400){
+    let days = Math.floor(seconds/86400);
+      if(days === 1)
+        dateStr = days + " day "+dateStr;
+      else
+        dateStr = days + " days "+dateStr;
+  }
+
+  return dateStr;
 }

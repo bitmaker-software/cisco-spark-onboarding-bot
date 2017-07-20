@@ -79,8 +79,13 @@ $(function () {
             },
             getFolderId: (step) => {
               GDrive.selectFolder(function (id,name) {
-                step.upload_dir_name = name;
-                step.upload_id = id;
+                  if(id === 'wrong'){
+                      alert('The document '+name+' can not be shared due to incompatible document type.')
+                  }
+                  else{
+                      step.upload_dir_name = name;
+                      step.upload_id = id;
+                  }
               })
             },
             saveSteps: saveSteps,

@@ -11,6 +11,9 @@ module.exports = function (sequelize, DataTypes) {
       end_date: {
         type: DataTypes.DATE
       },
+      duration_seconds: {
+        type: DataTypes.INTEGER
+      },
     },
     {});
 };

@@ -19,6 +19,7 @@ module.exports = env => {
       manager_flow_steps: "./scripts/manager_flow_steps.js",
       manager_flow_send: "./scripts/manager_flow_send.js",
       manager_flow_answers: "./scripts/manager_flow_answers.js",
+      manager_flow_dashboard: "./scripts/manager_flow_dashboard.js",
     },
 
     output: {
