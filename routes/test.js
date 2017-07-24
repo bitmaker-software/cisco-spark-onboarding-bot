@@ -80,18 +80,35 @@ router.get('/users/:flow_id/:total', ensureAuthenticated, (req, res, next) => {
 
 router.get('/answers/:flow_id/:resp_id', ensureAuthenticated, (req, res, next) => {
   databaseServices.getAnswers(req.params.flow_id, req.params.resp_id).then(answers => {
-    console.log("AQUI")
-    const dataJSON = createAnswersJSON(answers);
+    const dataJSON = answers.map(answer => {
+      let myanswer = formatAnswer(answer);
+      return{
+        question_num: answer.step.step_order,
+        question: answer.step.text,
+        answer: myanswer,
+        answer_date: answer.answer_date.toUTCString(),
+      }
+    });
     console.log(dataJSON);
     res.send(dataJSON);
   }, err => res.send(err));
 });
 
 router.get('/export/:flow_id', ensureAuthenticated, (req, res, next) => {
-  let fields = ['username', 'date', 'question_num', 'question', 'answer'];
+  let fields = ['username', 'status', 'question_num', 'question', 'answer','answer_date'];
   databaseServices.totalAnswers(req.params.flow_id).then(answers => {
 
-    let allAnswers = createAnswersJSON(answers);
+    let allAnswers = answers.map( answer => {
+      return {
+        username: answer.respondent_flow.respondent.name,
+        status : answer.respondent_flow.respondent_flow_status.description,
+        question_num: answer.step.step_order,
+        question: answer.step.text,
+        answer: formatAnswer(answer),
+        answer_date: answer.answer_date.toUTCString(),
+      }
+    });
+
     let csv = json2csv({data: allAnswers, fields: fields});
     let file = './public/file.csv';
 
@@ -178,29 +195,22 @@ function createUsersJSON(users) {
   });
 }
 
-function createAnswersJSON(answers) {
+function formatAnswer(answer) {
   //colocar a resposta de acordo com o que recebe
-  return answers.map( answer => {
-    let myanswer;
-    let stepType = answer.step.step_type_id;
+  let myanswer;
+  let stepType = answer.step.step_type_id;
 
-    if (stepType === STATUS_TYPES.STEP_TYPES.FREE_TEXT) {
-      myanswer = answer.text;
-    } else if (stepType === STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE) {
-      myanswer = answer.step_choice.choice_order + " : " + answer.step_choice.text;
-    } else if (stepType === STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT ||
-        stepType === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK) { //|| stepType === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT
-        myanswer = 'Check your "' + answer.step.document_step.upload_dir_name +
-                  '" shared folder to download the "' + answer.document_url + '" document.';
-    }
+  if (stepType === STATUS_TYPES.STEP_TYPES.FREE_TEXT) {
+    myanswer = answer.text;
+  } else if (stepType === STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE) {
+    myanswer = answer.step_choice.choice_order + " : " + answer.step_choice.text;
+  } else if (stepType === STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT ||
+    stepType === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK) { //|| stepType === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT
+    myanswer = 'Check your "' + answer.step.document_step.upload_dir_name +
+        '" shared folder to download the "' + answer.document_url + '" document.';
+  }
 
-    return{
-      question_num: answer.step.step_order,
-      question: answer.step.text,
-      answer: myanswer,
-      answer_date: answer.answer_date.toUTCString(),
-    }
-  });
+  return myanswer;
 }
 
 module.exports = router;
