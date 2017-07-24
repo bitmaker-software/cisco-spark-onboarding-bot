@@ -8,12 +8,36 @@ Vue.use(Vuetable)
 Vue.use(VuetablePagination)
 Vue.use(VuetablePaginationInfo)
 
+Vue.component('my-detail-row', {
+    props: {
+        rowData: {
+            type: Object,
+            required: false
+        },
+        rowIndex: {
+            type: Number
+        }
+    },
+  template:
+    '<div @click="onClick"> ' +
+      '<div v-for="detail in rowData.details"> ' +
+        '<div><label><strong>{{detail.question_num}} : {{detail.question}}</strong></label></div> ' +
+        '<div><p>{{detail.answer}}</p></div> '+
+      '</div>' +
+    '</div>',
+  methods:{
+    onClick (event) {
+      console.log('my-detail-row: on-click', event.target)
+    }
+  }
+});
+
 let app = new Vue({
   el: '#app',
   components: {
     Vuetable,
     VuetablePagination,
-    VuetablePaginationInfo,
+    VuetablePaginationInfo
   },
   data: {
     filterText: '',
@@ -21,24 +45,20 @@ let app = new Vue({
       {
         name: 'username',
         title: "Username",
-        sortField: '"respondent_flow->respondent"."name"',
+        //sortField: '"respondent"."name"',
       },
       {
-        name: 'date',
-        title: 'Date',
-        sortField: 'answer_date'
+        name: 'status',
+        title: "Status",
       },
-      {
-        name: 'question_num',
-        title: '#',
-        sortField: 'step.step_order'
-      },
-      'question',
-      {
-        name: 'answer',
-        title: 'Answer',
-        callback: 'makeBold'
-      }
+        {
+            name: 'start_date',
+            title: "Start date",
+        },
+        {
+            name: 'end_date',
+            title: "End Date",
+        },
     ],
     moreParams: {},
     css: {
@@ -67,6 +87,7 @@ let app = new Vue({
     this.$events.$on('filter-set', eventData => this.onFilterSet(eventData));
     this.$events.$on('filter-reset', e => this.onFilterReset());
   },
+
   methods: {
     makeBold: function (value) {
       let all = value.split('\"');
@@ -75,6 +96,10 @@ let app = new Vue({
       } else {
           return value;
       }
+    },
+    onCellClicked (data, field, event) {
+      console.log('cellClicked: '+ field.name+" "+ data.id)
+      this.$refs.vuetable.toggleDetailRow(data.id)
     },
     onPaginationData (paginationData) {
       this.$refs.pagination.setPaginationData(paginationData);
@@ -102,13 +127,6 @@ let app = new Vue({
     },
     exportCSV () {
           window.location.replace('/test/export/'+flowId);
-      // this.$http.get('/test/export/'+flowId).then(response => {
-      //   alert('Export completed');
-      // }, error => {
-      //   if (error.status === 401) {
-      //     window.location.replace('/auth/spark');
-      //   }
-     // });
     }
   }
 });
