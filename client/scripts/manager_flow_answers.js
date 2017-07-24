@@ -49,20 +49,23 @@ let app = new Vue({
       {
         name: 'username',
         title: "Username",
-        //sortField: '"respondent"."name"',
+        sortField: '"respondent.name"',
       },
       {
         name: 'status',
         title: "Status",
+        sortField: '"respondent_flow_status.description"',
       },
-        {
-            name: 'start_date',
-            title: "Start date",
-        },
-        {
-            name: 'end_date',
-            title: "End Date",
-        },
+      {
+        name: 'start_date',
+        title: "Start date",
+        sortField: '"start_date"' ,
+      },
+      {
+        name: 'end_date',
+        title: "End Date",
+        sortField: '"end_date"',
+      },
     ],
     moreParams: {},
     css: {

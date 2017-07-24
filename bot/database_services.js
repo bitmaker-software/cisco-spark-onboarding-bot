@@ -348,7 +348,6 @@ module.exports = {
     });
   },
 
-  //SEM ORDENACAO
   getUsers: (flow_id, page, per_page, filter, sort, order) => {
     console.log(`getAnswers(${flow_id},${page},${per_page},${filter},${sort},${order})`);
       return new Promise((resolve, reject) => {
@@ -374,7 +373,7 @@ module.exports = {
           ],
           limit: per_page,
           offset: per_page * page,
-          //order: [[models.Sequelize.col(sort), order]]
+          order: [[models.Sequelize.col(sort), order]]
         }).then(users => {
           users.forEach(function(user) {
             user.details = null;
@@ -386,6 +385,36 @@ module.exports = {
           reject(err);
         });
       });
+  },
+
+  countUsers: (flow_id, filter) => {
+    console.log(`countUsers(${flow_id}, ${filter})`);
+    return new Promise((resolve, reject) => {
+      models.respondent_flow.count({
+          where:{
+            flow_id: flow_id
+          },
+          include:[
+              {
+                model: models.respondent,
+                attributes: ['name'],
+                where: {
+                  name: {
+                    $like: '%' + filter + '%',
+                  }
+                }
+              },
+          ],
+      }).then(res => {
+        console.log(`----`);
+        console.log(res);
+        resolve(res);
+      }, err => {
+        console.error(`Error getting answers`);
+        console.error(err);
+        reject(err);
+      });
+    });
   },
 
   totalAnswers: (flow_id) => {
@@ -443,54 +472,6 @@ module.exports = {
       }).then(res => {
         console.log(`----`);
         console.log(res.length);
-        resolve(res);
-      }, err => {
-        console.error(`Error getting answers`);
-        console.error(err);
-        reject(err);
-      });
-    });
-  },
-
-  countAnswers: (flow_id, filter) => {
-    console.log(`countAnswers(${flow_id}, ${filter})`);
-    return new Promise((resolve, reject) => {
-      models.respondent_answer.count({
-        where: {
-          answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED,
-        },
-        include: [
-          {
-            model: models.respondent_flow,
-            where: {
-              flow_id: flow_id
-            },
-            include: [
-              {
-                model: models.respondent,
-                where: {
-                  name: {
-                    $like: '%' + filter + '%',
-                  }
-                }
-              }
-            ]
-          },
-          {
-            model: models.step,
-            where: {
-              $or: [
-                {step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT},
-                {step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE},
-                {step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT},
-                {step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK}
-              ],
-            }
-          },
-        ]
-      }).then(res => {
-        console.log(`----`);
-        console.log(res);
         resolve(res);
       }, err => {
         console.error(`Error getting answers`);

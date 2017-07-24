@@ -1,12 +1,11 @@
 extends layout
 
-
 block content
 
   div#app.container-fluid
     div.text-center.p-4
       h1.text-center.mb-4.mt-4 Answers Collected
-      p.text-muted.mb-4.mt-4 Press over "Username", "Date" or "#" to reorder the results
+      p.text-muted.mb-4.mt-4 Press over "Username", "Status", "Start Date" or "End Date" to reorder the results
     div
       label(style='margin-right: 10px;') Search for
       input.mb-4(type="text", v-model="filterText", @keyup.enter="doFilter", placeholder="username")
