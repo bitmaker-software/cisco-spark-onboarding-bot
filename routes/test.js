@@ -66,7 +66,7 @@ router.get('/users/:flow_id/:total', ensureAuthenticated, (req, res, next) => {
     filter = "";
   }
   else {
-    databaseServices.countAnswers(flow_id, filter).then(result => {
+    databaseServices.countUsers(flow_id, filter).then(result => {
       total = result;
     }, err => res.send(err));
   }
