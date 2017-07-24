@@ -12,17 +12,17 @@ block content
       input.mb-4(type="text", v-model="filterText", @keyup.enter="doFilter", placeholder="username")
       button.btn.btn-info(style='margin-left: 15px;', @click="doFilter") Go
       button.btn.btn-border(style='margin: 15px;', @click="resetFilter") Reset
-      button.btn.btn-success.pull-right(@click="exportCSV") Export to CSV
+      button.btn.btn-success.pull-right.mt-3(@click="exportCSV") Export to CSV
     vuetable(
       ref="vuetable",
-      api-url= "../../../test/answers/" + flowId + "/" + totalAnswers ,
+      api-url= "../../../test/users/" + flowId + "/" + totalAnswers ,
       :fields= "fields",
       :css="css",
       pagination-path="",
       :per-page="10",
       :muti-sort="true",
       multi-sort-key="ctrl",
-      detail-row-component="my-detail-row",
+      detail-row-component="DetailRow",
       :append-params="moreParams",
       @vuetable:cell-clicked="onCellClicked",
       @vuetable:pagination-data="onPaginationData")
