@@ -8,8 +8,6 @@ let env = require('node-env-file');
 env(__dirname + '/../bot/.env');
 
 const STATUS_TYPES = require('../bot/status_types');
-
-
 const json2csv = require('json2csv');
 const fs = require('fs');
 
@@ -143,31 +141,52 @@ function createDataJSON(answers, flow_id, total, sort, page, per_page) {
   };
 }
 
-function createAnswersJSON(answers) {
+function createAnswersJSON(users) {
 
-  return answers.map(answer => {
+  return users.map( (user,index) => {
     //colocar a resposta de acordo com o que recebe
-    let myanswer;
-    let stepType = answer.step.step_type_id;
-    if (stepType === STATUS_TYPES.STEP_TYPES.FREE_TEXT) {
-      myanswer = answer.text;
-    } else if (stepType === STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE) {
-      myanswer = answer.step_choice.choice_order + " : " + answer.step_choice.text;
-    } else if (stepType === STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT ||
-      stepType === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK) { //|| stepType === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT
-      myanswer = 'Check your "' + answer.step.document_step.upload_dir_name +
-        '" shared folder to download the "' + answer.document_url + '" document.';
-    }
 
-    let date = answer.answer_date;
-    let month = date.getUTCMonth() + 1;
+    var answers = user.details.map( answer => {
+
+      let myanswer;
+      let stepType = answer.step.step_type_id;
+
+      if (stepType === STATUS_TYPES.STEP_TYPES.FREE_TEXT) {
+        myanswer = answer.text;
+      } else if (stepType === STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE) {
+        myanswer = answer.step_choice.choice_order + " : " + answer.step_choice.text;
+      } else if (stepType === STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT ||
+          stepType === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK) { //|| stepType === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT
+          myanswer = 'Check your "' + answer.step.document_step.upload_dir_name +
+                '" shared folder to download the "' + answer.document_url + '" document.';
+      }
+
+      return{
+        question_num: answer.step.step_order,
+        question: answer.step.text,
+        answer: myanswer,
+      }
+    });
+
+    let start = null;
+    let end = null;
+
+    if(user.start_date !== null)
+      start = user.start_date.toUTCString();
+
+    if(user.end_date !== null)
+      end = user.end_date.toUTCString();
+
+    console.log("START DATE : "+start)
+    console.log("END DATE : "+end)
 
     return {
-      username: answer.respondent_flow.respondent.name,
-      date: date.getUTCDate() + "-" + month + "-" + date.getUTCFullYear(),
-      question_num: answer.step.step_order,
-      question: answer.step.text,
-      answer: myanswer
+      id: index,
+      username: user.respondent.name,
+      status: user.respondent_flow_status.description,
+      details: answers,
+      start_date: start,
+      end_date: end,
     }
 
   });

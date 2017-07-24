@@ -1,5 +1,6 @@
 extends layout
 
+
 block content
 
   div#app.container-fluid
@@ -13,17 +14,18 @@ block content
       button.btn.btn-border(style='margin: 15px;', @click="resetFilter") Reset
       button.btn.btn-success.pull-right(@click="exportCSV") Export to CSV
     vuetable(
-    ref="vuetable",
-    api-url= "../../../test/answers/" + flowId + "/" + totalAnswers ,
-    :fields= "fields",
-    :css="css",
-    pagination-path="",
-    :per-page="10",
-    :muti-sort="true",
-    multi-sort-key="ctrl",
-    :append-params="moreParams",
-    @vuetable:pagination-data="onPaginationData"
-    )
+      ref="vuetable",
+      api-url= "../../../test/answers/" + flowId + "/" + totalAnswers ,
+      :fields= "fields",
+      :css="css",
+      pagination-path="",
+      :per-page="10",
+      :muti-sort="true",
+      multi-sort-key="ctrl",
+      detail-row-component="my-detail-row",
+      :append-params="moreParams",
+      @vuetable:cell-clicked="onCellClicked",
+      @vuetable:pagination-data="onPaginationData")
     div
       vuetable-pagination-info(ref="paginationInfo", :css="cssPagination", info-class="pull-left")
       vuetable-pagination(ref="pagination", :css="cssPagination", @vuetable-pagination:change-page="onChangePage")
@@ -32,4 +34,5 @@ block pageScripts
   script.
     var flowId = !{flowId}; // used on AJAX requests
   script(src=static.root + '/js/manager_flow_answers.js')
+
 
