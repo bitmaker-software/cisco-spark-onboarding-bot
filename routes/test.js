@@ -37,7 +37,7 @@ router.get('/', ensureAuthenticated, (req, res, next) => {
   });
 });
 
-router.get('/answers/:flow_id/:total', ensureAuthenticated, (req, res, next) => {
+router.get('/users/:flow_id/:total', ensureAuthenticated, (req, res, next) => {
 
   let flow_id = req.params.flow_id;
   let total = req.params.total;
@@ -71,8 +71,17 @@ router.get('/answers/:flow_id/:total', ensureAuthenticated, (req, res, next) => 
     }, err => res.send(err));
   }
 
-  databaseServices.getAnswers(flow_id, page - 1, per_page, filter, sort, order).then(answers => {
+  databaseServices.getUsers(flow_id, page - 1, per_page, filter, sort, order).then(answers => {
     const dataJSON = createDataJSON(answers, flow_id, total, sort, page, per_page);
+    console.log(dataJSON);
+    res.send(dataJSON);
+  }, err => res.send(err));
+});
+
+router.get('/answers/:flow_id/:resp_id', ensureAuthenticated, (req, res, next) => {
+  databaseServices.getAnswers(req.params.flow_id, req.params.resp_id).then(answers => {
+    console.log("AQUI")
+    const dataJSON = createAnswersJSON(answers);
     console.log(dataJSON);
     res.send(dataJSON);
   }, err => res.send(err));
@@ -108,7 +117,7 @@ router.get('/document_stores', ensureAuthenticated, (req, res, next) => {
 
 function createDataJSON(answers, flow_id, total, sort, page, per_page) {
 
-  let answersReceived = createAnswersJSON(answers);
+  let answersReceived = createUsersJSON(answers);
   let last_page = Math.ceil(total / per_page);
   let nextPageUrl = "";
   let prevPageUrl = "";
@@ -141,32 +150,9 @@ function createDataJSON(answers, flow_id, total, sort, page, per_page) {
   };
 }
 
-function createAnswersJSON(users) {
+function createUsersJSON(users) {
 
-  return users.map( (user,index) => {
-    //colocar a resposta de acordo com o que recebe
-
-    var answers = user.details.map( answer => {
-
-      let myanswer;
-      let stepType = answer.step.step_type_id;
-
-      if (stepType === STATUS_TYPES.STEP_TYPES.FREE_TEXT) {
-        myanswer = answer.text;
-      } else if (stepType === STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE) {
-        myanswer = answer.step_choice.choice_order + " : " + answer.step_choice.text;
-      } else if (stepType === STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT ||
-          stepType === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK) { //|| stepType === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT
-          myanswer = 'Check your "' + answer.step.document_step.upload_dir_name +
-                '" shared folder to download the "' + answer.document_url + '" document.';
-      }
-
-      return{
-        question_num: answer.step.step_order,
-        question: answer.step.text,
-        answer: myanswer,
-      }
-    });
+  return users.map((user,index) => {
 
     let start = null;
     let end = null;
@@ -177,18 +163,43 @@ function createAnswersJSON(users) {
     if(user.end_date !== null)
       end = user.end_date.toUTCString();
 
-    console.log("START DATE : "+start)
-    console.log("END DATE : "+end)
+    console.log(user.id);
 
     return {
       id: index,
+      resp_id : user.id,
       username: user.respondent.name,
       status: user.respondent_flow_status.description,
-      details: answers,
+      details: null,
       start_date: start,
       end_date: end,
     }
 
+  });
+}
+
+function createAnswersJSON(answers) {
+  //colocar a resposta de acordo com o que recebe
+  return answers.map( answer => {
+    let myanswer;
+    let stepType = answer.step.step_type_id;
+
+    if (stepType === STATUS_TYPES.STEP_TYPES.FREE_TEXT) {
+      myanswer = answer.text;
+    } else if (stepType === STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE) {
+      myanswer = answer.step_choice.choice_order + " : " + answer.step_choice.text;
+    } else if (stepType === STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT ||
+        stepType === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK) { //|| stepType === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT
+        myanswer = 'Check your "' + answer.step.document_step.upload_dir_name +
+                  '" shared folder to download the "' + answer.document_url + '" document.';
+    }
+
+    return{
+      question_num: answer.step.step_order,
+      question: answer.step.text,
+      answer: myanswer,
+      answer_date: answer.answer_date.toUTCString(),
+    }
   });
 }
 

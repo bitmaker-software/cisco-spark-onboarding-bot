@@ -304,8 +304,52 @@ module.exports = {
     });
   },
 
+  getAnswers: (flow_id,resp_id) =>{
+    console.log(`getAnswers(${flow_id},${resp_id})`);
+    return new Promise((resolve,reject) => {
+      models.respondent_answer.findAll({
+          attributes: ['id','text','document_url','answer_date'],
+          where:{
+            answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED,  //ja respondidas
+            respondent_flow_id: resp_id, //para este utilizador
+          },
+          include: [
+              {
+                model: models.step,
+                attributes: ['step_order','text','step_type_id'],
+                where: {
+                  $or: [
+                      {step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT},
+                      {step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE},
+                      {step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT},
+                      {step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK},
+                  ]
+                },
+                include: [
+                    {
+                      model: models.document_step,
+                      attributes: ['upload_dir_name'],
+                    },
+                ],
+              },
+              {
+                model: models.step_choice,
+                attributes: ['choice_order', 'text'],
+              },
+          ],
+          order: [[models.Sequelize.col('step.step_order'), 'ASC']],
+      }).then(details => {
+        resolve(details);
+      }, err => {
+        console.error(`Error getting answers`);
+        console.error(err);
+        reject(err);
+      });
+    });
+  },
+
   //SEM ORDENACAO
-  getAnswers: (flow_id, page, per_page, filter, sort, order) => {
+  getUsers: (flow_id, page, per_page, filter, sort, order) => {
     console.log(`getAnswers(${flow_id},${page},${per_page},${filter},${sort},${order})`);
       return new Promise((resolve, reject) => {
         models.respondent_flow.findAll({
@@ -332,59 +376,12 @@ module.exports = {
           offset: per_page * page,
           //order: [[models.Sequelize.col(sort), order]]
         }).then(users => {
-
-          let usersCounter = 0;
-
-          users.forEach(function(user){
-            //lista de respostas por cada utilizador
-            models.respondent_answer.findAll({
-                attributes: ['id','text','document_url'],
-                where:{
-                  answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED,  //ja respondidas
-                  respondent_flow_id: user.dataValues.id, //para este utilizador
-                },
-                include: [
-                    {
-                      model: models.step,
-                      attributes: ['step_order','text','step_type_id'],
-                      where: {
-                        $or: [
-                            {step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT},
-                            {step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE},
-                            {step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT},
-                            {step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK},
-                        ]
-                      },
-                      order: [[models.Sequelize.col('step_order'), 'ASC']],
-                      include: [
-                          {
-                            model: models.document_step,
-                            attributes: ['upload_dir_name'],
-                          },
-                      ],
-                    },
-                    {
-                      model: models.step_choice,
-                      attributes: ['choice_order', 'text'],
-                    },
-                ],
-            }).then(details => {
-
-                user.details = details;
-                usersCounter++;
-
-                if(usersCounter == users.length){
-                  resolve(users);
-                }
-
-            }, err => {
-              console.error(`Error getting answers`);
-              console.error(err);
-              reject(err);
-            });
-
+          users.forEach(function(user) {
+              user.details = null;
           });
-
+          console.log(">>>>>>>>>>>>");
+          console.log(users);
+          resolve(users);
         }, err => {
           console.error(`Error getting answers`);
           console.error(err);

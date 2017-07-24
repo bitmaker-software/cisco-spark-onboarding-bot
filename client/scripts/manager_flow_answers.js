@@ -8,7 +8,7 @@ Vue.use(Vuetable)
 Vue.use(VuetablePagination)
 Vue.use(VuetablePaginationInfo)
 
-Vue.component('my-detail-row', {
+Vue.component('DetailRow', {
     props: {
         rowData: {
             type: Object,
@@ -21,23 +21,27 @@ Vue.component('my-detail-row', {
   template:
     '<div @click="onClick"> ' +
       '<div v-for="detail in rowData.details"> ' +
-        '<div><label><strong>{{detail.question_num}} : {{detail.question}}</strong></label></div> ' +
+        '<div><p>' +
+          '<strong>{{detail.question_num}} : {{detail.question}} </strong> ' +
+          '<i class="text-muted"> {{detail.answer_date}}</i>' +
+        '</p></div> ' +
         '<div><p>{{detail.answer}}</p></div> '+
       '</div>' +
     '</div>',
   methods:{
     onClick (event) {
       console.log('my-detail-row: on-click', event.target)
-    }
+    },
   }
 });
+
 
 let app = new Vue({
   el: '#app',
   components: {
     Vuetable,
     VuetablePagination,
-    VuetablePaginationInfo
+    VuetablePaginationInfo,
   },
   data: {
     filterText: '',
@@ -98,8 +102,23 @@ let app = new Vue({
       }
     },
     onCellClicked (data, field, event) {
-      console.log('cellClicked: '+ field.name+" "+ data.id)
-      this.$refs.vuetable.toggleDetailRow(data.id)
+      console.log('cellClicked: '+ field.name+" "+ data.id);
+
+      if(data.details === null)
+      {
+        //ajax
+        this.$http.get('/test/answers/'+flowId+'/'+data.resp_id).then(response => {
+          data.details = response.body;
+          this.$refs.vuetable.toggleDetailRow(data.id);
+        }, error => {
+          if (error.status === 401) {
+            window.location.replace('/auth/spark');
+          }
+        });
+      }
+      else{
+        this.$refs.vuetable.toggleDetailRow(data.id);
+      }
     },
     onPaginationData (paginationData) {
       this.$refs.pagination.setPaginationData(paginationData);
@@ -126,7 +145,7 @@ let app = new Vue({
       Vue.nextTick(() => this.$refs.vuetable.refresh());
     },
     exportCSV () {
-          window.location.replace('/test/export/'+flowId);
+      window.location.replace('/test/export/'+flowId);
     }
   }
 });
