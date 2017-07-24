@@ -377,10 +377,8 @@ module.exports = {
           //order: [[models.Sequelize.col(sort), order]]
         }).then(users => {
           users.forEach(function(user) {
-              user.details = null;
+            user.details = null;
           });
-          console.log(">>>>>>>>>>>>");
-          console.log(users);
           resolve(users);
         }, err => {
           console.error(`Error getting answers`);
@@ -394,7 +392,6 @@ module.exports = {
     console.log(`totalAnswers(${flow_id})`);
     return new Promise((resolve, reject) => {
       models.respondent_answer.findAll({
-        attributes: ['id'],
         where: {
           answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED,
         },
@@ -409,6 +406,10 @@ module.exports = {
               {
                 model: models.respondent,
                 attributes: ['name'],
+              },
+              {
+                model: models.respondent_flow_status,
+                attributes: ['description'],
               }
             ]
           },
@@ -434,7 +435,11 @@ module.exports = {
             model: models.step_choice,
             attributes: ['choice_order', 'text'],
           }
-        ]
+        ],
+        order: [
+            [models.Sequelize.col('respondent_flow->respondent.name'),'ASC'],
+            [models.Sequelize.col('step.step_order'),'ASC']
+        ],
       }).then(res => {
         console.log(`----`);
         console.log(res.length);
