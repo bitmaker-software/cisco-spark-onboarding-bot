@@ -151,6 +151,18 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
 
   let promiseArray = [];
 
+  databaseServices.updateTitle(
+      req.body.title,
+      req.body.flow_id
+  ).then(res => {
+      // Done
+      console.log(`Updated flow title`);
+  }, err => {
+      console.error(`Error updating flow title:`);
+      console.error(err);
+      return res.send(err); // TODO: calling return from inside the callback function?!
+  });
+
   req.body.steps.forEach((step, index) => {
 
     if (step.id === undefined) {

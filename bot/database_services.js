@@ -141,6 +141,14 @@ module.exports = {
     });
   },
 
+  updateTitle: (title, flowId) => {
+    return models.flow.update({
+      name: title
+    },{
+      where: {id: flowId}
+    });
+  },
+
   createStepChoice: (choiceText, choiceOrder, stepId) => {
     return models.step_choice.create({
       text: choiceText,

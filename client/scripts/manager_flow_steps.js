@@ -20,7 +20,8 @@ $(function () {
                 5: "document", // User read Document
                 6: "document", // User read and upload
             },
-            newStepTypeSelected: 1
+            newStepTypeSelected: 1,
+            title: titleReceived,
         },
         methods: {
             addStepByDrop: () => {
@@ -215,8 +216,10 @@ $(function () {
 
         let postData = {
             flow_id: flowId,
-            steps: app.steps
+            steps: app.steps,
+            title: app.title,
         };
+
 
         $.ajax({
             url: '/manager/api/flow',
