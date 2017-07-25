@@ -49,3 +49,9 @@ footer {
     padding-left: 70px;
   }
 }
+
+.sticky-top-left {
+  position: -webkit-sticky;
+  position: sticky;
+  top:100px;
+  z-index: 1030; }

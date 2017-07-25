@@ -96,7 +96,7 @@ let app = new Vue({
       loadingClass: 'loading',
       ascendingIcon: 'fa fa-sort-amount-asc',
       descendingIcon: 'fa fa-sort-amount-desc',
-      handleIcon: 'fa fa-chevron-down',//'fa fa-caret-square-o-down',
+      handleIcon: 'fa fa-chevron-right',//'fa fa-caret-square-o-down',
       detailRowClass: 'detail',
     },
     cssPagination: {
@@ -141,21 +141,42 @@ let app = new Vue({
     onCellClicked (data, field, event) {
       console.log('cellClicked: '+ data.id);
 
-      if(data.details === null)
-      {
-        //ajax
-        this.$http.get('/test/answers/'+flowId+'/'+data.resp_id).then(response => {
-          data.details = response.body;
-          this.css.handleIcon = 'fa fa-chevron-down';
-          this.$refs.vuetable.toggleDetailRow(data.id);
-        }, error => {
-          if (error.status === 401) {
-            window.location.replace('/auth/spark');
-          }
-        });
+      if(this.$refs.vuetable.isVisibleDetailRow(data.id)){
+        //change icon
+        $('tr[item-index="'+data.id+'"]')
+            .children('td.vuetable-handle')
+            .children('i')
+            .removeClass('fa-chevron-down')
+            .addClass('fa-chevron-right');
+
+        this.$refs.vuetable.hideDetailRow(data.id);
       }
-      else{
-        this.$refs.vuetable.toggleDetailRow(data.id);
+      //show detail row
+      else
+      {
+        //change icon
+        $('tr[item-index="'+data.id+'"]')
+            .children('td.vuetable-handle')
+            .children('i')
+            .removeClass('fa-chevron-right')
+            .addClass('fa-chevron-down');
+
+        //no data detail
+        if(data.details === null)
+        {
+          //ajax
+          this.$http.get('/test/answers/'+flowId+'/'+data.resp_id).then(response => {
+            data.details = response.body;
+            this.$refs.vuetable.toggleDetailRow(data.id);
+          }, error => {
+            if (error.status === 401) {
+              window.location.replace('/auth/spark');
+            }
+          });
+        }
+        else{
+          this.$refs.vuetable.toggleDetailRow(data.id);
+        }
       }
     },
     onPaginationData (paginationData) {
