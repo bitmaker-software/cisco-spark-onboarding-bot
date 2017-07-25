@@ -25,12 +25,21 @@ Vue.component('DetailRow', {
           '<strong>{{detail.question_num}} : {{detail.question}} </strong> ' +
           '<i class="text-muted"> {{detail.answer_date}}</i>' +
         '</p></div> ' +
-        '<div><p>{{detail.answer}}</p></div> '+
+        '<div v-if="isLink(detail.answer)">' +
+          '<p><a v-bind:href="detail.answer">Document Link</a> to access via your manager Google Drive account</p>' +
+        '</div> '+
+        '<div v-else>' +
+          '<p>{{detail.answer}}</p>' +
+        '</div> '+
       '</div>' +
     '</div>',
   methods:{
     onClick (event) {
       console.log('my-detail-row: on-click', event.target)
+    },
+    isLink: function (value) {
+      console.log(value)
+      return value.includes('http');
     },
   }
 });
@@ -120,36 +129,30 @@ let app = new Vue({
   },
 
   methods: {
-    /*makeBold: function (value) {
-      let all = value.split('\"');
-      if (all.length > 1) {
-        return all[0]+'<b>'+all[1]+'</b>'+all[2]+'<b>'+all[3]+'</b>'+all[4];
-      } else {
-          return value;
-      }
-    },*/
     closeAllDetailRows (){
       console.log("Closing detail rows");
       let rows = this.$refs.vuetable.visibleDetailRows;
       let length = rows.length;
 
       for(let i = 0; i < length; i++){
-        this.$refs.vuetable.hideDetailRow(rows[0]);
+        this.closeDetailRow(rows[0]);
       }
 
+    },
+    closeDetailRow (id){
+      //change icon
+      $('tr[item-index="'+id+'"]')
+          .children('td.vuetable-handle')
+          .children('i')
+          .removeClass('fa-chevron-down')
+          .addClass('fa-chevron-right');
+      this.$refs.vuetable.hideDetailRow(id);
     },
     onCellClicked (data, field, event) {
       console.log('cellClicked: '+ data.id);
 
       if(this.$refs.vuetable.isVisibleDetailRow(data.id)){
-        //change icon
-        $('tr[item-index="'+data.id+'"]')
-            .children('td.vuetable-handle')
-            .children('i')
-            .removeClass('fa-chevron-down')
-            .addClass('fa-chevron-right');
-
-        this.$refs.vuetable.hideDetailRow(data.id);
+        this.closeDetailRow(data.id);
       }
       //show detail row
       else

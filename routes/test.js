@@ -206,8 +206,9 @@ function formatAnswer(answer) {
     myanswer = answer.step_choice.choice_order + " : " + answer.step_choice.text;
   } else if (stepType === STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT ||
     stepType === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK) { //|| stepType === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT
-    myanswer = 'Check your "' + answer.step.document_step.upload_dir_name +
-        '" shared folder to download the "' + answer.document_url + '" document.';
+    myanswer = 'https://drive.google.com/file/d/'+answer.document_url+'/view';
+        //'Check your "' + answer.step.document_step.upload_dir_name +
+        //'" shared folder to download the "' + answer.document_url + '" document.';
   }
 
   return myanswer;

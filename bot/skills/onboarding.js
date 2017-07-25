@@ -605,8 +605,8 @@ module.exports = function (controller) {
         console.log("Error uploading file :");
         console.log(err);
       } else {
-        //isto
-        callback(name);
+        //callback(name);
+        callback(file.id);
       }
     });
   }
