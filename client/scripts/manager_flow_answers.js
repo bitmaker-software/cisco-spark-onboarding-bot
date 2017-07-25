@@ -38,7 +38,6 @@ Vue.component('DetailRow', {
       console.log('my-detail-row: on-click', event.target)
     },
     isLink: function (value) {
-      console.log(value)
       return value.includes('http');
     },
   }
@@ -122,12 +121,12 @@ let app = new Vue({
         last: '',
       }
     },
+    moreParams: {},
   },
   mounted () {
     this.$events.$on('filter-set', eventData => this.onFilterSet(eventData));
     this.$events.$on('filter-reset', e => this.onFilterReset());
   },
-
   methods: {
     closeAllDetailRows (){
       console.log("Closing detail rows");
@@ -137,7 +136,6 @@ let app = new Vue({
       for(let i = 0; i < length; i++){
         this.closeDetailRow(rows[0]);
       }
-
     },
     closeDetailRow (id){
       //change icon

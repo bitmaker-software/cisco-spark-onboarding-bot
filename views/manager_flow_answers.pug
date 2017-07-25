@@ -21,6 +21,7 @@ block content
       :per-page="10",
       :sort-order="sortOrder",
       :muti-sort="true",
+      :append-params="moreParams",
       @vuetable:load-success="closeAllDetailRows",
       detail-row-component="DetailRow",
       @vuetable:row-clicked="onCellClicked",
