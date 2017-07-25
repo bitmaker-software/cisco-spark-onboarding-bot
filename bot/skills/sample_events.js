@@ -21,7 +21,7 @@ module.exports = function(controller) {
 
         databaseServices.getOngoingFlowForUserEmail(message.user).then(respondentFlow => {
             //console.log('Here I am...');
-            if (respondentFlow.respondent_flow_status_id == STATUS_TYPES.RESPONDENT_FLOW_STATUS.NOT_STARTED) {
+            if (respondentFlow.respondent_flow_status_id === STATUS_TYPES.RESPONDENT_FLOW_STATUS.NOT_STARTED) {
                 bot.reply(message, '\n\nStarting onboarding for, ${respondentFlow.flow.name}.\n\n *(Please say* **start** *to begin)*');
             } else {
                 bot.reply(message, 'Hello, there is one onboarding process in progress, ${respondentFlow.flow.name}. Type **start** to resume it.');

@@ -22,14 +22,36 @@
 const env = require('node-env-file');
 env(__dirname + '/.env');
 
+// Default: read from .env, but this will be replaced by what is on the database
+let botInfo = {
+  accessToken: process.env.access_token,
+  publicAddress: process.env.public_address,
+  secret: process.env.secret
+};
 
-if (!process.env.access_token) {
+const databaseServices = require('./database_services');
+databaseServices.getBots().then(bots => {
+  console.log(`Got ${bots.length} bot(s) from the database`);
+  // TODO: at the moment we are only using one bot; change this
+  if (bots.length) {
+    console.log(bots[0]);
+    let bot = bots[0];
+    botInfo.accessToken = bot.access_token;
+    botInfo.publicAddress = bot.public_https_address;
+    botInfo.secret = bot.secret;
+  } else {
+    console.error(`No bots in the database!`);
+  }
+  // configureController(botInfo);
+});
+
+if (!botInfo.accessToken) {
   console.log('Error: Specify a Cisco Spark access_token in environment.');
   usage_tip();
   process.exit(1);
 }
 
-if (!process.env.public_address) {
+if (!botInfo.publicAddress) {
   console.log('Error: Specify an SSL-enabled URL as this bot\'s public_address in environment.');
   usage_tip();
   process.exit(1);
@@ -44,12 +66,12 @@ const controller = Botkit.sparkbot({
   // debug: true,
   // limit_to_domain: ['mycompany.com'],
   // limit_to_org: 'my_cisco_org_id',
-  public_address: process.env.public_address,
-  ciscospark_access_token: process.env.access_token,
-  studio_token: process.env.studio_token, // get one from studio.botkit.ai to enable content management, stats, message console and more
-  secret: process.env.secret, // this is an RECOMMENDED but optional setting that enables validation of incoming webhooks
-  webhook_name: 'Cisco Spark bot created with Botkit, override me before going to production',
-  studio_command_uri: process.env.studio_command_uri,
+  public_address: botInfo.publicAddress,
+  ciscospark_access_token: botInfo.accessToken,
+  // studio_token: process.env.studio_token, // get one from studio.botkit.ai to enable content management, stats, message console and more
+  secret: botInfo.secret, // this is an RECOMMENDED but optional setting that enables validation of incoming webhooks
+  webhook_name: 'Cisco Spark bot created by Bitmaker with Botkit, override me before going to production',
+  // studio_command_uri: process.env.studio_command_uri,
 
 });
 

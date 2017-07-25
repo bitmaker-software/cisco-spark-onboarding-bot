@@ -1,5 +1,33 @@
 "use strict";
 
+
+let app = new Vue({
+  el: '#app',
+  data: {
+    bots: serverSideSettingsList.bots,
+    other: "Hello1"
+  },
+  methods: {
+    addBot: () => {
+      app.bots.push({
+        name: undefined,
+        access_token: undefined,
+        public_https_address: undefined,
+        secret: undefined
+      });
+    },
+    saveBots: () => {
+      // TODO
+      app.$http.post('/settings/api/saveBots', app.bots).then(response => {
+        // success callback
+      }, response => {
+        // error callback
+      });
+    }
+  }
+});
+
+
 $(function () {
   //
   // Bot token

@@ -13,7 +13,10 @@ module.exports = function (webserver, controller) {
     // Respond to Spark that the message has been received.
     res.sendStatus(200);
 
-    let bot = controller.spawn({});
+    console.log(`Received from ${req.body.data.personEmail}`);
+    // console.log(req.body);
+
+    let bot = controller.spawn({}); // TODO: what if we have multiple bots?
 
     // Pass the message into the controller to be processed.
     controller.handleWebhookPayload(req, res, bot);

@@ -6,6 +6,58 @@ const sparkAPIUtils = require('./spark_api_utils');
 const STATUS_TYPES = require('./status_types');
 
 module.exports = {
+  saveBot: bot => {
+    // TODO: save the manager_id
+    let {id, managerId, name, accessToken, publicHttpsAddress, secret} = bot;
+    console.log(`Bot to save:`);
+    console.log(id);
+    console.log(managerId);
+    console.log(name);
+    console.log(accessToken);
+    console.log(publicHttpsAddress);
+    console.log(secret);
+    console.log(`---`);
+    if (!id) {
+      // New bot
+      return models.bot.create({
+        manager_id: managerId,
+        name: name,
+        access_token: accessToken,
+        public_https_address: publicHttpsAddress,
+        secret: secret
+      });
+    } else {
+      // Update existing
+      return models.bot.update(
+        {
+          manager_id: managerId,
+          name: name,
+          access_token: accessToken,
+          public_https_address: publicHttpsAddress,
+          secret: secret
+        },
+        {
+          where: {
+            id: id,
+            manager_id: managerId
+          }
+        });
+    }
+  },
+
+  getBots: () => {
+    // TODO: filter by manager?
+    return models.bot.findAll({
+      attributes: ['id', 'name', 'access_token', 'public_https_address', 'secret']
+    });
+  },
+
+  getBotsNames: () => {
+    return models.bot.findAll({
+      attributes: ['id', 'name']
+    });
+  },
+
   userLoggedIn: (id, displayName, emails, orgId) => {
     /**
      function called after a successful login via spark oauth.
@@ -80,6 +132,15 @@ module.exports = {
       } else {
         getFlowStartingOnStepOrder(resolve, reject, flowId, 0);
       }
+    });
+  },
+
+  updateFlow: flow => {
+    return models.flow.update({
+      name: flow.name,
+      bot_id: flow.botId,
+    }, {
+      where: {id: flow.id}
     });
   },
 
@@ -857,14 +918,14 @@ module.exports = {
   },
 
   //DELETES -> WARNING
-  deleteStep: (step_id) => {
+  deleteStep: step_id => {
     console.log(`Delete step ${step_id}`);
     models.step.findById(step_id).then(step => {
       step.destroy();
     });
   },
 
-  deleteStepChoice: (step_choice_id) => {
+  deleteStepChoice: step_choice_id => {
     console.log(`Delete step choice ${step_id}`);
     models.step_choice.findById(step_choice_id).then(step_choice => {
       step_choice.destroy();
@@ -906,7 +967,8 @@ function getFlowStartingOnStepOrder(resolve, reject, flowId, startingStepOrder) 
         flowId: flow.id,
         name: flow.name,
         status: flow.flow_status_id,
-        steps: steps
+        steps: steps,
+        botId: flow.bot_id
       };
       console.log(`Got the flow with its steps, resolving:`);
       console.log(result);

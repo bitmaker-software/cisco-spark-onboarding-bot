@@ -58,11 +58,16 @@ router.get('/api/flow/:id', ensureAuthenticated, function (req, res, next) {
   /**
    Used to show the steps at the edit flow page
    */
-  // TODO: filter by user, do not allow accessing other users flows
-  databaseServices.getFlowSteps(req.params.id).then(steps => {
+    // TODO: filter by user, do not allow accessing other users flows
+  let promises = [
+      // databaseServices.getBots(),
+      databaseServices.getFlowSteps(req.params.id)
+    ];
+  Promise.all(promises).then(values => {
     return res.send({
       flowId: req.params.id,
-      steps: steps
+      // bots: values[0],
+      steps: values[0],
     });
   }, err => {
     console.error(`Error fetching the flow steps:`);
@@ -95,13 +100,16 @@ router.post('/api/flow', ensureAuthenticated, (req, res, next) => {
 router.get('/flow/:id/edit', ensureAuthenticated, function (req, res, next) {
   let promises = [
     databaseServices.getStepTypes(),
-    databaseServices.getFlow(req.params.id)
+    databaseServices.getFlow(req.params.id),
+    databaseServices.getBotsNames(),
   ];
   Promise.all(promises).then(values => {
     res.render('manager_flow_edit', {
-      title: values[1].name,
       flowId: req.params.id,
       stepTypes: values[0],
+      title: values[1].name,
+      bots: values[2],
+      selectedBot: values[1].botId,
       active: 'Manager', // left side bar icon
       gdrive_client_id: gdrive_client_id,
       gdrive_developer_key: gdrive_developer_key,
@@ -144,6 +152,13 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
   req.body.stepChoicesToDelete.forEach(stepChoice_id => {
     databaseServices.deleteStepChoice(stepChoice_id);
   });
+
+  //update flow name and selected bot
+  promiseArray.push(databaseServices.updateFlow({
+    id: req.body.flowId,
+    name: req.body.title,
+    botId: req.body.botId,
+  }));
 
   req.body.steps.forEach((step, index) => {
 

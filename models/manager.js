@@ -8,9 +8,6 @@ module.exports = function (sequelize, DataTypes) {
       email: {
         type: DataTypes.STRING
       },
-      password: {
-        type: DataTypes.STRING
-      },
       spark_id: {
         type: DataTypes.STRING,
         unique: true

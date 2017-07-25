@@ -7,9 +7,23 @@ module.exports = function (controller) {
 
   debug('Subscribing to Cisco webhook events...');
 
+  console.log(`\n****************************************`);
+  console.log(`****************************************`);
+  console.log(`  Subscribing to Cisco webhook events   `);
+  console.log(`****************************************`);
+  console.log(`****************************************\n`);
+
   const webhook_name = controller.config.webhook_name || 'Botkit Firehose';
 
+  console.log(`Resetting webhook subscriptions`);
+  controller.resetWebhookSubscriptions();
+
   const list = controller.api.webhooks.list().then(function (list) {
+    console.log(`List of hooks:`);
+    console.log(list);
+    console.log(list.items);
+    console.log(`-----`);
+
     let hook_id = null;
 
     for (let i = 0; i < list.items.length; i++) {
@@ -21,6 +35,10 @@ module.exports = function (controller) {
     const hook_url = 'https://' + controller.config.public_address + '/ciscospark/receive';
 
     debug('Cisco Spark: incoming webhook url is ', hook_url);
+
+    console.log(`Registering Hook`);
+    console.log(`Name: ${webhook_name}`);
+    console.log(`ID: ${hook_id}`);
 
     if (hook_id) {
       controller.api.webhooks.update({

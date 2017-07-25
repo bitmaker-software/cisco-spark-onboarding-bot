@@ -22,20 +22,6 @@ const routes_test = require('./routes/test');
 const databaseServices = require('./bot/database_services');
 const sparkAPIUtils = require('./bot/spark_api_utils');
 
-const botWebhooks = require('./bot/components/routes/incoming_webhooks'); // TODO: not in use?
-
-
-// ——————————————————————————————————————————————————
-//                       Bot
-// ——————————————————————————————————————————————————
-
-let bot;
-const REGISTER_WITH_SPARK = true; // set to false to avoid registering with Spark
-if (REGISTER_WITH_SPARK) {
-  bot = require('./bot/bot');
-  global.bot = bot;
-}
-
 const passport = require('passport');
 const CiscoSparkStrategy = require('passport-cisco-spark').Strategy;
 const session = require('express-session');
@@ -46,6 +32,33 @@ const SequelizeStore = require('connect-session-sequelize')(session.Store);
 
 const env = require('node-env-file');
 env(__dirname + '/bot/.env');
+
+
+// ——————————————————————————————————————————————————
+//             Database (create tables)
+// ——————————————————————————————————————————————————
+
+//
+// sync() will create all table if they doesn't exist in database
+//
+// {force: true} means DROP TABLE IF EXISTS before trying to create the table
+// {alter: true} uses ALTER TABLE
+//
+const CREATE_DB_AND_LOAD_FIXTURES = false;
+let databaseReady = true;
+if (CREATE_DB_AND_LOAD_FIXTURES) {
+  databaseReady = false;
+  sequelize.sync({force: true}).then(() => {
+    console.log("Database models synced, will load the fixtures");
+    // Load database fixtures
+    models.startLoadingDatabaseFixtures(() => {
+      databaseReady = true;
+    });
+  }, err => {
+    console.error("Error on sequelize.sync():");
+    console.error(err);
+  });
+}
 
 
 // ——————————————————————————————————————————————————
@@ -181,12 +194,52 @@ app.use('/webhooks', routes_webhooks);
 app.use('/auth', routes_auth);
 app.use('/test', routes_test);
 
+
+// ——————————————————————————————————————————————————
+//                  Bot & Bot routes
+// ——————————————————————————————————————————————————
+
+let botController;
+const REGISTER_WITH_SPARK = true; // set to false to avoid registering with Spark
+function registerBot() {
+  console.log(`Registering the bot`);
+  if (REGISTER_WITH_SPARK) {
+    botController = require('./bot/bot');
+    global.bot = botController;
+  }
+}
+
+// Read from the .env file and save to the database (the first bot only)
+(function checkDatabaseReadyAndSaveTheBot() {
+  if (!databaseReady) {
+    console.log('Saving the bot but the database is not ready yet; waiting 1 second.');
+    setTimeout(checkDatabaseReadyAndSaveTheBot, 1000);
+  } else {
+    console.log('The database is ready.');
+
+    if (CREATE_DB_AND_LOAD_FIXTURES) {
+      console.log(`Will save the bot to the database with the info from the env file`);
+      databaseServices.saveBot({
+        managerId: 1,
+        name: `Read from env`,
+        accessToken: process.env.access_token,
+        publicHttpsAddress: process.env.public_address,
+        secret: process.env.secret
+      }).then(registerBot);
+    } else {
+      registerBot()
+    }
+
+  }
+})();
+
+
 // import all the pre-defined bot routes that are present in /bot/components/routes
-if (typeof bot !== 'undefined') {
+if (typeof botController !== 'undefined') {
   const normalizedPath = require("path").join(__dirname, "bot/components/routes");
   require("fs").readdirSync(normalizedPath).forEach(file => {
     console.log(file);
-    require("./bot/components/routes/" + file)(app, bot);
+    require("./bot/components/routes/" + file)(app, botController); // incoming_webhooks.js
   });
 } else {
   console.log('WARNING: bot is not defined; did you import it? (OK if you are just testing without needing to register the callbacks with Spark)');
@@ -216,29 +269,18 @@ app.use((err, req, res, next) => {
 
 
 // ——————————————————————————————————————————————————
-//             Database (create tables)
+//                 Start the server
 // ——————————————————————————————————————————————————
 
-//
-// sync() will create all table if they doesn't exist in database
-//
-// {force: true} means DROP TABLE IF EXISTS before trying to create the table
-// {alter: true} uses ALTER TABLE
-//
-const CREATE_DB_AND_LOAD_FIXTURES = false;
-if (CREATE_DB_AND_LOAD_FIXTURES) {
-  sequelize.sync({alter: true}).then(() => {
-    console.log("Database models synced, will load the fixtures");
-    // Load database fixtures
-    models.startLoadingDatabaseFixtures();
+(function checkDatabaseReadyAndStartTheServer() {
+  if (!databaseReady) {
+    console.log('The database is not ready yet; waiting 1 second.');
+    setTimeout(checkDatabaseReadyAndStartTheServer, 1000);
+  } else {
+    console.log('The database is ready.');
     startTheServer();
-  }, err => {
-    console.error("Error on sequelize.sync():");
-    console.error(err);
-  });
-} else {
-  startTheServer();
-}
+  }
+})();
 
 function startTheServer() {
   console.log('Will now start the server.');

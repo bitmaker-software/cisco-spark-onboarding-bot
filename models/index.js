@@ -59,47 +59,49 @@ Object.keys(db).forEach(function (modelName) {
   //
   //
 
-  // - Tenant
-  //m.tenant.hasMany(m.manager);
+  // —————————— Tenant ——————————
 
-  // - Manager
+  // —————————— Manager ——————————
   m.manager.belongsTo(m.tenant);
   // - Flow
-  m.flow.belongsTo(m.tenant);
   m.flow.belongsTo(m.manager, {as: 'owner'});
   m.flow.belongsTo(m.flow_status);
+  m.flow.belongsTo(m.bot);
 
-  // - Step
+  // —————————— Bot ——————————
+  m.bot.belongsTo(m.manager);
+
+  // —————————— Step ——————————
   m.step.belongsTo(m.flow); // adds flow_id to step table
   m.step.belongsTo(m.step_type); // adds step_type_id to step table
   m.step.hasMany(m.step_choice); // adds step_id to step_choice table
   m.step.hasOne(m.document_step); // adds step_id to document_step table
 
-  // - Step Type
+  // —————————— Step Type ——————————
 
-  // - Step Choice
+  // —————————— Step Choice ——————————
 
-  // - Document Store
-  m.document_store.belongsTo(m.tenant);
+  // —————————— Document Store
+  m.document_store.belongsTo(m.manager);
   m.document_store.belongsTo(m.document_store_type);
 
-  // - Document Store Type
+  // —————————— Document Store Type ——————————
 
-  // - Document Step
+  // —————————— Document Step ——————————
   m.document_step.belongsTo(m.document_store);
   //m.document_step.belongsTo(m.step);  //AQUI
 
-  // - Respondent
-  m.respondent.belongsTo(m.tenant);
+  // —————————— Respondent ——————————
+  m.respondent.belongsTo(m.manager);
 
-  // - Respondent Flow
+  // —————————— Respondent Flow ——————————
   m.respondent_flow.belongsTo(m.manager, {as: 'assigner'});
   m.respondent_flow.belongsTo(m.respondent);
   m.respondent_flow.belongsTo(m.step, {as: 'current_step'});
   m.respondent_flow.belongsTo(m.flow);
   m.respondent_flow.belongsTo(m.respondent_flow_status);
 
-  // - Respondent Answer
+  // —————————— Respondent Answer ——————————
   m.respondent_answer.belongsTo(m.respondent_flow);
   m.respondent_answer.belongsTo(m.step);
   m.respondent_answer.belongsTo(m.step_choice);
@@ -116,9 +118,12 @@ let listOfFixtures = require("fs").readdirSync(normalizedPath)
   .sort();
 let fileIdx = 0;
 
-function importFixture() {
+function importFixture(callback) {
+  console.log(`importFixture callback:`);
+  console.log(callback);
   if (!listOfFixtures.length || fileIdx >= listOfFixtures.length) {
     console.log('Ended loading the fixtures');
+    callback();
     return;
   }
   let file = listOfFixtures[fileIdx];
@@ -143,11 +148,11 @@ function importFixture() {
       } else {
         console.log(`[Model ${modelName}] Record with id ${record.id} already exists`);
       }
-      tryToContinue();
+      tryToContinue(callback);
     });
   });
 
-  function tryToContinue() {
+  function tryToContinue(callback) {
     done++;
     if (done === fixture.data.length) {
       // Set PostgreSQL correct value for the sequence (as we inserted IDs manually)
@@ -157,7 +162,7 @@ function importFixture() {
         // Results will be an empty array and metadata will contain the number of affected rows.
         // Continue
         fileIdx++;
-        importFixture();
+        importFixture(callback);
       });
     }
   }

@@ -13,24 +13,30 @@ function spawnBotAndStartConversation(flowId, sparkUserId, resume) {
     // NOTE: startPrivateConversation and startPrivateConversationWithPersonId are not
     //       setting the user/channel in the returning convo object
 
-    let bot = global.bot.spawn({});
-    bot.startPrivateConversationWithPersonId(sparkUserId, function(err, convo) {
-        if (!err && convo) {
-            const databaseServices = require('./database_services');
-            console.log(`Fetching flow ${flowId}`);
-            console.log("Called help");
-            databaseServices.getFlowName(flowId).then(flowName => {
-                console.log(`Got flow name: ${flowName}`);
-                if (resume) {
-                    convo.say(`\n\nResuming onboarding for "${flowName}".\n\n *(Please type* **start** *to resume)*`);
-                } else {
-                    convo.say(`\n\nStarting onboarding for "${flowName}".\n\n *(Please say* **start** *to begin)*`);
-                }
-            }, error => {
-                console.log(`Error fetching the flow: ${error}`);
-            });
+  let bot = global.bot.spawn({});
+  bot.startPrivateConversationWithPersonId(sparkUserId, function (err, convo) {
+    console.log(`Callback of botkit startPrivateConversationWithPersonId()`);
+    console.log(`Convo context:`);
+    console.log(convo.context);
+    if (!err && convo) {
+      const databaseServices = require('./database_services');
+      console.log(`Fetching flow ${flowId}`);
+      console.log("Called help");
+      databaseServices.getFlowName(flowId).then(flowName => {
+        console.log(`Got flow name: ${flowName}`);
+
+        console.log(`\n\n\nWe'll receive a "Conversation with  undefined in undefined", "Task for  undefined in undefined", "info: An error occurred while sending a message:  ReferenceError: message is not defined" here\n\n`);
+        if (resume) {
+          convo.say(`Resuming onboarding for "${flowName}". Please say "Start" to resume.`);
+        } else {
+          convo.say(`Starting onboarding for "${flowName}". Please say "Start" to begin.`);
         }
-    });
+
+      }, error => {
+        console.log(`Error fetching the flow: ${error}`);
+      });
+    }
+  });
 }
 
 module.exports = {
