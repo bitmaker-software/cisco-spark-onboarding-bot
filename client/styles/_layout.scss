@@ -34,8 +34,18 @@ footer {
   width: 200px;
 }
 
-.sticky-top-left {
-  position: -webkit-sticky;
-  position: sticky;
-  top:100px;
-  z-index: 10; }
+//colocar noutro scss
+.vuetable{
+  background-color: $gray-lightest;
+  thead tr{
+    background-color:$gray-light;
+    /*position: -webkit-sticky;
+    position: sticky;
+    top:250px;
+    z-index: 10;*/
+ }
+  .detail td{
+    background-color: $white;
+    padding-left: 70px;
+  }
+}

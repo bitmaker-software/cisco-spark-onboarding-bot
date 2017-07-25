@@ -9,15 +9,15 @@ Vue.use(VuetablePagination)
 Vue.use(VuetablePaginationInfo)
 
 Vue.component('DetailRow', {
-    props: {
-        rowData: {
-            type: Object,
-            required: false
-        },
-        rowIndex: {
-            type: Number
-        }
+  props: {
+    rowData: {
+      type: Object,
+      required: false
     },
+    rowIndex: {
+      type: Number
+    }
+  },
   template:
     '<div @click="onClick"> ' +
       '<div v-for="detail in rowData.details"> ' +
@@ -35,7 +35,6 @@ Vue.component('DetailRow', {
   }
 });
 
-
 let app = new Vue({
   el: '#app',
   components: {
@@ -46,6 +45,9 @@ let app = new Vue({
   data: {
     filterText: '',
     fields: [
+      {
+        name: '__handle',
+      },
       {
         name: 'username',
         title: "Username",
@@ -67,13 +69,35 @@ let app = new Vue({
         sortField: '"end_date"',
       },
     ],
-    moreParams: {},
+    sortOrder: [
+        {
+          field: 'username',
+          sortField: '"respondent.name"',
+          direction: 'asc'
+        },
+        {
+          field: 'status',
+          sortField: '"respondent_flow_status.description"',
+          direction: 'asc'
+        },
+        {
+          field: 'start_date',
+          sortField: '"start_date"' ,
+          direction: 'asc'
+        },
+        {
+          field: 'end_date',
+          sortField: '"end_date"',
+          direction: 'asc'
+        },
+    ],
     css: {
-      tableClass: 'table table-striped table-bordered',
+      tableClass: 'table table-bordered',
       loadingClass: 'loading',
       ascendingIcon: 'fa fa-sort-amount-asc',
       descendingIcon: 'fa fa-sort-amount-desc',
-      sortHandleIcon: 'fa fa-bars'
+      handleIcon: 'fa fa-chevron-down',//'fa fa-caret-square-o-down',
+      detailRowClass: 'detail',
     },
     cssPagination: {
       infoClass: 'pull-left',
@@ -96,22 +120,33 @@ let app = new Vue({
   },
 
   methods: {
-    makeBold: function (value) {
+    /*makeBold: function (value) {
       let all = value.split('\"');
       if (all.length > 1) {
         return all[0]+'<b>'+all[1]+'</b>'+all[2]+'<b>'+all[3]+'</b>'+all[4];
       } else {
           return value;
       }
+    },*/
+    closeAllDetailRows (){
+      console.log("Closing detail rows");
+      let rows = this.$refs.vuetable.visibleDetailRows;
+      let length = rows.length;
+
+      for(let i = 0; i < length; i++){
+        this.$refs.vuetable.hideDetailRow(rows[0]);
+      }
+
     },
     onCellClicked (data, field, event) {
-      console.log('cellClicked: '+ field.name+" "+ data.id);
+      console.log('cellClicked: '+ data.id);
 
       if(data.details === null)
       {
         //ajax
         this.$http.get('/test/answers/'+flowId+'/'+data.resp_id).then(response => {
           data.details = response.body;
+          this.css.handleIcon = 'fa fa-chevron-down';
           this.$refs.vuetable.toggleDetailRow(data.id);
         }, error => {
           if (error.status === 401) {
