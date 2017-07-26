@@ -141,6 +141,14 @@ module.exports = {
     });
   },
 
+  updateTitle: (title, flowId) => {
+    return models.flow.update({
+      name: title
+    },{
+      where: {id: flowId}
+    });
+  },
+
   createStepChoice: (choiceText, choiceOrder, stepId) => {
     return models.step_choice.create({
       text: choiceText,
@@ -811,6 +819,19 @@ module.exports = {
           console.error(err);
           reject(err);
       });
+
+  //DELETES -> WARNING
+  deleteStep: (step_id) => {
+    console.log(`Delete step ${step_id}`);
+    models.step.findById(step_id).then(step => {
+        step.destroy();
+    });
+  },
+
+  deleteStepChoice: (step_choice_id) => {
+    console.log(`Delete step choice ${step_id}`);
+    models.step_choice.findById(step_choice_id).then(step_choice => {
+      step_choice.destroy();
     });
   },
 
