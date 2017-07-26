@@ -13,6 +13,14 @@ block content
             input(type='button', value='Files', onclick='GDrive.selectFile(function(r){ alert("fileId: " + r);})')
           div
             input(type='button', value='Directories', onclick='GDrive.selectFolder(function(r){ alert("folderId: " + r);})')
+    div.row
+      div.col
+        div(style="background-color: #AFF2FF; padding: 20px;")
+          div Box picker
+          div
+            input(type='button', value='Files', onclick='Box.selectFile(function(r){ alert("fileId: " + r);})')
+          div
+            input(type='button', value='Directories', onclick='Box.selectFolder(function(r){ alert("folderId: " + r);})')
 
 block pageScripts
   //script(src=static.root + '/js/test.js@' + static.suffix)
@@ -24,5 +32,7 @@ block pageScripts
   data-gdrive-developer-key=gdrive_developer_key,
   data-gdrive-share-to=gdrive_share_to
   )
+  script(id='box', src=static.root + '/js/box.js')
   script(async, defer, src="https://apis.google.com/js/api.js", onload="GDrive.onApiLoaded()")
+  script(async, defer, src="https://cdn01.boxcdn.net/js/static/select.js", onload="Box.onApiLoaded()")
   //onreadystatechange="if (this.readyState === 'complete') this.onload()")
