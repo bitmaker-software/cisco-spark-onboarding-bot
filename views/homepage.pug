@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  div.container-fluid
+    div.row
+      img.col-4.illustration(src=static.root + "/images/bot.svg")
+      div.col-8
+        h1.title-welcome
+          strong Welcome!
+        h2 To Cisco Spark On Boarding Bot
+    div.text-center
+      a.btn.btn-primary.btn-lg.mt-3(href='/manager') Manage Flows
+
