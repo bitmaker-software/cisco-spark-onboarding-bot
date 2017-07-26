@@ -5,25 +5,27 @@ block content
   div#app.container-fluid
     div.text-center.p-4
       h1.text-center.mb-4.mt-4 Answers Collected
-      p.text-muted.mb-4.mt-4 Press over "Username", "Date" or "#" to reorder the results
+      p.text-muted.mb-4.mt-4 Press over "Username", "Status", "Start Date" or "End Date" to reorder the results
     div
       label(style='margin-right: 10px;') Search for
       input.mb-4(type="text", v-model="filterText", @keyup.enter="doFilter", placeholder="username")
       button.btn.btn-info(style='margin-left: 15px;', @click="doFilter") Go
       button.btn.btn-border(style='margin: 15px;', @click="resetFilter") Reset
-      button.btn.btn-success.pull-right(@click="exportCSV") Export to CSV
-    vuetable(
-    ref="vuetable",
-    api-url= "../../../test/answers/" + flowId + "/" + totalAnswers ,
-    :fields= "fields",
-    :css="css",
-    pagination-path="",
-    :per-page="10",
-    :muti-sort="true",
-    multi-sort-key="ctrl",
-    :append-params="moreParams",
-    @vuetable:pagination-data="onPaginationData"
-    )
+      button.btn.btn-success.pull-right.mt-3(@click="exportCSV") Export to CSV
+    vuetable.vuetable(
+      ref="vuetable",
+      api-url= "../../../test/users/" + flowId + "/" + totalAnswers ,
+      :fields= "fields",
+      :css="css",
+      pagination-path="",
+      :per-page="10",
+      :sort-order="sortOrder",
+      :muti-sort="true",
+      :append-params="moreParams",
+      @vuetable:load-success="closeAllDetailRows",
+      detail-row-component="DetailRow",
+      @vuetable:row-clicked="onCellClicked",
+      @vuetable:pagination-data="onPaginationData")
     div
       vuetable-pagination-info(ref="paginationInfo", :css="cssPagination", info-class="pull-left")
       vuetable-pagination(ref="pagination", :css="cssPagination", @vuetable-pagination:change-page="onChangePage")
@@ -32,4 +34,7 @@ block pageScripts
   script.
     var flowId = !{flowId}; // used on AJAX requests
   script(src=static.root + '/js/manager_flow_answers.js')
+
+  style(type='text/css').
+
 

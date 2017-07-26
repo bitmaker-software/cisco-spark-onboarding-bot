@@ -312,22 +312,59 @@ module.exports = {
     });
   },
 
-  getAnswers: (flow_id, page, per_page, filter, sort, order) => {
-    console.log(`getAnswers(…)`);
-    return new Promise((resolve, reject) => {
+  getAnswers: (flow_id,resp_id) =>{
+    console.log(`getAnswers(${flow_id},${resp_id})`);
+    return new Promise((resolve,reject) => {
       models.respondent_answer.findAll({
-        attributes: ['id', 'answer_date', 'text', 'document_url'],
-        where: {
-          answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED,
-        },
-        include: [
-          {
-            model: models.respondent_flow,
-            attributes: ['id'],
-            where: {
-              flow_id: flow_id
-            },
-            include: [
+          attributes: ['id','text','document_url','answer_date'],
+          where:{
+            answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED,  //ja respondidas
+            respondent_flow_id: resp_id, //para este utilizador
+          },
+          include: [
+              {
+                model: models.step,
+                attributes: ['step_order','text','step_type_id'],
+                where: {
+                  $or: [
+                      {step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT},
+                      {step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE},
+                      {step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT},
+                      {step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK},
+                  ]
+                },
+                include: [
+                    {
+                      model: models.document_step,
+                      attributes: ['upload_dir_name'],
+                    },
+                ],
+              },
+              {
+                model: models.step_choice,
+                attributes: ['choice_order', 'text'],
+              },
+          ],
+          order: [[models.Sequelize.col('step.step_order'), 'ASC']],
+      }).then(details => {
+        resolve(details);
+      }, err => {
+        console.error(`Error getting answers`);
+        console.error(err);
+        reject(err);
+      });
+    });
+  },
+
+  getUsers: (flow_id, page, per_page, filter, sort, order) => {
+    console.log(`getAnswers(${flow_id},${page},${per_page},${filter},${sort},${order})`);
+      return new Promise((resolve, reject) => {
+        models.respondent_flow.findAll({
+          attributes: ['id','start_date','end_date'],
+          where:{
+            flow_id: flow_id
+          },
+          include:[
               {
                 model: models.respondent,
                 attributes: ['name'],
@@ -336,40 +373,50 @@ module.exports = {
                     $like: '%' + filter + '%',
                   }
                 }
-              }
-            ]
-          },
-          {
-            model: models.step,
-            attributes: ['step_order', 'text', 'step_type_id'],
-            where: {
-              $or: [
-                {step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT},
-                {step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE},
-                {step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT},
-                {step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK}
-              ],
-            },
-            include: [
-              {
-                model: models.document_step,
-                attributes: ['upload_dir_name'],
               },
-            ]
+              {
+                model: models.respondent_flow_status,
+                attributes: ['description'],
+              },
+          ],
+          limit: per_page,
+          offset: per_page * page,
+          order: [[models.Sequelize.col(sort), order]]
+        }).then(users => {
+          users.forEach(function(user) {
+            user.details = null;
+          });
+          resolve(users);
+        }, err => {
+          console.error(`Error getting answers`);
+          console.error(err);
+          reject(err);
+        });
+      });
+  },
+
+  countUsers: (flow_id, filter) => {
+    console.log(`countUsers(${flow_id}, ${filter})`);
+    return new Promise((resolve, reject) => {
+      models.respondent_flow.count({
+          where:{
+            flow_id: flow_id
           },
-          {
-            model: models.step_choice,
-            attributes: ['choice_order', 'text'],
-          },
-        ],
-        limit: per_page,
-        offset: per_page * page,
-        order: [
-          [models.Sequelize.col(sort), order]
-        ]
-      }).then(answers => {
-        //console.log(answers);
-        resolve(answers);
+          include:[
+              {
+                model: models.respondent,
+                attributes: ['name'],
+                where: {
+                  name: {
+                    $like: '%' + filter + '%',
+                  }
+                }
+              },
+          ],
+      }).then(res => {
+        console.log(`----`);
+        console.log(res);
+        resolve(res);
       }, err => {
         console.error(`Error getting answers`);
         console.error(err);
@@ -396,6 +443,10 @@ module.exports = {
               {
                 model: models.respondent,
                 attributes: ['name'],
+              },
+              {
+                model: models.respondent_flow_status,
+                attributes: ['description'],
               }
             ]
           },
@@ -421,58 +472,14 @@ module.exports = {
             model: models.step_choice,
             attributes: ['choice_order', 'text'],
           }
-        ]
+        ],
+        order: [
+            [models.Sequelize.col('respondent_flow->respondent.name'),'ASC'],
+            [models.Sequelize.col('step.step_order'),'ASC']
+        ],
       }).then(res => {
         console.log(`----`);
         console.log(res.length);
-        resolve(res);
-      }, err => {
-        console.error(`Error getting answers`);
-        console.error(err);
-        reject(err);
-      });
-    });
-  },
-
-  countAnswers: (flow_id, filter) => {
-    console.log(`countAnswers(${flow_id}, ${filter})`);
-    return new Promise((resolve, reject) => {
-      models.respondent_answer.count({
-        where: {
-          answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED,
-        },
-        include: [
-          {
-            model: models.respondent_flow,
-            where: {
-              flow_id: flow_id
-            },
-            include: [
-              {
-                model: models.respondent,
-                where: {
-                  name: {
-                    $like: '%' + filter + '%',
-                  }
-                }
-              }
-            ]
-          },
-          {
-            model: models.step,
-            where: {
-              $or: [
-                {step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT},
-                {step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE},
-                {step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT},
-                {step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK}
-              ],
-            }
-          },
-        ]
-      }).then(res => {
-        console.log(`----`);
-        console.log(res);
         resolve(res);
       }, err => {
         console.error(`Error getting answers`);
@@ -647,7 +654,6 @@ module.exports = {
   },
 
   saveDocumentUploadAnswer: (respondentFlow, step, nextStep, url) => {
-    console.log("--------->>>>>>>>>" + url)
     models.respondent_answer.create({
       document_url: url,
       answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED, // 2 === Answered
@@ -896,16 +902,17 @@ function updateRespondentFlowCurrentStep(respondentFlow, nextStep) {
 function secondsToTime(seconds){
   let date = new Date(null);
   date.setSeconds(seconds); // specify value for SECONDS here
-  let dateStr = date.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
+  let dateStr = "";
 
   //mais que um dia
   if(seconds >= 86400){
     let days = Math.floor(seconds/86400);
       if(days === 1)
-        dateStr = days + " day "+dateStr;
+        dateStr = days + " day ";
       else
-        dateStr = days + " days "+dateStr;
+        dateStr = days + " days ";
   }
+  dateStr += date.getHours()+" h "+date.getMinutes()+" min "+date.getSeconds()+" secs";
 
   return dateStr;
 }
