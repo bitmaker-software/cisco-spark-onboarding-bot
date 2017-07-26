@@ -599,13 +599,12 @@ module.exports = function (controller) {
     drive.files.create({
       resource: fileMetadata,
       media: media,
-      //uploadType: 'media',
+      fields: 'id',
     }, function (err, file) {
       if (err) {
         console.log("Error uploading file :");
         console.log(err);
       } else {
-        //callback(name);
         callback(file.id);
       }
     });
