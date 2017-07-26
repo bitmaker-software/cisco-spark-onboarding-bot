@@ -356,8 +356,12 @@ module.exports = {
     });
   },
 
-  getUsers: (flow_id, page, per_page, filter, sort, order) => {
-    console.log(`getAnswers(${flow_id},${page},${per_page},${filter},${sort},${order})`);
+  getUsers: (flow_id, page, per_page, filter, orders) => {
+    console.log(`getAnswers(${flow_id},${page},${per_page},${filter},[${orders}])`);
+    orders.forEach(function (order){
+      order[0] = models.Sequelize.col(order[0]);
+    });
+
       return new Promise((resolve, reject) => {
         models.respondent_flow.findAll({
           attributes: ['id','start_date','end_date'],
@@ -381,7 +385,7 @@ module.exports = {
           ],
           limit: per_page,
           offset: per_page * page,
-          order: [[models.Sequelize.col(sort), order]]
+          order: orders, //[[models.Sequelize.col(sort), order]]
         }).then(users => {
           users.forEach(function(user) {
             user.details = null;
@@ -810,21 +814,23 @@ module.exports = {
   getMaxFlowTime: (flowId) => {
     console.log("getMaxFlowTime(flow_id)");
     return new Promise((resolve, reject) => {
-      models.respondent_flow.max('duration_seconds',{
-          where: {
-            respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.FINISHED,
-            flow_id: flowId,
-          }
-      }).then(max => {
-        if(isNaN(max))
-          resolve("No Data");
-        else
-          resolve(secondsToTime(max));
-      }, err => {
-          console.error(`Error getting max flow time`);
-          console.error(err);
-          reject(err);
-      });
+        models.respondent_flow.max('duration_seconds', {
+            where: {
+                respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.FINISHED,
+                flow_id: flowId,
+            }
+        }).then(max => {
+            if (isNaN(max))
+                resolve("No Data");
+            else
+                resolve(secondsToTime(max));
+        }, err => {
+            console.error(`Error getting max flow time`);
+            console.error(err);
+            reject(err);
+        });
+    });
+  },
 
   //DELETES -> WARNING
   deleteStep: (step_id) => {

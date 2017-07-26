@@ -19,24 +19,26 @@ Vue.component('DetailRow', {
     }
   },
   template:
-    '<div @click="onClick"> ' +
-      '<div v-for="detail in rowData.details"> ' +
-        '<div><p>' +
-          '<strong>{{detail.question_num}} : {{detail.question}} </strong> ' +
-          '<i class="text-muted"> {{detail.answer_date}}</i>' +
-        '</p></div> ' +
-        '<div v-if="isLink(detail.answer)">' +
-          '<p><a v-bind:href="detail.answer">Document Link</a> to access via your manager Google Drive account</p>' +
-        '</div> '+
-        '<div v-else>' +
-          '<p>{{detail.answer}}</p>' +
-        '</div> '+
+    '<div> ' +
+      '<div v-if="!rowData.details">' +
+        '<p class="text-center"><strong>No Data yet!</strong></p>'+
       '</div>' +
+      '<div v-else>'  +
+        '<div v-for="detail in rowData.details"> ' +
+          '<div><p>' +
+            '<strong>{{detail.question_num}} : {{detail.question}} </strong> ' +
+            '<i class="text-muted"> {{detail.answer_date}}</i>' +
+          '</p></div> ' +
+          '<div v-if="isLink(detail.answer)">' +
+            '<p><a v-bind:href="detail.answer">Document Link</a> to access via your manager Google Drive account</p>' +
+          '</div> '+
+          '<div v-else>' +
+            '<p>{{detail.answer}}</p>' +
+          '</div> '+
+        '</div>' +
+      '</div>'+
     '</div>',
   methods:{
-    onClick (event) {
-      console.log('my-detail-row: on-click', event.target)
-    },
     isLink: function (value) {
       return value.includes('http');
     },
@@ -149,6 +151,7 @@ let app = new Vue({
     onCellClicked (data, field, event) {
       console.log('cellClicked: '+ data.id);
 
+      //fechar, se estiver aberta
       if(this.$refs.vuetable.isVisibleDetailRow(data.id)){
         this.closeDetailRow(data.id);
       }
@@ -162,20 +165,23 @@ let app = new Vue({
             .removeClass('fa-chevron-right')
             .addClass('fa-chevron-down');
 
-        //no data detail
-        if(data.details === null)
-        {
-          //ajax
-          this.$http.get('/test/answers/'+flowId+'/'+data.resp_id).then(response => {
-            data.details = response.body;
-            this.$refs.vuetable.toggleDetailRow(data.id);
-          }, error => {
-            if (error.status === 401) {
-              window.location.replace('/auth/spark');
-            }
-          });
+        if(data.status === "Not started"){
+          data.details = false;
         }
-        else{
+        //no data detail
+        if (data.details === null || (!data.details && data.status !== "Not started") ) {
+            //ajax
+            this.$http.get('/test/answers/' + flowId + '/' + data.resp_id).then(response => {
+              console.log("resposta!!")
+              data.details = response.body;
+              this.$refs.vuetable.toggleDetailRow(data.id);
+            }, error => {
+              if (error.status === 401) {
+                window.location.replace('/auth/spark');
+              }
+            });
+        }
+        else {
           this.$refs.vuetable.toggleDetailRow(data.id);
         }
       }
