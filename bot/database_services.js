@@ -497,7 +497,7 @@ module.exports = {
     console.log(`getAnswersByQuestion(${flowId})`);
     return new Promise((resolve, reject) => {
       models.step.findAll({
-        attributes: [['id','name'],'text','step_type_id'],
+        attributes: [['step_order','name'],'id','text','step_type_id'],
         where: {
           flow_id: flowId,
           $or: [
@@ -506,7 +506,7 @@ module.exports = {
               {step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT},
               {step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK}],
         },
-        order: [['id','ASC']]
+        order: [[models.Sequelize.col('"name"'),'ASC']]
       }).then(res => {
         //so avanca depois de preencher todos os elementos
         let counter = 0;
@@ -557,7 +557,7 @@ module.exports = {
           flow_id: flowId,
           step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE
         },
-        order: [[models.Sequelize.col('"step_order"'), 'ASC']]
+        order: [[models.Sequelize.col('"order"'), 'ASC']]
       }).then(res => {
         //sincronizar
         let counter = 0;
