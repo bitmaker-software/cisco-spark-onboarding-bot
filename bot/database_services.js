@@ -1028,15 +1028,26 @@ function secondsToTime(seconds) {
   date.setSeconds(seconds); // specify value for SECONDS here
   let dateStr = "";
 
-  //mais que um dia
+  //mais que um dia -> implica data inteira
   if (seconds >= 86400) {
     let days = Math.floor(seconds / 86400);
     if (days === 1)
       dateStr = days + " day ";
     else
       dateStr = days + " days ";
+
+    dateStr += date.getHours()+" h "+date.getMinutes()+" min "+date.getSeconds()+" secs";
   }
-  dateStr += date.getHours() + " h " + date.getMinutes() + " min " + date.getSeconds() + " secs";
+  else
+  {
+    if(date.getHours() !== 0) {
+      dateStr += date.getHours();
+    }
+    if(date.getMinutes() !== 0){
+      dateStr += date.getMinutes()+" min ";
+    }
+    dateStr += date.getSeconds()+" secs";
+  }
 
   return dateStr;
 }

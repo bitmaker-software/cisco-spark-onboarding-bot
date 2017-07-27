@@ -2,6 +2,9 @@ extends layout
 
 block content
   div#root
+    div.text-center.p-4
+      h1.text-center.mb-4.mt-4 !{title} Dashboard
+      p.text-muted.mt-4 Main Statistics collect for this flow
     div.card-deck.mt-4
       div.card.card-outline-primary.text-center
         div.card-block
@@ -32,17 +35,20 @@ block pageScripts
     var usersArray = !{JSON.stringify(usersArray).replace(/<\//g, '<\\/')};
     var sumUsers = 0;
     usersArray.forEach(function (element) {
-        sumUsers += parseInt(element.count);
-        element.y = parseInt(element.count);
+      sumUsers += parseInt(element.count);
+      element.y = parseInt(element.count);
     });
 
     var answersArrayData = !{JSON.stringify(answersArray).replace(/<\//g, '<\\/')};
     var answersArray = [{
-        name: "Questions",
-        colorByPoint: true,
-        data: answersArrayData
+      name: "Questions",
+      colorByPoint: true,
+      data: answersArrayData
     }];
 
+    console.log(answersArrayData);
+
     var stepChoiceArray = !{JSON.stringify(stepChoiceArray).replace(/<\//g, '<\\/')};
+
 
   script(src=static.root + '/js/manager_flow_dashboard.js')
