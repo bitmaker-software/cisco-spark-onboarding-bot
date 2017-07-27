@@ -5,7 +5,8 @@ block content
 
     div.row
       div.col-md-3.step-container
-        h1.title= title
+        div.title-input
+          input.form-control(type="text", v-model="title").text-center
         p.lead.text-center Available step types do be added to the flow
 
         draggable.sticky-top-left(v-model="stepTypes",:options="{group:{name:'elem',pull:'clone',put:false}, sort:false}")
@@ -146,6 +147,8 @@ block pageScripts
     });
     console.log(stepTypesArray);
     var flowId = !{flowId}; // used on AJAX requests
+    var titleReceived = "!{title}"; // used on AJAX requests
+    console.log(titleReceived);
 
   script(src=static.root + '/js/manager_flow_steps.js')
 

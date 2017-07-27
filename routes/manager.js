@@ -113,34 +113,6 @@ router.get('/flow/:id/edit', ensureAuthenticated, function (req, res, next) {
   });
 });
 
-router.delete('/api/delete_step/:step_id', (req, res, next) => {
-
-  let step_id = req.params.step_id;
-
-  models.step.findById(step_id).then(step => {
-    step.destroy();
-  });
-});
-
-router.delete('/api/delete_step_choice/:step_id/:step_choice_id', (req, res, next) => {
-
-    let step_id = req.params.step_id;
-    let step_choice_id = req.params.step_choice_id;
-
-    console.log(step_id+" - "+step_choice_id)
-
-    models.step.findById(step_id).then(step => {
-      //escolha multipla
-      if(step.step_type_id == 3){
-        models.step_choice.findById(step_choice_id).then(step_choice => {
-          step_choice.destroy();
-        });
-      }else{
-        res.sendStatus(401);
-      }
-    });
-});
-
 router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
   console.log(`————————————————————————————————————————————————————————————————————————————————————————————————————`);
   console.log(`Update flow, got:`);
@@ -150,6 +122,28 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
   // TODO handle multiple db queries and send response only when finished!
 
   let promiseArray = [];
+
+  //update flow name
+  databaseServices.updateTitle(
+      req.body.title,
+      req.body.flow_id
+  ).then(res => {
+      // Done
+      console.log(`Updated flow title`);
+  }, err => {
+      console.error(`Error updating flow title:`);
+      console.error(err);
+      return res.send(err); // TODO: calling return from inside the callback function?!
+  });
+
+  //delete steps
+  req.body.stepsToDelete.forEach(step_id => {
+    databaseServices.deleteStep(step_id);
+  });
+  //delete step choices
+  req.body.stepChoicesToDelete.forEach(stepChoice_id => {
+    databaseServices.deleteStepChoice(stepChoice_id);
+  });
 
   req.body.steps.forEach((step, index) => {
 

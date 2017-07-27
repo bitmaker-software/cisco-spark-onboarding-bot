@@ -10,6 +10,8 @@ $(function () {
         // app initial state
         data: {
             steps: [],
+            stepsToDelete: [],
+            stepChoicesToDelete: [],
             stepTypes: stepTypesArray,
             stepTypes2 : [],
             stepTypeIcons: {
@@ -20,7 +22,8 @@ $(function () {
                 5: "document", // User read Document
                 6: "document", // User read and upload
             },
-            newStepTypeSelected: 1
+            newStepTypeSelected: 1,
+            title: titleReceived,
         },
         methods: {
             addStepByDrop: () => {
@@ -32,14 +35,14 @@ $(function () {
             },
             addStep: stepType => addNewStep(stepType,true),
             deleteStep : (stepid,index) => {
-              //frontend
+              app.stepsToDelete.push(stepid);
               app.steps.splice(index,1);
               //change background
               if(app.steps.length == 0){
                 $('#empty-flow').removeClass('hidden');
               }
               //backend
-              if (typeof stepid !== 'undefined'){
+              /*if (typeof stepid !== 'undefined'){
                 //delete at bd
                 app.$http.delete('/manager/api/delete_step/'+stepid).then(response => {
                   console.log('Delete step '+stepid);
@@ -48,14 +51,14 @@ $(function () {
                     window.location.replace('/auth/spark');
                   }
                 });
-              }
+              }*/
             },
             deleteStepChoice : (step,index) => {
-              //frontend
               let stepChoiceId = step.step_choices[index].id;
+              app.stepChoicesToDelete.push(stepChoiceId);
               step.step_choices.splice(index, 1);
               //backend
-              if (typeof step.id !== 'undefined') {
+              /*if (typeof step.id !== 'undefined') {
                 app.$http.delete('/manager/api/delete_step_choice/' + step.id + '/' + stepChoiceId).then(response => {
                   console.log('Delete step ' + stepid);
                 }, error => {
@@ -63,8 +66,7 @@ $(function () {
                     window.location.replace('/auth/spark');
                   }
                 });
-              }
-
+              }*/
             },
             getFileId: (step) => {
               GDrive.selectFile(function (id,name) {
@@ -215,7 +217,10 @@ $(function () {
 
         let postData = {
             flow_id: flowId,
-            steps: app.steps
+            steps: app.steps,
+            title: app.title,
+            stepsToDelete: app.stepsToDelete,
+            stepChoicesToDelete: app.stepChoicesToDelete,
         };
 
         $.ajax({
@@ -227,6 +232,8 @@ $(function () {
             complete: function (data) {
                 console.log("Request to save flow complete");
                 saveStepsButton.text("Saved");
+                app.stepsToDelete = [];
+                app.stepChoicesToDelete = [];
                 location.reload();
             }
         });
