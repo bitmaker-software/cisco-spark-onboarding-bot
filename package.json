@@ -5,7 +5,7 @@
   "scripts": {
     "start": "bash -c 'NODE_ENV=production node index.js'",
     "clean": "bash -c 'rm -rf public/{js,css}'",
-    "dev:js": "node --inspect=12345 index dev",
+    "dev:js": "node --inspect=12345 --stack-trace-limit=1000 index dev",
     "dev:css": "gulp scss:watch copy-static",
     "dev": "npm-run-all clean -p dev:*",
     "build:js": "webpack",
@@ -42,7 +42,7 @@
     "node-sass-middleware": "0.11.0",
     "passport": "^0.3.2",
     "passport-cisco-spark": "^1.0.3",
-    "pg": "^7.0.2",
+    "pg": "^6.4.1",
     "pg-hstore": "^2.3.2",
     "pug": "^2.0.0-rc.1",
     "request": "^2.81.0",

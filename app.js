@@ -49,7 +49,9 @@ let databaseReady = true;
 if (CREATE_DB_AND_LOAD_FIXTURES) {
   databaseReady = false;
   sequelize.sync({force: true}).then(() => {
-    console.log("Database models synced, will load the fixtures");
+    console.log(`\n\n`);
+    console.log(`Database models synced, will now load the fixtures`);
+    console.log(`\n`);
     // Load database fixtures
     models.startLoadingDatabaseFixtures(() => {
       databaseReady = true;

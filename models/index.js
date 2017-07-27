@@ -119,15 +119,17 @@ let listOfFixtures = require("fs").readdirSync(normalizedPath)
 let fileIdx = 0;
 
 function importFixture(callback) {
-  console.log(`importFixture callback:`);
-  console.log(callback);
   if (!listOfFixtures.length || fileIdx >= listOfFixtures.length) {
-    console.log('Ended loading the fixtures');
+    console.log(`\n\n`);
+    console.log(`Ended loading the fixtures`);
+    console.log(`\n`);
     callback();
     return;
   }
   let file = listOfFixtures[fileIdx];
-  console.log(`\nImporting fixtures ${file}\n`);
+  console.log(`\n——————————————————————————————————————————————————`);
+  console.log(`Importing fixtures from ${file}`);
+  console.log(`——————————————————————————————————————————————————\n`);
   let fixture = require("../fixtures/" + file);
   let modelName = fixture.model;
   let sequelizeModel = db[modelName];
@@ -139,16 +141,16 @@ function importFixture(callback) {
         id: item.id
       },
       defaults: item
-    }).then(function (result) {
-      const record = result[0], // the instance
-        created = result[1]; // boolean stating if it was created or not
-
+    }).spread((record, created) => {
       if (created) {
         console.log(`[Model ${modelName}] Created record with id ${record.id}`);
       } else {
         console.log(`[Model ${modelName}] Record with id ${record.id} already exists`);
       }
       tryToContinue(callback);
+    }, error => {
+      console.log(`Error finding/inserting record`);
+      console.log(error);
     });
   });
 
