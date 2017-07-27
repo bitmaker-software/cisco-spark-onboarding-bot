@@ -391,17 +391,17 @@ module.exports = {
       models.respondent_flow.findAll({
         attributes: ['id','start_date','end_date'],
         where:{
-          flow_id: flow_id
+          flow_id: flow_id,
+          $or:[{
+            '$respondent.name$': { $iLike: '%' + filter + '%' }
+          }, {
+            '$respondent_flow_status.description$':{ $iLike: '%' + filter + '%' },
+          }],
         },
         include:[
           {
             model: models.respondent,
             attributes: ['name'],
-            where: {
-              name: {
-                $like: '%' + filter + '%',
-              }
-            }
           },
           {
             model: models.respondent_flow_status,
