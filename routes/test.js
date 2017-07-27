@@ -180,7 +180,9 @@ function createUsersJSON(users) {
     if(user.end_date !== null)
       end = user.end_date.toUTCString();
 
-    console.log(user.id);
+    if(user.start_date !== null && user.respondent_flow_status.id === 1){
+      start = null;
+    }
 
     return {
       id: index,

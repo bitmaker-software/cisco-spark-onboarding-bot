@@ -116,12 +116,6 @@ let app = new Vue({
       totalUsers: sumUsers,
     },
     methods:{
-      getCategories: () => {
-        let categories = [];
-        app.answers[0].data.forEach(function(elem){
-          categories.push(elem.name);
-        });
-        return categories;
-      }
+
     }
 });

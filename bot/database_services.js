@@ -246,7 +246,14 @@ module.exports = {
               // TODO: limit to the oldest per user
             }
           ).then(respondentFlow => {
+            
             if (respondentFlow) {
+              if(respondentFlow.start_date === null){
+                respondentFlow.updateAttributes({
+                    start_date: new Date(),
+                });
+              }
+
               resolve(respondentFlow);
             } else {
               reject('No flow for this respondent');
@@ -296,16 +303,24 @@ module.exports = {
     });
 
     models.respondent_flow.find({
-      attributes: ['start_date'],
+      attributes: ['start_date','assign_date'],
       where: {
         id: respondentFlow.dataValues.id
       }
     }).then(times => {
-      //update duration
-      let duration = Math.floor(date/1000) - Math.floor(times.dataValues.start_date/1000);
+      let start_date = times.dataValues.start_date;
+      //start date lost
+      if(start_date === null && date !== null) {
+        start_date = times.dataValues.assign_date;
+      }
+
+      //update duration and start date, if lost
+      let duration = Math.floor(date/1000) - Math.floor(start_date/1000);
       respondentFlow.updateAttributes({
         duration_seconds: duration,
+        start_date: start_date,
       });
+
     }, err => {
       console.error(`Error updating flow duration`);
       console.error(err);
@@ -380,7 +395,7 @@ module.exports = {
               },
               {
                 model: models.respondent_flow_status,
-                attributes: ['description'],
+                attributes: ['id','description'],
               },
           ],
           limit: per_page,
@@ -728,7 +743,8 @@ module.exports = {
           respondent_id: userId,
           flow_id: flowId,
           respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.NOT_STARTED,
-          assign_date: date, // TODO
+          assign_date: date,
+          start_date: date,
         },
         include: [{
           model: models.flow
