@@ -234,19 +234,22 @@ module.exports = {
     return new Promise((resolve, reject) => {
       models.respondent.find({where: {email: email}}).then(respondent => {
         if (respondent) {
-          models.respondent_flow.find(
-            {
-              where: {
-                respondent_id: respondent.id,
-                respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.IN_PROGRESS
-              },
-              include: [
-                {model: models.flow, attributes: ['name']}
-              ],
-              // TODO: limit to the oldest per user
-            }
-          ).then(respondentFlow => {
-            
+          models.respondent_flow.find({
+            where: {
+              respondent_id: respondent.id,
+              respondent_flow_status_id: {
+                $in: [STATUS_TYPES.RESPONDENT_FLOW_STATUS.IN_PROGRESS, STATUS_TYPES.RESPONDENT_FLOW_STATUS.NOT_STARTED]
+              }
+              //respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.IN_PROGRESS
+            },
+            include: [
+              {
+                model: models.flow,
+                attributes: ['name']
+              }
+                        ],
+            // TODO: limit to the oldest per user
+          }).then(respondentFlow => {
             if (respondentFlow) {
               if(respondentFlow.start_date === null){
                 respondentFlow.updateAttributes({
@@ -272,10 +275,12 @@ module.exports = {
         respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.IN_PROGRESS
       },
       include: [
-        {model: models.respondent},
-      ]
-      // TODO: limit to the oldest per user
-    });//.then(flows => {
+          {
+            model: models.respondent
+          },
+                ]
+        // TODO: limit to the oldest per user
+    }); //.then(flows => {
     // if (respondentFlow) {
     //   resolve(respondentFlow);
     // } else {
@@ -830,21 +835,21 @@ module.exports = {
   getMaxFlowTime: (flowId) => {
     console.log("getMaxFlowTime(flow_id)");
     return new Promise((resolve, reject) => {
-        models.respondent_flow.max('duration_seconds', {
-            where: {
-                respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.FINISHED,
-                flow_id: flowId,
-            }
-        }).then(max => {
-            if (isNaN(max))
-                resolve("No Data");
-            else
-                resolve(secondsToTime(max));
-        }, err => {
-            console.error(`Error getting max flow time`);
-            console.error(err);
-            reject(err);
-        });
+      models.respondent_flow.max('duration_seconds',{
+          where: {
+            respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.FINISHED,
+            flow_id: flowId,
+          }
+      }).then(max => {
+        if(isNaN(max))
+          resolve("No Data");
+        else
+          resolve(secondsToTime(max));
+      }, err => {
+          console.error(`Error getting max flow time`);
+          console.error(err);
+          reject(err);
+      });
     });
   },
 
@@ -876,16 +881,22 @@ function getFlowStartingOnStepOrder(resolve, reject, flowId, startingStepOrder) 
     models.step.findAll({
       where: {
         flow_id: flow.id,
-        step_order: {gte: startingStepOrder}
+        step_order: {
+          gte: startingStepOrder
+        }
       },
       order: [
-        [models.Sequelize.col('"step_order"'), 'ASC'],
-        [models.step_choice, '"choice_order"', 'ASC']
-      ],
+                [models.Sequelize.col('"step_order"'), 'ASC'],
+                [models.step_choice, '"choice_order"', 'ASC']
+            ],
       include: [
-        {model: models.step_choice},
-        {model: models.document_step}
-      ]
+        {
+          model: models.step_choice
+        },
+        {
+          model: models.document_step
+        }
+            ]
     }).then(steps => {
       const result = {
         // respondent_flow_id: 345,
@@ -921,7 +932,7 @@ function updateRespondentFlowCurrentStep(respondentFlow, nextStep) {
   });
 }
 
-function secondsToTime(seconds){
+function secondsToTime(seconds) {
   let date = new Date(null);
   date.setSeconds(seconds); // specify value for SECONDS here
   let dateStr = "";

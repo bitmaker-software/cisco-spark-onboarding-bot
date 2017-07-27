@@ -1,13 +1,13 @@
 "use strict";
 
-import express        from 'express';
+import express from 'express';
 // import path           from 'path';
 // import favicon        from 'serve-favicon';
-import logger         from 'morgan';
-import compression    from 'compression';
-import cookieParser   from 'cookie-parser';
-import bodyParser     from 'body-parser';
-import mime           from 'mime';
+import logger from 'morgan';
+import compression from 'compression';
+import cookieParser from 'cookie-parser';
+import bodyParser from 'body-parser';
+import mime from 'mime';
 // const sassMiddleware = require('node-sass-middleware');
 
 import config from './app.config';
@@ -32,8 +32,8 @@ const botWebhooks = require('./bot/components/routes/incoming_webhooks'); // TOD
 let bot;
 const REGISTER_WITH_SPARK = true; // set to false to avoid registering with Spark
 if (REGISTER_WITH_SPARK) {
-  bot = require('./bot/bot');
-  global.bot = bot;
+    bot = require('./bot/bot');
+    global.bot = bot;
 }
 
 const passport = require('passport');
@@ -53,30 +53,30 @@ env(__dirname + '/bot/.env');
 // ——————————————————————————————————————————————————
 
 passport.serializeUser((user, done) => {
-  done(null, user);
+    done(null, user);
 });
 
 passport.deserializeUser((obj, done) => {
-  done(null, obj);
+    done(null, obj);
 });
 
 // Use the CiscoSparkStrategy within passport
 passport.use(new CiscoSparkStrategy({
-    clientID: process.env.cisco_spark_client_id,
-    clientSecret: process.env.cisco_spark_client_secret,
-    callbackURL: "/auth/spark/callback",
-    scope: [
-      'spark:all'
-    ]
-  },
-  (accessToken, refreshToken, profile, done) => {
-    databaseServices.userLoggedIn(profile.id, profile.displayName, profile.emails, profile._json.orgId).then(user => {
-      const sessionUser = {id: user.id, name: user.name, avatar: profile._json.avatar, spark_token: accessToken};
-      return done(null, sessionUser);
-    }, err => {
-      return done(err);
-    });
-  }
+        clientID: process.env.cisco_spark_client_id,
+        clientSecret: process.env.cisco_spark_client_secret,
+        callbackURL: "/auth/spark/callback",
+        scope: [
+            'spark:all'
+        ]
+    },
+    (accessToken, refreshToken, profile, done) => {
+        databaseServices.userLoggedIn(profile.id, profile.displayName, profile.emails, profile._json.orgId).then(user => {
+            const sessionUser = { id: user.id, name: user.name, avatar: profile._json.avatar, spark_token: accessToken };
+            return done(null, sessionUser);
+        }, err => {
+            return done(err);
+        });
+    }
 ));
 
 const app = express();
@@ -113,17 +113,17 @@ app.use(logger('dev'));
 
 // app.use(express.static(path.join(__dirname, 'public')));
 app.use(config.static.root, express.static(`${__dirname}/public`, {
-  setHeaders: (res, path) => {
-    if (path.endsWith('.gz')) {
-      res.set('Content-Encoding', 'gzip');
-      res.type(mime.lookup(path.slice(0, -3)));
+    setHeaders: (res, path) => {
+        if (path.endsWith('.gz')) {
+            res.set('Content-Encoding', 'gzip');
+            res.type(mime.lookup(path.slice(0, -3)));
+        }
     }
-  }
 }));
 
 app.use(compression());
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // app.use(sassMiddleware({
@@ -139,10 +139,10 @@ app.use(cookieParser());
 // ——————————————————————————————————————————————————
 
 app.use(session({
-  secret: process.env.session_secret,
-  resave: false,
-  saveUninitialized: false,
-  store: new SequelizeStore({db: sequelize})
+    secret: process.env.session_secret,
+    resave: false,
+    saveUninitialized: false,
+    store: new SequelizeStore({ db: sequelize })
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -153,19 +153,19 @@ app.use(passport.session());
 // ——————————————————————————————————————————————————
 
 const middleware = {
-  globalLocals: (req, res, next) => {
-    res.locals = {
-      user: {
-        isAuthenticated: req.isAuthenticated(),
-        user: req.user,
-      },
-      // siteTitle: "My Website's Title",
-      // pageTitle: "The Root Splash Page",
-      // author: "Cory Gross",
-      // description: "My app's description",
-    };
-    next();
-  },
+    globalLocals: (req, res, next) => {
+        res.locals = {
+            user: {
+                isAuthenticated: req.isAuthenticated(),
+                user: req.user,
+            },
+            // siteTitle: "My Website's Title",
+            // pageTitle: "The Root Splash Page",
+            // author: "Cory Gross",
+            // description: "My app's description",
+        };
+        next();
+    },
 };
 app.use(middleware.globalLocals);
 
@@ -183,13 +183,13 @@ app.use('/test', routes_test);
 
 // import all the pre-defined bot routes that are present in /bot/components/routes
 if (typeof bot !== 'undefined') {
-  const normalizedPath = require("path").join(__dirname, "bot/components/routes");
-  require("fs").readdirSync(normalizedPath).forEach(file => {
-    console.log(file);
-    require("./bot/components/routes/" + file)(app, bot);
-  });
+    const normalizedPath = require("path").join(__dirname, "bot/components/routes");
+    require("fs").readdirSync(normalizedPath).forEach(file => {
+        console.log(file);
+        require("./bot/components/routes/" + file)(app, bot);
+    });
 } else {
-  console.log('WARNING: bot is not defined; did you import it? (OK if you are just testing without needing to register the callbacks with Spark)');
+    console.log('WARNING: bot is not defined; did you import it? (OK if you are just testing without needing to register the callbacks with Spark)');
 }
 
 
@@ -198,20 +198,20 @@ if (typeof bot !== 'undefined') {
 // ——————————————————————————————————————————————————
 
 app.use((req, res, next) => {
-  const err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+    const err = new Error('Not Found');
+    err.status = 404;
+    next(err);
 });
 
 // error handler
 app.use((err, req, res, next) => {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
 });
 
 
@@ -227,37 +227,37 @@ app.use((err, req, res, next) => {
 //
 const CREATE_DB_AND_LOAD_FIXTURES = false;
 if (CREATE_DB_AND_LOAD_FIXTURES) {
-  sequelize.sync({alter: true}).then(() => {
-    console.log("Database models synced, will load the fixtures");
-    // Load database fixtures
-    models.startLoadingDatabaseFixtures();
-    startTheServer();
-  }, err => {
-    console.error("Error on sequelize.sync():");
-    console.error(err);
-  });
+    sequelize.sync({ alter: true }).then(() => {
+        console.log("Database models synced, will load the fixtures");
+        // Load database fixtures
+        models.startLoadingDatabaseFixtures();
+        startTheServer();
+    }, err => {
+        console.error("Error on sequelize.sync():");
+        console.error(err);
+    });
 } else {
-  startTheServer();
+    startTheServer();
 }
 
 function startTheServer() {
-  console.log('Will now start the server.');
-  app.listen(config.port, config.host, () => {
-    console.log(`Application listening on ${config.host}:${config.port}...`);
-    resumeOngoingFlowsAfterServerStart();
-  });
+    console.log('Will now start the server.');
+    app.listen(config.port, config.host, () => {
+        console.log(`Application listening on ${config.host}:${config.port}...`);
+        resumeOngoingFlowsAfterServerStart();
+    });
 }
 
 function resumeOngoingFlowsAfterServerStart() {
- console.log('resumeOngoingFlowsAfterServerStart()');
- databaseServices.getAllOngoingFlows().then(respondentFlows => {
-  // console.log('Pending flows:');
-  // console.log(flows);
-   respondentFlows.forEach(respondentFlow => {
-    console.log(`Resuming flow ${respondentFlow.id}`); // TODO
-    sparkAPIUtils.resumeFlowForUser(respondentFlow.flow_id, respondentFlow.respondent.spark_id);
-  });
- });
+    console.log('resumeOngoingFlowsAfterServerStart()');
+    databaseServices.getAllOngoingFlows().then(respondentFlows => {
+        // console.log('Pending flows:');
+        // console.log(flows);
+        respondentFlows.forEach(respondentFlow => {
+            console.log(`Resuming flow ${respondentFlow.id}`); // TODO
+            sparkAPIUtils.resumeFlowForUser(respondentFlow.flow_id, respondentFlow.respondent.spark_id);
+        });
+    });
 }
 
 

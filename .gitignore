@@ -6,6 +6,7 @@ node_modules
 *.log
 node_modules
 db.json
+bot/files_to_serve/
 
 # All IntelliJ files
 .idea/

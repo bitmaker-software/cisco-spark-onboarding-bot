@@ -129,6 +129,7 @@ let app = new Vue({
     this.$events.$on('filter-set', eventData => this.onFilterSet(eventData));
     this.$events.$on('filter-reset', e => this.onFilterReset());
   },
+
   methods: {
     closeAllDetailRows (){
       console.log("Closing detail rows");
@@ -184,6 +185,25 @@ let app = new Vue({
         else {
           this.$refs.vuetable.toggleDetailRow(data.id);
         }
+      }
+    },
+    onCellClicked (data, field, event) {
+      console.log('cellClicked: '+ field.name+" "+ data.id);
+
+      if(data.details === null)
+      {
+        //ajax
+        this.$http.get('/test/answers/'+flowId+'/'+data.resp_id).then(response => {
+          data.details = response.body;
+          this.$refs.vuetable.toggleDetailRow(data.id);
+        }, error => {
+          if (error.status === 401) {
+            window.location.replace('/auth/spark');
+          }
+        });
+      }
+      else{
+        this.$refs.vuetable.toggleDetailRow(data.id);
       }
     },
     onPaginationData (paginationData) {
