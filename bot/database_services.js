@@ -173,6 +173,11 @@ module.exports = {
   },
 
   createDocumentStep: (stepId, uploadDir, uploadDirName, documentUrl, documentName) => {
+    if(uploadDir === null){
+      console.log("NULL")
+      uploadDir = 'root';
+      uploadDirName = 'root';
+    }
     return models.document_step.create({
       //document_store_id: ,
       step_id: stepId,
@@ -214,10 +219,10 @@ module.exports = {
             }
           ).then(respondentFlow => {
             if (respondentFlow) {
-                //update START_DATE
-                respondentFlow.updateAttributes({
-                  start_date: new Date(),
-                });
+              //update START_DATE
+              respondentFlow.updateAttributes({
+                start_date: new Date(),
+              });
               resolve(respondentFlow);
             } else {
               reject('No flow for this respondent');
@@ -247,13 +252,13 @@ module.exports = {
                 model: models.flow,
                 attributes: ['name']
               }
-                        ],
+            ],
             // TODO: limit to the oldest per user
           }).then(respondentFlow => {
             if (respondentFlow) {
               if(respondentFlow.start_date === null){
                 respondentFlow.updateAttributes({
-                    start_date: new Date(),
+                  start_date: new Date(),
                 });
               }
 
@@ -275,11 +280,11 @@ module.exports = {
         respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.IN_PROGRESS
       },
       include: [
-          {
-            model: models.respondent
-          },
-                ]
-        // TODO: limit to the oldest per user
+        {
+          model: models.respondent
+        },
+      ]
+      // TODO: limit to the oldest per user
     }); //.then(flows => {
     // if (respondentFlow) {
     //   resolve(respondentFlow);
@@ -336,36 +341,36 @@ module.exports = {
     console.log(`getAnswers(${flow_id},${resp_id})`);
     return new Promise((resolve,reject) => {
       models.respondent_answer.findAll({
-          attributes: ['id','text','document_url','answer_date'],
-          where:{
-            answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED,  //ja respondidas
-            respondent_flow_id: resp_id, //para este utilizador
+        attributes: ['id','text','document_url','answer_date'],
+        where:{
+          answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED,  //ja respondidas
+          respondent_flow_id: resp_id, //para este utilizador
+        },
+        include: [
+          {
+            model: models.step,
+            attributes: ['step_order','text','step_type_id'],
+            where: {
+              $or: [
+                {step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT},
+                {step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE},
+                {step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT},
+                {step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK},
+              ]
+            },
+            include: [
+              {
+                model: models.document_step,
+                attributes: ['upload_dir_name'],
+              },
+            ],
           },
-          include: [
-              {
-                model: models.step,
-                attributes: ['step_order','text','step_type_id'],
-                where: {
-                  $or: [
-                      {step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT},
-                      {step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE},
-                      {step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT},
-                      {step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK},
-                  ]
-                },
-                include: [
-                    {
-                      model: models.document_step,
-                      attributes: ['upload_dir_name'],
-                    },
-                ],
-              },
-              {
-                model: models.step_choice,
-                attributes: ['choice_order', 'text'],
-              },
-          ],
-          order: [[models.Sequelize.col('step.step_order'), 'ASC']],
+          {
+            model: models.step_choice,
+            attributes: ['choice_order', 'text'],
+          },
+        ],
+        order: [[models.Sequelize.col('step.step_order'), 'ASC']],
       }).then(details => {
         resolve(details);
       }, err => {
@@ -382,61 +387,61 @@ module.exports = {
       order[0] = models.Sequelize.col(order[0]);
     });
 
-      return new Promise((resolve, reject) => {
-        models.respondent_flow.findAll({
-          attributes: ['id','start_date','end_date'],
-          where:{
-            flow_id: flow_id
+    return new Promise((resolve, reject) => {
+      models.respondent_flow.findAll({
+        attributes: ['id','start_date','end_date'],
+        where:{
+          flow_id: flow_id
+        },
+        include:[
+          {
+            model: models.respondent,
+            attributes: ['name'],
+            where: {
+              name: {
+                $like: '%' + filter + '%',
+              }
+            }
           },
-          include:[
-              {
-                model: models.respondent,
-                attributes: ['name'],
-                where: {
-                  name: {
-                    $like: '%' + filter + '%',
-                  }
-                }
-              },
-              {
-                model: models.respondent_flow_status,
-                attributes: ['id','description'],
-              },
-          ],
-          limit: per_page,
-          offset: per_page * page,
-          order: orders, //[[models.Sequelize.col(sort), order]]
-        }).then(users => {
-          users.forEach(function(user) {
-            user.details = null;
-          });
-          resolve(users);
-        }, err => {
-          console.error(`Error getting answers`);
-          console.error(err);
-          reject(err);
+          {
+            model: models.respondent_flow_status,
+            attributes: ['id','description'],
+          },
+        ],
+        limit: per_page,
+        offset: per_page * page,
+        order: orders, //[[models.Sequelize.col(sort), order]]
+      }).then(users => {
+        users.forEach(function(user) {
+          user.details = null;
         });
+        resolve(users);
+      }, err => {
+        console.error(`Error getting answers`);
+        console.error(err);
+        reject(err);
       });
+    });
   },
 
   countUsers: (flow_id, filter) => {
     console.log(`countUsers(${flow_id}, ${filter})`);
     return new Promise((resolve, reject) => {
       models.respondent_flow.count({
-          where:{
-            flow_id: flow_id
+        where:{
+          flow_id: flow_id
+        },
+        include:[
+          {
+            model: models.respondent,
+            attributes: ['name'],
+            where: {
+              name: {
+                $like: '%' + filter + '%',
+              }
+            }
           },
-          include:[
-              {
-                model: models.respondent,
-                attributes: ['name'],
-                where: {
-                  name: {
-                    $like: '%' + filter + '%',
-                  }
-                }
-              },
-          ],
+        ],
       }).then(res => {
         console.log(`----`);
         console.log(res);
@@ -498,8 +503,8 @@ module.exports = {
           }
         ],
         order: [
-            [models.Sequelize.col('respondent_flow->respondent.name'),'ASC'],
-            [models.Sequelize.col('step.step_order'),'ASC']
+          [models.Sequelize.col('respondent_flow->respondent.name'),'ASC'],
+          [models.Sequelize.col('step.step_order'),'ASC']
         ],
       }).then(res => {
         console.log(`----`);
@@ -521,10 +526,10 @@ module.exports = {
         where: {
           flow_id: flowId,
           $or: [
-              {step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT},
-              {step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE},
-              {step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT},
-              {step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK}],
+            {step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT},
+            {step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE},
+            {step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT},
+            {step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK}],
         },
         order: [[models.Sequelize.col('"name"'),'ASC']]
       }).then(res => {
@@ -815,10 +820,10 @@ module.exports = {
     console.log("getMinFlowTime(flow_id)");
     return new Promise((resolve, reject) => {
       models.respondent_flow.min('duration_seconds',{
-          where: {
-            respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.FINISHED,
-            flow_id: flowId,
-          }
+        where: {
+          respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.FINISHED,
+          flow_id: flowId,
+        }
       }).then(min => {
         if(isNaN(min))
           resolve("No Data");
@@ -836,19 +841,19 @@ module.exports = {
     console.log("getMaxFlowTime(flow_id)");
     return new Promise((resolve, reject) => {
       models.respondent_flow.max('duration_seconds',{
-          where: {
-            respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.FINISHED,
-            flow_id: flowId,
-          }
+        where: {
+          respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.FINISHED,
+          flow_id: flowId,
+        }
       }).then(max => {
         if(isNaN(max))
           resolve("No Data");
         else
           resolve(secondsToTime(max));
       }, err => {
-          console.error(`Error getting max flow time`);
-          console.error(err);
-          reject(err);
+        console.error(`Error getting max flow time`);
+        console.error(err);
+        reject(err);
       });
     });
   },
@@ -857,7 +862,7 @@ module.exports = {
   deleteStep: (step_id) => {
     console.log(`Delete step ${step_id}`);
     models.step.findById(step_id).then(step => {
-        step.destroy();
+      step.destroy();
     });
   },
 
@@ -886,9 +891,9 @@ function getFlowStartingOnStepOrder(resolve, reject, flowId, startingStepOrder) 
         }
       },
       order: [
-                [models.Sequelize.col('"step_order"'), 'ASC'],
-                [models.step_choice, '"choice_order"', 'ASC']
-            ],
+        [models.Sequelize.col('"step_order"'), 'ASC'],
+        [models.step_choice, '"choice_order"', 'ASC']
+      ],
       include: [
         {
           model: models.step_choice
@@ -896,7 +901,7 @@ function getFlowStartingOnStepOrder(resolve, reject, flowId, startingStepOrder) 
         {
           model: models.document_step
         }
-            ]
+      ]
     }).then(steps => {
       const result = {
         // respondent_flow_id: 345,
@@ -940,10 +945,10 @@ function secondsToTime(seconds) {
   //mais que um dia
   if(seconds >= 86400){
     let days = Math.floor(seconds/86400);
-      if(days === 1)
-        dateStr = days + " day ";
-      else
-        dateStr = days + " days ";
+    if(days === 1)
+      dateStr = days + " day ";
+    else
+      dateStr = days + " days ";
   }
   dateStr += date.getHours()+" h "+date.getMinutes()+" min "+date.getSeconds()+" secs";
 

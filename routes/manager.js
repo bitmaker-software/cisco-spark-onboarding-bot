@@ -125,15 +125,15 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
 
   //update flow name
   databaseServices.updateTitle(
-      req.body.title,
-      req.body.flow_id
+    req.body.title,
+    req.body.flow_id
   ).then(res => {
-      // Done
-      console.log(`Updated flow title`);
+    // Done
+    console.log(`Updated flow title`);
   }, err => {
-      console.error(`Error updating flow title:`);
-      console.error(err);
-      return res.send(err); // TODO: calling return from inside the callback function?!
+    console.error(`Error updating flow title:`);
+    console.error(err);
+    return res.send(err); // TODO: calling return from inside the callback function?!
   });
 
   //delete steps
