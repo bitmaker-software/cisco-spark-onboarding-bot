@@ -45,22 +45,22 @@ router.get('/users/:flow_id/:total', ensureAuthenticated, (req, res, next) => {
   let page = req.query.page;
   let per_page = req.query.per_page;
   let filter = req.query.filter;
-  let order = "asc";
 
-  //default
-  if (sort === "") {
-    sort = "id";
-  }
-  else {
-    let n = sort.search('asc');
+  //verificar o numero de ordenacoes
+  let allSorts = sort.split(',');
+  let orders = [];
+  allSorts.forEach(function(currSort){
+    let order = "asc";
+    let n = currSort.search(/asc$/);
     //desc
     if (n === -1) {
       order = "desc";
-      n = sort.search('desc');
+      n = currSort.search(/desc$/);
     }
+      currSort = currSort.substring(0, n - 1);
 
-    sort = sort.substring(0, n - 1);
-  }
+    orders.push([currSort,order]);
+  });
 
   if (typeof filter === 'undefined') {
     filter = "";
@@ -71,7 +71,7 @@ router.get('/users/:flow_id/:total', ensureAuthenticated, (req, res, next) => {
     }, err => res.send(err));
   }
 
-  databaseServices.getUsers(flow_id, page - 1, per_page, filter, sort, order).then(answers => {
+  databaseServices.getUsers(flow_id, page - 1, per_page, filter,orders).then(answers => {
     const dataJSON = createDataJSON(answers, flow_id, total, sort, page, per_page);
     console.log(dataJSON);
     res.send(dataJSON);

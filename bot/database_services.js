@@ -362,8 +362,12 @@ module.exports = {
     });
   },
 
-  getUsers: (flow_id, page, per_page, filter, sort, order) => {
-    console.log(`getAnswers(${flow_id},${page},${per_page},${filter},${sort},${order})`);
+  getUsers: (flow_id, page, per_page, filter, orders) => {
+    console.log(`getAnswers(${flow_id},${page},${per_page},${filter},[${orders}])`);
+    orders.forEach(function (order){
+      order[0] = models.Sequelize.col(order[0]);
+    });
+
       return new Promise((resolve, reject) => {
         models.respondent_flow.findAll({
           attributes: ['id','start_date','end_date'],
@@ -387,7 +391,7 @@ module.exports = {
           ],
           limit: per_page,
           offset: per_page * page,
-          order: [[models.Sequelize.col(sort), order]]
+          order: orders, //[[models.Sequelize.col(sort), order]]
         }).then(users => {
           users.forEach(function(user) {
             user.details = null;
@@ -499,7 +503,7 @@ module.exports = {
     console.log(`getAnswersByQuestion(${flowId})`);
     return new Promise((resolve, reject) => {
       models.step.findAll({
-        attributes: [['id','name'],'text','step_type_id'],
+        attributes: [['step_order','name'],'id','text','step_type_id'],
         where: {
           flow_id: flowId,
           $or: [
@@ -508,7 +512,7 @@ module.exports = {
               {step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT},
               {step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK}],
         },
-        order: [['id','ASC']]
+        order: [[models.Sequelize.col('"name"'),'ASC']]
       }).then(res => {
         //so avanca depois de preencher todos os elementos
         let counter = 0;
@@ -559,7 +563,7 @@ module.exports = {
           flow_id: flowId,
           step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE
         },
-        order: [[models.Sequelize.col('"step_order"'), 'ASC']]
+        order: [[models.Sequelize.col('"order"'), 'ASC']]
       }).then(res => {
         //sincronizar
         let counter = 0;
@@ -832,7 +836,7 @@ module.exports = {
           reject(err);
       });
     });
-  },                   
+  },
 
   //DELETES -> WARNING
   deleteStep: (step_id) => {

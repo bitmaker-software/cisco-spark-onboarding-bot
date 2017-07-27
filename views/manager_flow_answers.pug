@@ -28,7 +28,7 @@ block content
       @vuetable:pagination-data="onPaginationData")
     div
       vuetable-pagination-info(ref="paginationInfo", :css="cssPagination", info-class="pull-left")
-      vuetable-pagination(ref="pagination", :css="cssPagination", @vuetable-pagination:change-page="onChangePage")
+      vuetable-pagination.mb-3(ref="pagination", :css="cssPagination", @vuetable-pagination:change-page="onChangePage")
 
 block pageScripts
   script.
