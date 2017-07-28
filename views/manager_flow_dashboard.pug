@@ -43,28 +43,49 @@ block content
           p.card-subtitle.mb-2.text-muted ⁠⁠⁠Maximum amount of time taken to answer the flow
           h5.card-text !{maxTime}
     div.row.mt-5
-      div.col-5#containerU(style={width:'100%',height:'300px'})
-      div.col-7#containerQ(style={width:'100%',height:'300px'})
+      div.col-5
+        div#pieChart
+      div.col-7
+        div#questionsChart
+        input#C(type="button" value="Back")
 
 block pageScripts
   script.
     var usersArray = !{JSON.stringify(usersArray).replace(/<\//g, '<\\/')};
+    var usersObj = [];
     var sumUsers = 0;
     usersArray.forEach(function (element) {
       sumUsers += parseInt(element.count);
-      element.y = parseInt(element.count);
+      usersObj.push([element.name,element.count]);
     });
 
-    var answersArrayData = !{JSON.stringify(answersArray).replace(/<\//g, '<\\/')};
-    var answersArray = [{
-      name: "Questions",
-      colorByPoint: true,
-      data: answersArrayData
-    }];
-
-    console.log(answersArrayData);
-
     var stepChoiceArray = !{JSON.stringify(stepChoiceArray).replace(/<\//g, '<\\/')};
+    var stepChoiceObj = {};
 
+    var answersArrayData = !{JSON.stringify(answersArray).replace(/<\//g, '<\\/')};
+    var answersObj = ['questions'];
+    var answersCatObj = [];
+    answersArrayData.forEach(function (element,index)
+    {
+      console.log(index)
+
+      answersObj.push(element.y)
+      answersCatObj.push(element.name);
+
+      if(element.drilldown !== null)
+      {
+        let i = 0;
+        for(i = 0; i < stepChoiceArray.length; i++)
+        {
+          let stepChoice = stepChoiceArray[i];
+          if(stepChoice.id === element.drilldown){
+            stepChoiceObj[index] = stepChoice.data;
+            break;
+          }
+        }
+      }
+    });
+
+    console.log(stepChoiceObj);
 
   script(src=static.root + '/js/manager_flow_dashboard.js')

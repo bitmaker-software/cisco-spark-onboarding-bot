@@ -22,6 +22,7 @@
     "body-parser": "^1.17.2",
     "bootstrap": "4.0.0-alpha.6",
     "botkit": "^0.5.6",
+    "c3": "^0.4.15",
     "compression": "^1.7.0",
     "connect-session-sequelize": "^4.1.0",
     "cookie-parser": "^1.4.3",
