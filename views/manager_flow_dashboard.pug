@@ -2,9 +2,25 @@ extends layout
 
 block content
   div#root
-    div.text-center.p-4
-      h1.text-center.mb-4.mt-4 !{title} Dashboard
-      p.text-muted.mt-4 Main Statistics collect for this flow
+    div.row
+     h1.mt-4.mb-4.col-8 !{title} Dashboard
+     div.btn-group.mb-4.mt-4.col-4(role="group")
+       a.btn.btn-outline-primary(style={width: '110px'}, href='/manager/flow/' + flowId + '/edit', role="button", data-toggle="tooltip")
+         svg.icon(style={width: '20px', height: '20px'})
+           use(xlink:href=static.root + "/sprite.svg#settings")
+         | Edit
+       a.btn.btn-outline-primary(style={width: '110px'}, href='/manager/flow/' + flowId + '/send', role="button", data-toggle="tooltip")
+         svg.icon.send(style={width: '20px', height: '20px'})
+           use(xlink:href=static.root + "/sprite.svg#send")
+         | Send
+       a.btn.btn-outline-primary(style={width: '110px'}, href='/manager/flow/' + flowId + '/answers', role="button", data-toggle="tooltip")
+         svg.icon(style={width: '20px', height: '20px'})
+           use(xlink:href=static.root + "/sprite.svg#answer")
+         | Answers
+       a.btn.btn-outline-primary.active(style={width: '110px'}, href='/manager/flow/' + flowId +'/dashboard',role="button",data-toggle="tooltip")
+         svg.icon(style={width: '20px', height: '20px'})
+           use(xlink:href=static.root + "/sprite.svg#dashboard")
+         | Dashboard
     div.card-deck.mt-4
       div.card.card-outline-primary.text-center
         div.card-block
