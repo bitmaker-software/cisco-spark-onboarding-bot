@@ -47,7 +47,7 @@ block content
         div#pieChart
       div.col-7
         div#questionsChart
-        input#C(type="button" value="Back")
+        input#back(type="button" value="Back" style="display:none")
 
 block pageScripts
   script.
@@ -60,10 +60,11 @@ block pageScripts
     });
 
     var stepChoiceArray = !{JSON.stringify(stepChoiceArray).replace(/<\//g, '<\\/')};
-    var stepChoiceObj = {};
+    var stepChoiceObj = [];
+    var stepChoiceCatObj = [];
 
     var answersArrayData = !{JSON.stringify(answersArray).replace(/<\//g, '<\\/')};
-    var answersObj = ['questions'];
+    var answersObj = ['Answers'];
     var answersCatObj = [];
     answersArrayData.forEach(function (element,index)
     {
@@ -86,6 +87,14 @@ block pageScripts
       }
     });
 
+    console.log('stepChoiceObj');
     console.log(stepChoiceObj);
+
+    console.log('answersObj');
+    console.log(answersObj);
+
+    console.log('answersCatObj');
+    console.log(answersCatObj);
+
 
   script(src=static.root + '/js/manager_flow_dashboard.js')

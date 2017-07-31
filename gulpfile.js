@@ -27,14 +27,12 @@ const run = (cb, production) => {
     .pipe(sourcemaps.init())
     .pipe(sass().on('error', sass.logError))
     .pipe(postcss(
-      production
-        ? [autoprefixer(), cssnano({discardComments: {removeAll: true}})]
-        : [autoprefixer()]
+      production ? [autoprefixer(), cssnano({ discardComments: { removeAll: true } })] : [autoprefixer()]
     ))
     .pipe(
-      production
-        ? sourcemaps.write('./', {addComment: false})
-        : sourcemaps.write()
+      production ?
+      sourcemaps.write('./', { addComment: false }) :
+      sourcemaps.write()
     )
     .pipe(gulp.dest('public/css'));
   if (typeof cb === 'function') cb();
@@ -49,32 +47,37 @@ gulp.task('scss:watch', () => {
   return gulp.watch('client/styles/*.scss', run);
 });
 
-gulp.task('sprite-page', function () {
+gulp.task('sprite-page', function() {
   return gulp.src('client/svg/**/*.svg')
     .pipe(svgSprite(svgConfig))
     .pipe(gulp.dest('client/'));
 });
 
-gulp.task('sprite-shortcut', function () {
+gulp.task('sprite-shortcut', function() {
   return gulp.src('client/sprite/sprite.svg')
     .pipe(gulp.dest('public/'));
 });
 
-gulp.task('copy-static', function () {
-  gulp.start('images', 'font-awesome', 'sprites');
+gulp.task('copy-static', function() {
+  gulp.start('images', 'font-awesome', 'sprites', 'c3');
 });
 
-gulp.task('images', function () {
+gulp.task('images', function() {
   return gulp.src('client/images/*.*')
     .pipe(gulp.dest('public/images/'));
 });
 
-gulp.task('font-awesome', function () {
+gulp.task('font-awesome', function() {
   return gulp.src('node_modules/font-awesome/fonts/*.*')
     .pipe(gulp.dest('public/fonts/'));
 });
 
-gulp.task('sprites', function () {
+gulp.task('c3', function() {
+  return gulp.src('node_modules/c3/c3.css')
+    .pipe(gulp.dest('public/css/'));
+});
+
+gulp.task('sprites', function() {
   return gulp.src('client/sprite/sprite.svg')
     .pipe(gulp.dest('public/'));
 });
