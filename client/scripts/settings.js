@@ -13,6 +13,7 @@ let app = new Vue({
         name: undefined,
         access_token: undefined,
         public_https_address: undefined,
+        webhook_name: undefined,
         secret: undefined
       });
     },

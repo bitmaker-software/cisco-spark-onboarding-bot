@@ -8,24 +8,19 @@ module.exports = controllers => {
   controllers.forEach(controller => {
     debug('Subscribing to Cisco webhook events...');
 
-    console.log(`\n****************************************`);
-    console.log(`  Subscribing to Cisco webhook events   `);
-    console.log(`****************************************\n`);
-
     const webhook_name = controller.config.webhook_name || 'Botkit Firehose';
 
-    // console.log(`Resetting webhook subscriptions`);
-    // controller.resetWebhookSubscriptions();
+    console.log(`\n****************************************`);
+    console.log(`  Subscribing to Cisco webhook events   `);
+    console.log(`  for bot "${webhook_name}"   `);
+    console.log(`****************************************\n`);
 
-    const list = controller.api.webhooks.list().then(function (list) {
+    const list = controller.api.webhooks.list().then(list => {
 
-      //
-      //
-      // TODO: iterate through the controllers and register the next (after the update/create)
-      //
-      //
+      // console.log(`Resetting previous webhook subscriptions`);
+      // controller.resetWebhookSubscriptions(); // Error removing subscription: TypeError: Cannot read property 'name' of undefined
 
-      console.log(`List of hooks:`);
+      console.log(`List of hooks for this controller:`);
       console.log(list);
       console.log(list.items);
       console.log(`-----`);
@@ -42,9 +37,7 @@ module.exports = controllers => {
 
       debug('Cisco Spark: incoming webhook url is ', hook_url);
 
-      console.log(`Registering Hook`);
-      console.log(`Name: ${webhook_name}`);
-      console.log(`ID: ${hook_id}`);
+      // console.log(`ID: ${hook_id}`);
 
       if (hook_id) {
         controller.api.webhooks.update({

@@ -12,6 +12,9 @@ module.exports = function (sequelize, DataTypes) {
       public_https_address: {
         type: DataTypes.STRING
       },
+      webhook_name: {
+        type: DataTypes.STRING
+      },
       secret: {
         type: DataTypes.STRING
       }

@@ -131,19 +131,6 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
 
   let promiseArray = [];
 
-  //update flow name
-  databaseServices.updateTitle(
-    req.body.title,
-    req.body.flow_id
-  ).then(res => {
-    // Done
-    console.log(`Updated flow title`);
-  }, err => {
-    console.error(`Error updating flow title:`);
-    console.error(err);
-    return res.send(err); // TODO: calling return from inside the callback function?!
-  });
-
   //delete steps
   req.body.stepsToDelete.forEach(step_id => {
     databaseServices.deleteStep(step_id);
@@ -165,10 +152,10 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
     if (step.id === undefined) {
       // Create step
       promiseArray.push(
-        databaseServices.createStep(
+        databaseServices.createAnnouncementStep(
           step.text,
           index + 1,
-          req.body.flow_id,
+          req.body.flowId,
           step.step_type_id
         ).then(newStep => {
           console.log(`Result from new step`);
@@ -441,7 +428,9 @@ router.post('/api/flow/:id/send', ensureAuthenticated, (req, res, next) => {
       // Continue
       databaseServices.findOrCreateRespondentFlow(assignerId, user.id, flowId, assignDate).then(respondentFlow => {
         // OK
-        sparkAPIUtils.startFlowForUser(flowId, user.spark_id);
+        databaseServices.getFlowBotController(respondentFlow.flow_id).then(bot => {
+          sparkAPIUtils.startFlowForUser(flowId, user.spark_id, bot);
+        });
         return res.status(200).send();
       }, error => {
         // findOrCreateRespondentFlow error

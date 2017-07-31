@@ -28,6 +28,7 @@ router.post('/api/saveBots', ensureAuthenticated, function (req, res, next) {
       name: bot.name,
       accessToken: bot.access_token,
       publicHttpsAddress: bot.public_https_address,
+      webhookName: bot.webhook_name,
       secret: bot.secret,
     });
   });

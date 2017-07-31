@@ -5,16 +5,23 @@ const sparkAPIUtils = require('./spark_api_utils');
 
 const STATUS_TYPES = require('./status_types');
 
+let botControllers = [];
+
 module.exports = {
+  takeTheBotsControllers: bc => {
+    botControllers = bc;
+  },
+
   saveBot: bot => {
     // TODO: save the manager_id
-    let {id, managerId, name, accessToken, publicHttpsAddress, secret} = bot;
+    let {id, managerId, name, accessToken, publicHttpsAddress, webhookName, secret} = bot;
     console.log(`Bot to save:`);
     console.log(id);
     console.log(managerId);
     console.log(name);
     console.log(accessToken);
     console.log(publicHttpsAddress);
+    console.log(webhookName);
     console.log(secret);
     console.log(`---`);
     if (!id) {
@@ -24,6 +31,7 @@ module.exports = {
         name: name,
         access_token: accessToken,
         public_https_address: publicHttpsAddress,
+        webhook_name: webhookName,
         secret: secret
       });
     } else {
@@ -34,6 +42,7 @@ module.exports = {
           name: name,
           access_token: accessToken,
           public_https_address: publicHttpsAddress,
+          webhook_name: webhookName,
           secret: secret
         },
         {
@@ -45,16 +54,41 @@ module.exports = {
     }
   },
 
-  getBots: () => {
+  getBots: id => {
     // TODO: filter by manager?
-    return models.bot.findAll({
-      attributes: ['id', 'name', 'access_token', 'public_https_address', 'secret']
-    });
+    const attributes = ['id', 'name', 'access_token', 'public_https_address', 'webhook_name', 'secret'];
+    if (id >= 0) {
+      return models.bot.find({attributes: attributes, where: {id: id}});
+    } else {
+      return models.bot.findAll({attributes: attributes});
+    }
   },
 
   getBotsNames: () => {
     return models.bot.findAll({
       attributes: ['id', 'name']
+    });
+  },
+
+  getFlowBotController: flowId => {
+    return new Promise((resolve, reject) => {
+      models.flow.find({attributes: ['bot_id'], where: {id: flowId}}).then(flow => {
+        models.bot.find({attributes: ['webhook_name'], where: {id: flow.bot_id}}).then(bot => {
+          if (bot === null) {
+            reject(`No bot for this flow`);
+            return;
+          }
+
+          botControllers.forEach(botController => {
+            if (botController.config.webhook_name === bot.webhook_name) {
+              console.log(`Resolving the bot controller for ${bot.webhook_name}`);
+              resolve(botController);
+            }
+          });
+
+          reject(`No bot controller found for the webhook name ${bot.webhook_name}`);
+        })
+      })
     });
   },
 
@@ -184,7 +218,7 @@ module.exports = {
     });
   },
 
-  createStep: (stepText, stepOrder, flowId, stepTypeId) => {
+  createAnnouncementStep: (stepText, stepOrder, flowId, stepTypeId) => {
     return models.step.create({
       text: stepText,
       step_order: stepOrder,
@@ -199,14 +233,6 @@ module.exports = {
       step_order: stepOrder,
     }, {
       where: {id: stepId}
-    });
-  },
-
-  updateTitle: (title, flowId) => {
-    return models.flow.update({
-      name: title
-    }, {
-      where: {id: flowId}
     });
   },
 

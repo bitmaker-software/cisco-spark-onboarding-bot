@@ -31,6 +31,12 @@ block content
                 input#bot-public-address.form-control(v-model="bot.public_https_address")
               div.form-group
                 label(
+                for='bot-webhook-name'
+                class='blue'
+                ) Webhook name (when you have more than one bot on the same address)
+                input#bot-webhook-name.form-control(v-model="bot.webhook_name")
+              div.form-group
+                label(
                 for='bot-secret'
                 class='blue'
                 ) Secret

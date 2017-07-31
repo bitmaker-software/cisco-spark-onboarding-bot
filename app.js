@@ -201,16 +201,8 @@ app.use('/test', routes_test);
 //                  Bot & Bot routes
 // ——————————————————————————————————————————————————
 
-let botsControllers;
 const REGISTER_WITH_SPARK = true; // set to false to avoid registering with Spark
-function registerBot() {
-  console.log(`Registering the bot`);
-  if (REGISTER_WITH_SPARK) {
-    botsControllers = require('./bot/bot');
-    // global.bot = botController;
-  }
-}
-
+let botsReady = true;
 // Read from the .env file and save to the database (the first bot only)
 (function checkDatabaseReadyAndSaveTheBot() {
   if (!databaseReady) {
@@ -226,6 +218,7 @@ function registerBot() {
         name: `Read from env`,
         accessToken: process.env.access_token,
         publicHttpsAddress: process.env.public_address,
+        webhookName: process.env.webhook_name,
         secret: process.env.secret
       }).then(registerBot);
     } else {
@@ -235,16 +228,27 @@ function registerBot() {
   }
 })();
 
+function registerBot() {
+  // called from checkDatabaseReadyAndSaveTheBot
+  console.log(`Registering the bot`);
+  if (REGISTER_WITH_SPARK) {
+    botsReady = false;
 
-// import all the pre-defined bot routes that are present in /bot/components/routes
-if (typeof botController !== 'undefined') {
+    require('./bot/bot')(callbackWhenBotsRegistered);
+  }
+}
+
+function callbackWhenBotsRegistered(botsControllers) {
+  databaseServices.takeTheBotsControllers(botsControllers);
+  // import all the pre-defined bot routes that are present in /bot/components/routes
   const normalizedPath = require("path").join(__dirname, "bot/components/routes");
   require("fs").readdirSync(normalizedPath).forEach(file => {
     console.log(file);
-    require("./bot/components/routes/" + file)(app, botController); // incoming_webhooks.js
+    require("./bot/components/routes/" + file)(app, botsControllers); // incoming_webhooks.js
   });
-} else {
-  console.log('WARNING: bot is not defined; did you import it? (OK if you are just testing without needing to register the callbacks with Spark)');
+
+  console.log(`\nThe bots are ready`);
+  botsReady = true;
 }
 
 
@@ -252,37 +256,29 @@ if (typeof botController !== 'undefined') {
 //      Catch 404 and forward to error handler
 // ——————————————————————————————————————————————————
 
-app.use((req, res, next) => {
-  const err = new Error('Not Found');
-  err.status = 404;
-  next(err);
-});
+function setupLastRoutes() {
+  app.use((req, res, next) => {
+    const err = new Error('Not Found');
+    err.status = 404;
+    next(err);
+  });
 
 // error handler
-app.use((err, req, res, next) => {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  app.use((err, req, res, next) => {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
+  });
+}
 
 
 // ——————————————————————————————————————————————————
 //                 Start the server
 // ——————————————————————————————————————————————————
-
-(function checkDatabaseReadyAndStartTheServer() {
-  if (!databaseReady) {
-    console.log('The database is not ready yet; waiting 1 second.');
-    setTimeout(checkDatabaseReadyAndStartTheServer, 1000);
-  } else {
-    console.log('The database is ready.');
-    startTheServer();
-  }
-})();
 
 function startTheServer() {
   console.log('Will now start the server.');
@@ -299,10 +295,24 @@ function resumeOngoingFlowsAfterServerStart() {
     // console.log(flows);
     respondentFlows.forEach(respondentFlow => {
       console.log(`Resuming flow ${respondentFlow.id}`); // TODO
-      sparkAPIUtils.resumeFlowForUser(respondentFlow.flow_id, respondentFlow.respondent.spark_id);
+      databaseServices.getFlowBotController(respondentFlow.flow_id).then(bot => {
+        sparkAPIUtils.resumeFlowForUser(respondentFlow.flow_id, respondentFlow.respondent.spark_id, bot);
+      });
     });
   });
 }
+
+
+(function checkDatabaseReadyAndStartTheServer() {
+  if (!databaseReady || !botsReady) {
+    console.log('The database or the bots are not ready yet; waiting 1 second.');
+    setTimeout(checkDatabaseReadyAndStartTheServer, 1000);
+  } else {
+    console.log('Database and bots ready.');
+    setupLastRoutes();
+    startTheServer();
+  }
+})();
 
 
 // ——————————————————————————————————————————————————
