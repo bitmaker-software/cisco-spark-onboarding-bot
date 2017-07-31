@@ -9,9 +9,6 @@ module.exports = function (sequelize, DataTypes) {
         type: DataTypes.STRING,
         unique: true
       },
-      bot_key: {
-        type: DataTypes.STRING
-      },
     },
     {});
 };

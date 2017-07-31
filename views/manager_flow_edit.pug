@@ -4,6 +4,13 @@ block content
   div#root
 
     div.row
+      div.col-md-3
+        div.input-group
+          label Select the bot for this flow
+          select.custom-select(v-model="selectedBot")
+            option(v-for='bot in bots', :value="bot.id") {{ bot.name }}
+
+    div.row
       div.col-md-3.step-container
         div.title-input
           input.form-control(type="text", v-model="title").text-center
@@ -139,16 +146,22 @@ block content
 
 block pageScripts
   script.
-    var stepTypesArray = !{JSON.stringify(stepTypes).replace(/<\//g, '<\\/')};
+    var stepTypesFromServer = !{JSON.stringify(stepTypes).replace(/<\//g, '<\\/')};
+    var botsFromServer = !{JSON.stringify(bots)};
+    var selectedBotFromServer = "!{selectedBot}";
     var stepTypesObj = {};
-    stepTypesArray.forEach(function (element) {
+    stepTypesFromServer.forEach(function (element) {
       stepTypesObj[element.id] = element;
         console.log(element)
     });
-    console.log(stepTypesArray);
     var flowId = !{flowId}; // used on AJAX requests
     var titleReceived = "!{title}"; // used on AJAX requests
     console.log(titleReceived);
+    console.log('stepTypesFromServer');
+    console.log(stepTypesFromServer);
+    console.log('stepTypesObj:');
+    console.log(stepTypesObj);
+    var flowId = "!{flowId}"; // used on AJAX requests
 
   script(src=static.root + '/js/manager_flow_steps.js')
 

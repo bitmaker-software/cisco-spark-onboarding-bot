@@ -22,20 +22,6 @@ const routes_test = require('./routes/test');
 const databaseServices = require('./bot/database_services');
 const sparkAPIUtils = require('./bot/spark_api_utils');
 
-const botWebhooks = require('./bot/components/routes/incoming_webhooks'); // TODO: not in use?
-
-
-// ——————————————————————————————————————————————————
-//                       Bot
-// ——————————————————————————————————————————————————
-
-let bot;
-const REGISTER_WITH_SPARK = true; // set to false to avoid registering with Spark
-if (REGISTER_WITH_SPARK) {
-  bot = require('./bot/bot');
-  global.bot = bot;
-}
-
 const passport = require('passport');
 const CiscoSparkStrategy = require('passport-cisco-spark').Strategy;
 const session = require('express-session');
@@ -46,6 +32,35 @@ const SequelizeStore = require('connect-session-sequelize')(session.Store);
 
 const env = require('node-env-file');
 env(__dirname + '/bot/.env');
+
+
+// ——————————————————————————————————————————————————
+//             Database (create tables)
+// ——————————————————————————————————————————————————
+
+//
+// sync() will create all table if they doesn't exist in database
+//
+// {force: true} means DROP TABLE IF EXISTS before trying to create the table
+// {alter: true} uses ALTER TABLE
+//
+const CREATE_DB_AND_LOAD_FIXTURES = false;
+let databaseReady = true;
+if (CREATE_DB_AND_LOAD_FIXTURES) {
+  databaseReady = false;
+  sequelize.sync({force: true}).then(() => {
+    console.log(`\n\n`);
+    console.log(`Database models synced, will now load the fixtures`);
+    console.log(`\n`);
+    // Load database fixtures
+    models.startLoadingDatabaseFixtures(() => {
+      databaseReady = true;
+    });
+  }, err => {
+    console.error("Error on sequelize.sync():");
+    console.error(err);
+  });
+}
 
 
 // ——————————————————————————————————————————————————
@@ -181,15 +196,59 @@ app.use('/webhooks', routes_webhooks);
 app.use('/auth', routes_auth);
 app.use('/test', routes_test);
 
-// import all the pre-defined bot routes that are present in /bot/components/routes
-if (typeof bot !== 'undefined') {
+
+// ——————————————————————————————————————————————————
+//                  Bot & Bot routes
+// ——————————————————————————————————————————————————
+
+const REGISTER_WITH_SPARK = true; // set to false to avoid registering with Spark
+let botsReady = true;
+// Read from the .env file and save to the database (the first bot only)
+(function checkDatabaseReadyAndSaveTheBot() {
+  if (!databaseReady) {
+    console.log('Saving the bot but the database is not ready yet; waiting 1 second.');
+    setTimeout(checkDatabaseReadyAndSaveTheBot, 1000);
+  } else {
+    console.log('The database is ready.');
+
+    if (CREATE_DB_AND_LOAD_FIXTURES) {
+      console.log(`Will save the bot to the database with the info from the env file`);
+      databaseServices.saveBot({
+        managerId: 1,
+        name: `Read from env`,
+        accessToken: process.env.access_token,
+        publicHttpsAddress: process.env.public_address,
+        webhookName: process.env.webhook_name,
+        secret: process.env.secret
+      }).then(registerBot);
+    } else {
+      registerBot()
+    }
+
+  }
+})();
+
+function registerBot() {
+  // called from checkDatabaseReadyAndSaveTheBot
+  console.log(`Registering the bot`);
+  if (REGISTER_WITH_SPARK) {
+    botsReady = false;
+
+    require('./bot/bot')(callbackWhenBotsRegistered);
+  }
+}
+
+function callbackWhenBotsRegistered(botsControllers) {
+  databaseServices.takeTheBotsControllers(botsControllers);
+  // import all the pre-defined bot routes that are present in /bot/components/routes
   const normalizedPath = require("path").join(__dirname, "bot/components/routes");
   require("fs").readdirSync(normalizedPath).forEach(file => {
     console.log(file);
-    require("./bot/components/routes/" + file)(app, bot);
+    require("./bot/components/routes/" + file)(app, botsControllers); // incoming_webhooks.js
   });
-} else {
-  console.log('WARNING: bot is not defined; did you import it? (OK if you are just testing without needing to register the callbacks with Spark)');
+
+  console.log(`\nThe bots are ready`);
+  botsReady = true;
 }
 
 
@@ -197,48 +256,29 @@ if (typeof bot !== 'undefined') {
 //      Catch 404 and forward to error handler
 // ——————————————————————————————————————————————————
 
-app.use((req, res, next) => {
-  const err = new Error('Not Found');
-  err.status = 404;
-  next(err);
-});
+function setupLastRoutes() {
+  app.use((req, res, next) => {
+    const err = new Error('Not Found');
+    err.status = 404;
+    next(err);
+  });
 
 // error handler
-app.use((err, req, res, next) => {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  app.use((err, req, res, next) => {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
-
-
-// ——————————————————————————————————————————————————
-//             Database (create tables)
-// ——————————————————————————————————————————————————
-
-//
-// sync() will create all table if they doesn't exist in database
-//
-// {force: true} means DROP TABLE IF EXISTS before trying to create the table
-// {alter: true} uses ALTER TABLE
-//
-const CREATE_DB_AND_LOAD_FIXTURES = false;
-if (CREATE_DB_AND_LOAD_FIXTURES) {
-  sequelize.sync({alter: true}).then(() => {
-    console.log("Database models synced, will load the fixtures");
-    // Load database fixtures
-    models.startLoadingDatabaseFixtures();
-    startTheServer();
-  }, err => {
-    console.error("Error on sequelize.sync():");
-    console.error(err);
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
   });
-} else {
-  startTheServer();
 }
+
+
+// ——————————————————————————————————————————————————
+//                 Start the server
+// ——————————————————————————————————————————————————
 
 function startTheServer() {
   console.log('Will now start the server.');
@@ -255,10 +295,24 @@ function resumeOngoingFlowsAfterServerStart() {
     // console.log(flows);
     respondentFlows.forEach(respondentFlow => {
       console.log(`Resuming flow ${respondentFlow.id}`); // TODO
-      sparkAPIUtils.resumeFlowForUser(respondentFlow.flow_id, respondentFlow.respondent.spark_id);
+      databaseServices.getFlowBotController(respondentFlow.flow_id).then(bot => {
+        sparkAPIUtils.resumeFlowForUser(respondentFlow.flow_id, respondentFlow.respondent.spark_id, bot);
+      });
     });
   });
 }
+
+
+(function checkDatabaseReadyAndStartTheServer() {
+  if (!databaseReady || !botsReady) {
+    console.log('The database or the bots are not ready yet; waiting 1 second.');
+    setTimeout(checkDatabaseReadyAndStartTheServer, 1000);
+  } else {
+    console.log('Database and bots ready.');
+    setupLastRoutes();
+    startTheServer();
+  }
+})();
 
 
 // ——————————————————————————————————————————————————

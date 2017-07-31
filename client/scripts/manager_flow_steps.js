@@ -9,10 +9,12 @@ $(function () {
         el: '#root',
         // app initial state
         data: {
+            bots: botsFromServer,
+            selectedBot: selectedBotFromServer,
             steps: [],
             stepsToDelete: [],
             stepChoicesToDelete: [],
-            stepTypes: stepTypesArray,
+            stepTypes: stepTypesFromServer,
             stepTypes2 : [],
             stepTypeIcons: {
                 1: "announcement", // Announcement
@@ -216,7 +218,8 @@ $(function () {
             console.log(app.steps[i].id)
 
         let postData = {
-            flow_id: flowId,
+            flowId: flowId,
+            botId: app.selectedBot,
             steps: app.steps,
             title: app.title,
             stepsToDelete: app.stepsToDelete,
