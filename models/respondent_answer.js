@@ -14,6 +14,9 @@ module.exports = function (sequelize, DataTypes) {
       answer_date: {
         type: DataTypes.DATE
       },
+      document_view_url: {
+        type: DataTypes.STRING(2048)
+      },
     },
     {});
 };

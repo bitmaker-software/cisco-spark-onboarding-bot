@@ -749,9 +749,10 @@ module.exports = {
     });
   },
 
-  saveDocumentUploadAnswer: (respondentFlow, step, nextStep, url) => {
+  saveDocumentUploadAnswer: (respondentFlow, step, nextStep, fileId, webContentLink) => {
     models.respondent_answer.create({
-      document_url: url,
+      document_url: fileId,
+      document_view_url: webContentLink,
       answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED, // 2 === Answered
       answer_date: new Date(),
       respondent_flow_id: respondentFlow.id,
