@@ -109,8 +109,8 @@ function usage_tip() {
   console.log('Botkit Studio Starter Kit');
   console.log('Execute your bot application like this:');
   console.log('access_token=<MY ACCESS TOKEN> public_address=<https://mybotapp/> node bot.js');
-  console.log('Get Cisco Spark token here: https://developer.ciscospark.com/apps.html')
-  console.log('Get a Botkit Studio token here: https://studio.botkit.ai/')
+  console.log('Get Cisco Spark token here: https://developer.ciscospark.com/apps.html');
+  console.log('Get a Botkit Studio token here: https://studio.botkit.ai/');
   console.log('~~~~~~~~~~');
 }
 

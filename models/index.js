@@ -115,6 +115,7 @@ let listOfFixtures = require("fs").readdirSync(normalizedPath)
   })
   .sort();
 let fileIdx = 0;
+
 function importFixture() {
   if (!listOfFixtures.length || fileIdx >= listOfFixtures.length) {
     console.log('Ended loading the fixtures');

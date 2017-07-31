@@ -144,7 +144,7 @@ module.exports = {
   updateTitle: (title, flowId) => {
     return models.flow.update({
       name: title
-    },{
+    }, {
       where: {id: flowId}
     });
   },
@@ -173,8 +173,8 @@ module.exports = {
   },
 
   createDocumentStep: (stepId, uploadDir, uploadDirName, documentUrl, documentName) => {
-    if(uploadDir === null){
-      console.log("NULL")
+    if (uploadDir === null) {
+      console.log("uploadDir is null");
       uploadDir = 'root';
       uploadDirName = 'root';
     }
@@ -256,7 +256,7 @@ module.exports = {
             // TODO: limit to the oldest per user
           }).then(respondentFlow => {
             if (respondentFlow) {
-              if(respondentFlow.start_date === null){
+              if (respondentFlow.start_date === null) {
                 respondentFlow.updateAttributes({
                   start_date: new Date(),
                 });
@@ -313,19 +313,19 @@ module.exports = {
     });
 
     models.respondent_flow.find({
-      attributes: ['start_date','assign_date'],
+      attributes: ['start_date', 'assign_date'],
       where: {
         id: respondentFlow.dataValues.id
       }
     }).then(times => {
       let start_date = times.dataValues.start_date;
       //start date lost
-      if(start_date === null && date !== null) {
+      if (start_date === null && date !== null) {
         start_date = times.dataValues.assign_date;
       }
 
       //update duration and start date, if lost
-      let duration = Math.floor(date/1000) - Math.floor(start_date/1000);
+      let duration = Math.floor(date / 1000) - Math.floor(start_date / 1000);
       respondentFlow.updateAttributes({
         duration_seconds: duration,
         start_date: start_date,
@@ -337,19 +337,19 @@ module.exports = {
     });
   },
 
-  getAnswers: (flow_id,resp_id) =>{
+  getAnswers: (flow_id, resp_id) => {
     console.log(`getAnswers(${flow_id},${resp_id})`);
-    return new Promise((resolve,reject) => {
+    return new Promise((resolve, reject) => {
       models.respondent_answer.findAll({
-        attributes: ['id','text','document_url','answer_date'],
-        where:{
+        attributes: ['id', 'text', 'document_url', 'answer_date'],
+        where: {
           answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED,  //ja respondidas
           respondent_flow_id: resp_id, //para este utilizador
         },
         include: [
           {
             model: models.step,
-            attributes: ['step_order','text','step_type_id'],
+            attributes: ['step_order', 'text', 'step_type_id'],
             where: {
               $or: [
                 {step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT},
@@ -383,36 +383,36 @@ module.exports = {
 
   getUsers: (flow_id, page, per_page, filter, orders) => {
     console.log(`getAnswers(${flow_id},${page},${per_page},${filter},[${orders}])`);
-    orders.forEach(function (order){
+    orders.forEach(function (order) {
       order[0] = models.Sequelize.col(order[0]);
     });
 
     return new Promise((resolve, reject) => {
       models.respondent_flow.findAll({
-        attributes: ['id','start_date','end_date'],
-        where:{
+        attributes: ['id', 'start_date', 'end_date'],
+        where: {
           flow_id: flow_id,
-          $or:[{
-            '$respondent.name$': { $iLike: '%' + filter + '%' }
+          $or: [{
+            '$respondent.name$': {$iLike: '%' + filter + '%'}
           }, {
-            '$respondent_flow_status.description$':{ $iLike: '%' + filter + '%' },
+            '$respondent_flow_status.description$': {$iLike: '%' + filter + '%'},
           }],
         },
-        include:[
+        include: [
           {
             model: models.respondent,
             attributes: ['name'],
           },
           {
             model: models.respondent_flow_status,
-            attributes: ['id','description'],
+            attributes: ['id', 'description'],
           },
         ],
         limit: per_page,
         offset: per_page * page,
         order: orders, //[[models.Sequelize.col(sort), order]]
       }).then(users => {
-        users.forEach(function(user) {
+        users.forEach(function (user) {
           user.details = null;
         });
         resolve(users);
@@ -428,10 +428,10 @@ module.exports = {
     console.log(`countUsers(${flow_id}, ${filter})`);
     return new Promise((resolve, reject) => {
       models.respondent_flow.count({
-        where:{
+        where: {
           flow_id: flow_id
         },
-        include:[
+        include: [
           {
             model: models.respondent,
             attributes: ['name'],
@@ -503,8 +503,8 @@ module.exports = {
           }
         ],
         order: [
-          [models.Sequelize.col('respondent_flow->respondent.name'),'ASC'],
-          [models.Sequelize.col('step.step_order'),'ASC']
+          [models.Sequelize.col('respondent_flow->respondent.name'), 'ASC'],
+          [models.Sequelize.col('step.step_order'), 'ASC']
         ],
       }).then(res => {
         console.log(`----`);
@@ -522,7 +522,7 @@ module.exports = {
     console.log(`getAnswersByQuestion(${flowId})`);
     return new Promise((resolve, reject) => {
       models.step.findAll({
-        attributes: [['step_order','name'],'id','text','step_type_id'],
+        attributes: [['step_order', 'name'], 'id', 'text', 'step_type_id'],
         where: {
           flow_id: flowId,
           $or: [
@@ -531,37 +531,37 @@ module.exports = {
             {step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT},
             {step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK}],
         },
-        order: [[models.Sequelize.col('"name"'),'ASC']]
+        order: [[models.Sequelize.col('"name"'), 'ASC']]
       }).then(res => {
         //so avanca depois de preencher todos os elementos
         let counter = 0;
         //contar respostas por cada elemento
-        res.forEach(function(element){
+        res.forEach(function (element) {
           models.respondent_answer.count({
-            where:{
+            where: {
               step_id: element.dataValues.name,
               answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED,
             }
           }).then(count => {
-            element.dataValues.name = element.dataValues.name + " : "+element.dataValues.text;
+            element.dataValues.name = element.dataValues.name + " : " + element.dataValues.text;
             element.dataValues.y = count;
 
-            if(element.dataValues.step_type_id === STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE){
+            if (element.dataValues.step_type_id === STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE) {
               element.dataValues.drilldown = element.dataValues.name;
             }
-            else{
+            else {
               element.dataValues.drilldown = null;
             }
 
             counter++;
             //termina se ja percorreu todas
-            if(counter === res.length){
+            if (counter === res.length) {
               resolve(res);
             }
           });
         });
         //termina se ja percorreu todas
-        if(counter === res.length){
+        if (counter === res.length) {
           resolve(res);
         }
       }, err => {
@@ -577,7 +577,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       //conjunto de questoes de escolha multipla
       models.step.findAll({
-        attributes: ['id',['step_order','order'],['text','name']],
+        attributes: ['id', ['step_order', 'order'], ['text', 'name']],
         where: {
           flow_id: flowId,
           step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE
@@ -588,8 +588,7 @@ module.exports = {
         let counter = 0;
 
         //conjunto de escolhas possiveis para essa escolha multipla
-        res.forEach(function(element)
-        {
+        res.forEach(function (element) {
           let step_id = element.dataValues.id;
           let name = element.dataValues.order + " : " + element.dataValues.name;
           element.dataValues.id = name;
@@ -597,8 +596,8 @@ module.exports = {
           element.dataValues.data = [];
 
           models.step_choice.findAll({
-            attributes: ['id','choice_order','text'],
-            where:{
+            attributes: ['id', 'choice_order', 'text'],
+            where: {
               step_id: step_id
             },
             order: [[models.Sequelize.col('"choice_order"'), 'ASC']]
@@ -607,24 +606,23 @@ module.exports = {
             let counterOpt = 0;
 
             //contar o numero de respostas para cada opcao da escolha multipla
-            options.forEach(function(option)
-            {
+            options.forEach(function (option) {
               models.respondent_answer.count({
-                where:{
+                where: {
                   step_id: step_id,
                   step_choice_id: option.dataValues.id,
                   answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED
                 },
               }).then(count => {
                 let optionName = option.dataValues.choice_order + " : " + option.dataValues.text;
-                let myOption = [optionName,count];
+                let myOption = [optionName, count];
                 element.dataValues.data.push(myOption);
 
                 counterOpt++;
-                if(counterOpt === options.length){
+                if (counterOpt === options.length) {
                   counter++;
                   //end
-                  if(counter === res.length) {
+                  if (counter === res.length) {
                     resolve(res);
                   }
                 }
@@ -643,7 +641,7 @@ module.exports = {
           });
         }); // fim do ciclo
 
-        if(counter === res.length) {
+        if (counter === res.length) {
           resolve(res);
         }
       }, err => {
@@ -767,17 +765,17 @@ module.exports = {
     console.log("getRespondentsByStatus(flow_id)");
     return new Promise((resolve, reject) => {
       models.respondent_flow.count({
-        attributes: [['respondent_flow_status_id','name']],
+        attributes: [['respondent_flow_status_id', 'name']],
         where: {
           flow_id: flowId,
         },
         group: ['respondent_flow_status_id'],
         order: [[models.Sequelize.col('"respondent_flow_status_id"'), 'ASC']]
       }).then(res => {
-        res.forEach(function(element){
+        res.forEach(function (element) {
           models.respondent_flow_status.find({
             attributes: ['description'],
-            where:{
+            where: {
               id: element.name
             }
           }).then(text => {
@@ -797,14 +795,14 @@ module.exports = {
     console.log("getAvgFlowTime(flow_id)");
     return new Promise((resolve, reject) => {
       models.respondent_flow.find({
-        attributes: [[models.Sequelize.fn('AVG', models.Sequelize.col('duration_seconds')),'avg']],
+        attributes: [[models.Sequelize.fn('AVG', models.Sequelize.col('duration_seconds')), 'avg']],
         where: {
           respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.FINISHED,
           flow_id: flowId,
         }
       }).then(avg => {
         let sec = Math.floor(avg.dataValues.avg);
-        if(sec === 0)
+        if (sec === 0)
           resolve("No Data");
         else
           resolve(secondsToTime(sec));
@@ -819,13 +817,13 @@ module.exports = {
   getMinFlowTime: (flowId) => {
     console.log("getMinFlowTime(flow_id)");
     return new Promise((resolve, reject) => {
-      models.respondent_flow.min('duration_seconds',{
+      models.respondent_flow.min('duration_seconds', {
         where: {
           respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.FINISHED,
           flow_id: flowId,
         }
       }).then(min => {
-        if(isNaN(min))
+        if (isNaN(min))
           resolve("No Data");
         else
           resolve(secondsToTime(min));
@@ -840,13 +838,13 @@ module.exports = {
   getMaxFlowTime: (flowId) => {
     console.log("getMaxFlowTime(flow_id)");
     return new Promise((resolve, reject) => {
-      models.respondent_flow.max('duration_seconds',{
+      models.respondent_flow.max('duration_seconds', {
         where: {
           respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.FINISHED,
           flow_id: flowId,
         }
       }).then(max => {
-        if(isNaN(max))
+        if (isNaN(max))
           resolve("No Data");
         else
           resolve(secondsToTime(max));
@@ -943,14 +941,14 @@ function secondsToTime(seconds) {
   let dateStr = "";
 
   //mais que um dia
-  if(seconds >= 86400){
-    let days = Math.floor(seconds/86400);
-    if(days === 1)
+  if (seconds >= 86400) {
+    let days = Math.floor(seconds / 86400);
+    if (days === 1)
       dateStr = days + " day ";
     else
       dateStr = days + " days ";
   }
-  dateStr += date.getHours()+" h "+date.getMinutes()+" min "+date.getSeconds()+" secs";
+  dateStr += date.getHours() + " h " + date.getMinutes() + " min " + date.getSeconds() + " secs";
 
   return dateStr;
 }
