@@ -201,13 +201,13 @@ app.use('/test', routes_test);
 //                  Bot & Bot routes
 // ——————————————————————————————————————————————————
 
-let botController;
+let botsControllers;
 const REGISTER_WITH_SPARK = true; // set to false to avoid registering with Spark
 function registerBot() {
   console.log(`Registering the bot`);
   if (REGISTER_WITH_SPARK) {
-    botController = require('./bot/bot');
-    global.bot = botController;
+    botsControllers = require('./bot/bot');
+    // global.bot = botController;
   }
 }
 

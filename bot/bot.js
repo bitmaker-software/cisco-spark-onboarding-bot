@@ -29,22 +29,6 @@ let botInfo = {
   secret: process.env.secret
 };
 
-const databaseServices = require('./database_services');
-databaseServices.getBots().then(bots => {
-  console.log(`Got ${bots.length} bot(s) from the database`);
-  // TODO: at the moment we are only using one bot; change this
-  if (bots.length) {
-    console.log(bots[0]);
-    let bot = bots[0];
-    botInfo.accessToken = bot.access_token;
-    botInfo.publicAddress = bot.public_https_address;
-    botInfo.secret = bot.secret;
-  } else {
-    console.error(`No bots in the database!`);
-  }
-  // configureController(botInfo);
-});
-
 if (!botInfo.accessToken) {
   console.log('Error: Specify a Cisco Spark access_token in environment.');
   usage_tip();
@@ -61,34 +45,59 @@ const Botkit = require('botkit');
 const debug = require('debug')('botkit:main');
 
 // Create the Botkit controller, which controls all instances of the bot.
-const controller = Botkit.sparkbot({
-  stats_optout: true, // Opt-out of Botkit Statistics Gathering
-  // debug: true,
-  // limit_to_domain: ['mycompany.com'],
-  // limit_to_org: 'my_cisco_org_id',
-  public_address: botInfo.publicAddress,
-  ciscospark_access_token: botInfo.accessToken,
-  // studio_token: process.env.studio_token, // get one from studio.botkit.ai to enable content management, stats, message console and more
-  secret: botInfo.secret, // this is an RECOMMENDED but optional setting that enables validation of incoming webhooks
-  webhook_name: 'Cisco Spark bot created by Bitmaker with Botkit, override me before going to production',
-  // studio_command_uri: process.env.studio_command_uri,
+const controllers = [];
 
+const databaseServices = require('./database_services');
+databaseServices.getBots().then(bots => {
+  console.log(`Got ${bots.length} bot(s) from the database`);
+
+  if (bots.length) {
+    console.log(bots[0]);
+  } else {
+    console.error(`No bots in the database!`);
+  }
+
+  bots.forEach((bot, index) => {
+    console.log(`Creating bot ${index + 1}`);
+    controllers.push(Botkit.sparkbot({
+      stats_optout: true, // Opt-out of Botkit Statistics Gathering
+      // debug: true,
+      // limit_to_domain: ['mycompany.com'],
+      // limit_to_org: 'my_cisco_org_id',
+      public_address: bot.public_https_address,
+      ciscospark_access_token: bot.access_token,
+      // studio_token: process.env.studio_token, // get one from studio.botkit.ai to enable content management, stats, message console and more
+      secret: bot.secret, // this is an RECOMMENDED but optional setting that enables validation of incoming webhooks
+      webhook_name: 'Cisco Spark bot created by Bitmaker with Botkit, override me before going to production', // TODO: save/read from the db
+      // studio_command_uri: process.env.studio_command_uri,
+    }));
+  });
+
+  console.log(`Bots created. controllers[] length: ${controllers.length}`);
+
+  subscribeEvents();
+  loadSkills();
 });
 
 // Set up an Express-powered webserver to expose oauth and webhook endpoints
 // const webserver = require(__dirname + '/components/express_webserver.js')(controller);
 
-// Tell Cisco Spark to start sending events to this application
-require(__dirname + '/components/subscribe_events.js')(controller);
+function subscribeEvents() {
+  // Tell Cisco Spark to start sending events to this application
+  require(__dirname + '/components/subscribe_events.js')(controllers);
+}
 
 // Enable Dashbot.io plugin
 // require(__dirname + '/components/plugin_dashbot.js')(controller);
 
-// Load bot skills
-const normalizedPath = require("path").join(__dirname, "skills");
-require("fs").readdirSync(normalizedPath).forEach(function (file) {
-  require("./skills/" + file)(controller);
-});
+function loadSkills() {
+  // Load bot skills
+  console.log(`Loading bots skills`);
+  const normalizedPath = require("path").join(__dirname, "skills");
+  require("fs").readdirSync(normalizedPath).forEach(function (file) {
+    require("./skills/" + file)(controllers[0]); // TODO: passing the first bot for now, need to change/think about this
+  });
+}
 
 
 // This captures and evaluates any message sent to the bot as a DM
@@ -136,4 +145,4 @@ function usage_tip() {
   console.log('~~~~~~~~~~');
 }
 
-module.exports = controller;
+module.exports = controllers;
