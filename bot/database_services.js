@@ -149,7 +149,7 @@ module.exports = {
         ['id', 'ASC']
       ],
       include: [
-        { model: models.flow_status, attributes: ['description'] }
+        {model: models.flow_status, attributes: ['description']}
       ],
     });
   },
@@ -160,7 +160,7 @@ module.exports = {
         // Get the step order for this step so we get only the steps after this (including it)
         models.step.find({
           attributes: ['id', 'step_order'],
-          where: { id: startingStepId }
+          where: {id: startingStepId}
         }).then(step => {
           console.log(`Found the step order of the current step: ${step.step_order}`);
           getFlowStartingOnStepOrder(resolve, reject, flowId, step.step_order);
@@ -184,7 +184,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       // TODO: check security
       // Get flow
-      models.flow.find({ where: { id: id } }).then(flow => {
+      models.flow.find({where: {id: id}}).then(flow => {
         resolve(flow.name);
       }, err => {
         console.error(`Error fetching the flow:`);
@@ -201,10 +201,10 @@ module.exports = {
     // TODO: filter by user, do not allow accessing other users flows
     // TODO: add attributes [] to filter columns
     return models.step.findAll({
-      where: { flow_id: flowId },
+      where: {flow_id: flowId},
       include: [
-        { model: models.step_choice },
-        { model: models.document_step }
+        {model: models.step_choice},
+        {model: models.document_step}
       ],
       order: [
         [models.Sequelize.col('"step_order"'), 'ASC'],
@@ -234,7 +234,7 @@ module.exports = {
       text: stepText,
       step_order: stepOrder,
     }, {
-      where: { id: stepId }
+      where: {id: stepId}
     });
   },
 
@@ -251,13 +251,13 @@ module.exports = {
       text: choiceText,
       choice_order: choiceOrder,
     }, {
-      where: { id: stepChoiceId }
+      where: {id: stepChoiceId}
     });
   },
 
   getDocumentStep: stepId => {
     return models.document_step.find({
-      where: { step_id: stepId }
+      where: {step_id: stepId}
     });
   },
 
@@ -284,7 +284,7 @@ module.exports = {
       document_url: documentUrl,
       document_name: documentName,
     }, {
-      where: { step_id: stepId }
+      where: {step_id: stepId}
     });
   },
 
@@ -296,7 +296,7 @@ module.exports = {
 
   getOldestPendingFlowForUserEmail: email => {
     return new Promise((resolve, reject) => {
-      models.respondent.find({ where: { email: email } }).then(respondent => {
+      models.respondent.find({where: {email: email}}).then(respondent => {
         if (respondent) {
           models.respondent_flow.find({
             where: {
@@ -324,7 +324,7 @@ module.exports = {
 
   getOngoingFlowForUserEmail: email => {
     return new Promise((resolve, reject) => {
-      models.respondent.find({ where: { email: email } }).then(respondent => {
+      models.respondent.find({where: {email: email}}).then(respondent => {
         if (respondent) {
           models.respondent_flow.find({
             where: {
@@ -365,9 +365,9 @@ module.exports = {
         respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.IN_PROGRESS
       },
       include: [{
-          model: models.respondent
-        }, ]
-        // TODO: limit to the oldest per user
+        model: models.respondent
+      },]
+      // TODO: limit to the oldest per user
     }); //.then(flows => {
     // if (respondentFlow) {
     //   resolve(respondentFlow);
@@ -430,21 +430,21 @@ module.exports = {
           respondent_flow_id: resp_id, //para este utilizador
         },
         include: [{
-            model: models.step,
-            attributes: ['step_order', 'text', 'step_type_id'],
-            where: {
-              $or: [
-                { step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT },
-                { step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE },
-                { step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT },
-                { step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK },
-              ]
-            },
-            include: [{
-              model: models.document_step,
-              attributes: ['upload_dir_name'],
-            }, ],
+          model: models.step,
+          attributes: ['step_order', 'text', 'step_type_id'],
+          where: {
+            $or: [
+              {step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT},
+              {step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE},
+              {step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT},
+              {step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK},
+            ]
           },
+          include: [{
+            model: models.document_step,
+            attributes: ['upload_dir_name'],
+          },],
+        },
           {
             model: models.step_choice,
             attributes: ['choice_order', 'text'],
@@ -523,7 +523,7 @@ module.exports = {
               }
             }
           }
-        }, ],
+        ],
       }).then(res => {
         console.log(`----`);
         console.log(res);
@@ -544,36 +544,36 @@ module.exports = {
           answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED,
         },
         include: [{
-            model: models.respondent_flow,
-            attributes: ['id'],
-            where: {
-              flow_id: flow_id
-            },
-            include: [{
-                model: models.respondent,
-                attributes: ['name'],
-              },
-              {
-                model: models.respondent_flow_status,
-                attributes: ['description'],
-              }
-            ]
+          model: models.respondent_flow,
+          attributes: ['id'],
+          where: {
+            flow_id: flow_id
           },
+          include: [{
+            model: models.respondent,
+            attributes: ['name'],
+          },
+            {
+              model: models.respondent_flow_status,
+              attributes: ['description'],
+            }
+          ]
+        },
           {
             model: models.step,
             attributes: ['step_order', 'text', 'step_type_id'],
             where: {
               $or: [
-                { step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT },
-                { step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE },
-                { step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT },
-                { step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK }
+                {step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT},
+                {step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE},
+                {step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT},
+                {step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK}
               ],
             },
             include: [{
               model: models.document_step,
               attributes: ['upload_dir_name'],
-            }, ]
+            },]
           },
           {
             model: models.step_choice,
@@ -604,10 +604,10 @@ module.exports = {
         where: {
           flow_id: flowId,
           $or: [
-            { step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT },
-            { step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE },
-            { step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT },
-            { step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK }
+            {step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT},
+            {step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE},
+            {step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT},
+            {step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK}
           ],
         },
         order: [[models.Sequelize.col('"name"'), 'ASC']]
@@ -804,7 +804,7 @@ module.exports = {
     console.log(`At findOrCreateRespondent(sparkId = ${sparkId}, bearer = ${bearer})`);
     return new Promise((resolve, reject) => {
       // Get user info from Spark
-      sparkAPIUtils.getUserFromSpark({ sparkId: sparkId }, bearer).then(users => {
+      sparkAPIUtils.getUserFromSpark({sparkId: sparkId}, bearer).then(users => {
         console.log(`Result from Spark search:`);
         console.log(users);
 
@@ -840,8 +840,8 @@ module.exports = {
           respondent_id: userId,
           flow_id: flowId,
           $or: [
-            { respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.NOT_STARTED },
-            { respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.IN_PROGRESS },
+            {respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.NOT_STARTED},
+            {respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.IN_PROGRESS},
           ],
         },
         defaults: {
@@ -993,8 +993,8 @@ function getFlowStartingOnStepOrder(resolve, reject, flowId, startingStepOrder) 
         [models.step_choice, '"choice_order"', 'ASC']
       ],
       include: [{
-          model: models.step_choice
-        },
+        model: models.step_choice
+      },
         {
           model: models.document_step
         }
