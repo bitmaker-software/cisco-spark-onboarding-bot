@@ -20,10 +20,10 @@ module.exports = controllers => {
       // console.log(`Resetting previous webhook subscriptions`);
       // controller.resetWebhookSubscriptions(); // Error removing subscription: TypeError: Cannot read property 'name' of undefined
 
+      console.log(`***`);
       console.log(`List of hooks for this controller:`);
-      console.log(list);
       console.log(list.items);
-      console.log(`-----`);
+      console.log(`***`);
 
       let hook_id = null;
 

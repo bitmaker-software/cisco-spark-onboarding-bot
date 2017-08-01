@@ -12,7 +12,7 @@ function spawnBotAndStartConversation(flowId, sparkUserId, botController, resume
 
   //
   // NOTE: startPrivateConversation and startPrivateConversationWithPersonId are not
-  //       setting the user/channel in the returning convo object
+  //       setting the user/channel in the returning convo object (fixed on 0.5.6?)
 
   console.log(`\n\n\n*****`);
   console.log(`*****`);
@@ -30,17 +30,19 @@ function spawnBotAndStartConversation(flowId, sparkUserId, botController, resume
   let bot = botController.spawn({});
 
   bot.startPrivateConversationWithPersonId(sparkUserId, function (err, convo) {
-    console.log(`Callback of botkit startPrivateConversationWithPersonId()`);
-    console.log(`Convo context:`);
-    console.log(convo.context);
+    console.log(`\n\nInside the callback of BotKit startPrivateConversationWithPersonId()`);
+    console.log(`Conversation context.user: ${convo.context.user}`);
+    console.log(`Conversation context.channel: ${convo.context.channel}`);
+    // console.log(convo);
+
     if (!err && convo) {
       const databaseServices = require('./database_services');
       console.log(`Fetching flow ${flowId}`);
-      console.log("Called help");
       databaseServices.getFlowName(flowId).then(flowName => {
-        console.log(`Got flow name: ${flowName}`);
+        console.log(`Got flow ${flowId} (${flowName})`);
 
-        console.log(`\n\n\nWe'll receive a "Conversation with  undefined in undefined", "Task for  undefined in undefined", "info: An error occurred while sending a message:  ReferenceError: message is not defined" here\n\n`);
+        // console.log(`\nWill now call convo.say() and we'll receive a "Conversation with  undefined in undefined", "Task for  undefined in undefined"\n`);
+
         if (resume) {
           convo.say(`Resuming onboarding for "${flowName}". Please say "Start" to resume.`);
         } else {

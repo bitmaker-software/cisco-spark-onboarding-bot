@@ -36,21 +36,22 @@ jwtClient.authorize(function (err, tokens) {
 
   // Make an authorized request to list Drive files.
   drive.files.list({
-    folderId: '0B-65Xatz4HOrc25Gc2lrY2lPZW8',
+    folderId: '0B-65Xatz4HOrc25Gc2lrY2lPZW8', // TODO: André: where does this ID come from?
     auth: jwtClient
-  }, function (err, response) {
+  }, (err, response) => {
     if (err) {
-      console.log('The API returned an error: ' + err);
+      console.log('drive.files.list() error: ' + err);
       return;
     }
     let files = response.files;
     if (files.length === 0) {
-      console.log('No files found.');
+      console.log('drive.files.list(): no files found.');
     } else {
-      console.log('Files : \n');
+      console.log('List of files on Google Drive:');
+      console.log(`  ----------------------------------------`);
       for (let i = 0; i < files.length; i++) {
         let file = files[i];
-        console.log('%s (%s)', file.name, file.id);
+        console.log(`          ${file.id} → ${file.name}`);
         /*
                  //delete files
                  drive.files.delete({
@@ -64,10 +65,9 @@ jwtClient.authorize(function (err, tokens) {
                  });
         */
       }
+      console.log(`  ----------------------------------------`);
     }
   });
-
-  console.log("\n");
 });
 
 //google drive
@@ -76,6 +76,7 @@ function getDriveDocument(fileId, callback) {
     'fileId': fileId,
     'fields': "id,mimeType,name"
   }, function (err, file) {
+    console.log(`getDriveDocument, file:`);
     console.log(file);
     let mimetype = file.mimeType;
     let parts = file.mimeType.split('google-apps');
@@ -139,7 +140,7 @@ function getDriveDocument(fileId, callback) {
 }
 
 
-module.exports = function (controller) {
+module.exports = controller => {
 
   // const selfMessageInitializationOfFlow = 'Initialization of flow ';
   // controller.on('self_message', function (bot, message) {
