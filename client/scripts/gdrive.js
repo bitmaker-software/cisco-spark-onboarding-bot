@@ -39,7 +39,7 @@
   self.askForUserAuthorization = function () {
     if (self.authApiLoaded) {
       //call the authorization method
-      console.log("Auth with client ID " + self.clientId);
+      console.log(`Auth with client ID ${self.clientId}`);
       window.gapi.auth.authorize({
         'client_id': self.clientId,
         'scope': ['https://www.googleapis.com/auth/drive'],
@@ -104,11 +104,11 @@
         }
 
         let picker = new google.picker.PickerBuilder()
-            .addView(view)
-            .setOAuthToken(self.oauthToken)
-            .setDeveloperKey(self.developerKey)
-            .setCallback(self.pickerCallback)
-            .build();
+          .addView(view)
+          .setOAuthToken(self.oauthToken)
+          .setDeveloperKey(self.developerKey)
+          .setCallback(self.pickerCallback)
+          .build();
         picker.setVisible(true);
       }
     }
@@ -119,6 +119,7 @@
     let url;
     let docid = '';
     let docname = '';
+    let mimetype = '';
     if (data[google.picker.Response.ACTION] === google.picker.Action.PICKED) {
       let doc = data[google.picker.Response.DOCUMENTS][0];
       url = doc[google.picker.Document.URL];
@@ -126,9 +127,9 @@
       docname = doc[google.picker.Document.NAME];
       mimetype = doc[google.picker.Document.MIME_TYPE];
 
-      console.log(">> "+mimetype)
+      console.log(`Mimetype: ${mimetype}`);
 
-      self.verifyMimeType(mimetype,docid,docname);
+      self.verifyMimeType(mimetype, docid, docname);
     }
     else if (data[google.picker.Response.ACTION] === google.picker.Action.CANCEL) {
       self.selectMode = 'none';
@@ -140,30 +141,31 @@
     console.log(message);
   };
 
-  self.verifyMimeType = function (mimetype,docid,docname) {
+  self.verifyMimeType = function (mimetype, docid, docname) {
 
-    if(mimetype.includes('google-apps')){
+    if (mimetype.includes('google-apps')) {
       //google apps different than the known ones
-      if(!mimetype.includes('document') && !mimetype.includes('spreadsheet') &&
-          !mimetype.includes('drawing') && !mimetype.includes('presentation') &&
-          !mimetype === 'application/vnd.google-apps.folder'  //folders
-      ){
-          self.afterSelectionCallback('wrong',docname);
+      if (
+        !mimetype.includes('document') &&
+        !mimetype.includes('spreadsheet') &&
+        !mimetype.includes('drawing') &&
+        !mimetype.includes('presentation') &&
+        !mimetype === 'application/vnd.google-apps.folder'  //folders
+      ) {
+        self.afterSelectionCallback('wrong', docname);
       }
-      else{
-          self.shareFile(docid,docname);
+      else {
+        self.shareFile(docid, docname);
       }
     }
-    else{
-        self.shareFile(docid,docname);
+    else {
+      self.shareFile(docid, docname);
     }
 
   };
 
-  self.shareFile = function (fileId,fileName)
-  {
-    if (self.driveShareLoaded)
-    {
+  self.shareFile = function (fileId, fileName) {
+    if (self.driveShareLoaded) {
       let role = self.selectMode === 'file' ? 'reader' : 'writer';
 
       let req = gapi.client.drive.permissions.create({
@@ -177,11 +179,11 @@
       });
 
       req.execute(function (resp) {
-        console.log("Request User : ")
+        console.log("Request User:");
         console.log(resp);
         if (resp.kind && resp.kind === 'drive#permission') {
           //share ok
-          self.afterSelectionCallback(fileId,fileName);
+          self.afterSelectionCallback(fileId, fileName);
         }
         self.selectMode = 'none';
         self.afterSelectionCallback = null;

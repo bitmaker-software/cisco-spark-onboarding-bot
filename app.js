@@ -243,7 +243,7 @@ function callbackWhenBotsRegistered(botsControllers) {
   // import all the pre-defined bot routes that are present in /bot/components/routes
   const normalizedPath = require("path").join(__dirname, "bot/components/routes");
   require("fs").readdirSync(normalizedPath).forEach(file => {
-    console.log(file);
+    console.log(`Processing bot route file: ${file}`);
     require("./bot/components/routes/" + file)(app, botsControllers); // incoming_webhooks.js
   });
 

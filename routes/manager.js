@@ -41,7 +41,7 @@ router.get('/', ensureAuthenticated, function (req, res, next) {
       flows: flows,
       active: 'Manager' // left side bar icon
     });
-    console.log(`........`);
+    console.log(`Flows:`);
     console.log(flows);
   }, err => {
     console.error(`Error fetching the flows:`);
