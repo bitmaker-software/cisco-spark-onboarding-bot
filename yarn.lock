@@ -1643,6 +1643,12 @@ bytes@2.5.0:
   version "2.5.0"
   resolved "https://registry.yarnpkg.com/bytes/-/bytes-2.5.0.tgz#4c9423ea2d252c270c41b2bdefeff9bb6b62c06a"
 
+c3@^0.4.15:
+  version "0.4.15"
+  resolved "https://registry.yarnpkg.com/c3/-/c3-0.4.15.tgz#747c47b33739d0f92bf4b5ddcce2bffff4fd4a31"
+  dependencies:
+    d3 "~3.5.0"
+
 caller-path@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/caller-path/-/caller-path-0.1.0.tgz#94085ef63581ecd3daa92444a8fe94e82577751f"
@@ -2368,6 +2374,10 @@ currently-unhandled@^0.4.1:
 cycle@1.0.x:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/cycle/-/cycle-1.0.3.tgz#21e80b2be8580f98b468f379430662b046c34ad2"
+
+d3@~3.5.0:
+  version "3.5.17"
+  resolved "https://registry.yarnpkg.com/d3/-/d3-3.5.17.tgz#bc46748004378b21a360c9fc7cf5231790762fb8"
 
 d@1:
   version "1.0.0"
