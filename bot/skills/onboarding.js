@@ -434,8 +434,8 @@ module.exports = controller => {
               }, function(err, response, body) {
                 if (step.document_step !== null) {
                   if (step.document_step.upload_dir !== null) {
-                    uploadToDrive(file_info, body, step.document_step.upload_dir, function(fileId) {
-                      databaseServices.saveDocumentUploadAnswer(respondentFlow, step, nextStep, fileId);
+                    uploadToDrive(file_info, body, step.document_step.upload_dir, function(file) {
+                      databaseServices.saveDocumentUploadAnswer(respondentFlow, step, nextStep, file.id, file.webContentLink);
                     });
                   } else {
                     console.error('Document step\'s upload dir is null, won\'t save the document');
