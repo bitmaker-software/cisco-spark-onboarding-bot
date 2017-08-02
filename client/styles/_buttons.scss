@@ -1,15 +1,12 @@
 @mixin btn-outline($bg, $color) {
   border-color: $bg;
   color: $bg;
-
   .icon {
     stroke: $bg;
   }
-
   &:hover {
     background-color: $bg;
     color: $color;
-
     .icon {
       stroke: $color;
     }
@@ -18,4 +15,25 @@
 
 .btn-outline-dark {
   @include btn-outline($gray, $white);
+  &.active {
+    color: $white;
+    background-color: $teal;
+    border-color: $teal;
+    .icon {
+      stroke: $white;
+    }
+  }
+}
+
+.btn-header {
+  .icon {
+    fill: none;
+    height: 25px;
+    vertical-align: middle;
+    width: 20px;
+    margin-right: 5px;
+    &.send {
+      stroke-width: 5px;
+    }
+  }
 }

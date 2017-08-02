@@ -4,21 +4,21 @@ block content
   div#root
     div.row
      h1.mt-4.mb-4.col-8 !{title} Dashboard
-     div.btn-group.mb-4.mt-4.col-4(role="group")
-       a.btn.btn-outline-primary(style={width: '110px'}, href='/manager/flow/' + flowId + '/edit', role="button", data-toggle="tooltip")
-         svg.icon(style={width: '20px', height: '20px'})
+     div.btn-group.mb-4.mt-4.col-4.btn-header(role="group")
+       a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/edit', role="button", data-toggle="tooltip")
+         svg.icon
            use(xlink:href=static.root + "/sprite.svg#settings")
          | Edit
-       a.btn.btn-outline-primary(style={width: '110px'}, href='/manager/flow/' + flowId + '/send', role="button", data-toggle="tooltip")
-         svg.icon.send(style={width: '20px', height: '20px'})
+       a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/send', role="button", data-toggle="tooltip")
+         svg.icon.send
            use(xlink:href=static.root + "/sprite.svg#send")
          | Send
-       a.btn.btn-outline-primary(style={width: '110px'}, href='/manager/flow/' + flowId + '/answers', role="button", data-toggle="tooltip")
-         svg.icon(style={width: '20px', height: '20px'})
+       a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/answers', role="button", data-toggle="tooltip")
+         svg.icon
            use(xlink:href=static.root + "/sprite.svg#answer")
          | Answers
-       a.btn.btn-outline-primary.active(style={width: '110px'}, href='/manager/flow/' + flowId +'/dashboard',role="button",data-toggle="tooltip")
-         svg.icon(style={width: '20px', height: '20px'})
+       a.btn.btn-outline-dark.active(href='/manager/flow/' + flowId +'/dashboard',role="button",data-toggle="tooltip")
+         svg.icon
            use(xlink:href=static.root + "/sprite.svg#dashboard")
          | Dashboard
     div.card-deck.mt-4
@@ -47,7 +47,12 @@ block content
         div#pieChart
       div.col-7
         div#questionsChart
-        input#back(type="button" value="Back" style="display:none")
+    div.row.mt-2
+      div.col-7
+      div.col-3
+        input#back(type="button" value="Back" style="display:none" class="btn btn-block")
+      div.col-2
+    div.row.mt-3
 
 block pageScripts
   script.
@@ -60,6 +65,7 @@ block pageScripts
     });
 
     var stepChoiceArray = !{JSON.stringify(stepChoiceArray).replace(/<\//g, '<\\/')};
+    var stepChoiceCategoriesArray = !{JSON.stringify(stepChoiceCategoriesArray).replace(/<\//g, '<\\/')};
     var stepChoiceObj = [];
     var stepChoiceCatObj = [];
 
@@ -73,28 +79,9 @@ block pageScripts
       answersObj.push(element.y)
       answersCatObj.push(element.name);
 
-      if(element.drilldown !== null)
-      {
-        let i = 0;
-        for(i = 0; i < stepChoiceArray.length; i++)
-        {
-          let stepChoice = stepChoiceArray[i];
-          if(stepChoice.id === element.drilldown){
-            stepChoiceObj[index] = stepChoice.data;
-            break;
-          }
-        }
-      }
+      // NEW
+      stepChoiceObj = stepChoiceArray;
+      stepChoiceCatObj = stepChoiceCategoriesArray;
     });
-
-    console.log('stepChoiceObj');
-    console.log(stepChoiceObj);
-
-    console.log('answersObj');
-    console.log(answersObj);
-
-    console.log('answersCatObj');
-    console.log(answersCatObj);
-
 
   script(src=static.root + '/js/manager_flow_dashboard.js')

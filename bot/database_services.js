@@ -14,7 +14,7 @@ module.exports = {
 
   saveBot: bot => {
     // TODO: save the manager_id
-    let {id, managerId, name, accessToken, publicHttpsAddress, webhookName, secret} = bot;
+    let { id, managerId, name, accessToken, publicHttpsAddress, webhookName, secret } = bot;
     console.log(`Bot to save:`);
     console.log(id);
     console.log(managerId);
@@ -36,21 +36,19 @@ module.exports = {
       });
     } else {
       // Update existing
-      return models.bot.update(
-        {
-          manager_id: managerId,
-          name: name,
-          access_token: accessToken,
-          public_https_address: publicHttpsAddress,
-          webhook_name: webhookName,
-          secret: secret
-        },
-        {
-          where: {
-            id: id,
-            manager_id: managerId
-          }
-        });
+      return models.bot.update({
+        manager_id: managerId,
+        name: name,
+        access_token: accessToken,
+        public_https_address: publicHttpsAddress,
+        webhook_name: webhookName,
+        secret: secret
+      }, {
+        where: {
+          id: id,
+          manager_id: managerId
+        }
+      });
     }
   },
 
@@ -58,9 +56,9 @@ module.exports = {
     // TODO: filter by manager?
     const attributes = ['id', 'name', 'access_token', 'public_https_address', 'webhook_name', 'secret'];
     if (id >= 0) {
-      return models.bot.find({attributes: attributes, where: {id: id}});
+      return models.bot.find({ attributes: attributes, where: { id: id } });
     } else {
-      return models.bot.findAll({attributes: attributes});
+      return models.bot.findAll({ attributes: attributes });
     }
   },
 
@@ -72,8 +70,8 @@ module.exports = {
 
   getFlowBotController: flowId => {
     return new Promise((resolve, reject) => {
-      models.flow.find({attributes: ['bot_id'], where: {id: flowId}}).then(flow => {
-        models.bot.find({attributes: ['webhook_name'], where: {id: flow.bot_id}}).then(bot => {
+      models.flow.find({ attributes: ['bot_id'], where: { id: flowId } }).then(flow => {
+        models.bot.find({ attributes: ['webhook_name'], where: { id: flow.bot_id } }).then(bot => {
           if (bot === null) {
             reject(`No bot for this flow`);
             return;
@@ -149,7 +147,7 @@ module.exports = {
         ['id', 'ASC']
       ],
       include: [
-        {model: models.flow_status, attributes: ['description']}
+        { model: models.flow_status, attributes: ['description'] }
       ],
     });
   },
@@ -160,7 +158,7 @@ module.exports = {
         // Get the step order for this step so we get only the steps after this (including it)
         models.step.find({
           attributes: ['id', 'step_order'],
-          where: {id: startingStepId}
+          where: { id: startingStepId }
         }).then(step => {
           console.log(`Found the step order of the current step: ${step.step_order}`);
           getFlowStartingOnStepOrder(resolve, reject, flowId, step.step_order);
@@ -176,7 +174,7 @@ module.exports = {
       name: flow.name,
       bot_id: flow.botId,
     }, {
-      where: {id: flow.id}
+      where: { id: flow.id }
     });
   },
 
@@ -184,7 +182,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       // TODO: check security
       // Get flow
-      models.flow.find({where: {id: id}}).then(flow => {
+      models.flow.find({ where: { id: id } }).then(flow => {
         resolve(flow.name);
       }, err => {
         console.error(`Error fetching the flow:`);
@@ -201,10 +199,10 @@ module.exports = {
     // TODO: filter by user, do not allow accessing other users flows
     // TODO: add attributes [] to filter columns
     return models.step.findAll({
-      where: {flow_id: flowId},
+      where: { flow_id: flowId },
       include: [
-        {model: models.step_choice},
-        {model: models.document_step}
+        { model: models.step_choice },
+        { model: models.document_step }
       ],
       order: [
         [models.Sequelize.col('"step_order"'), 'ASC'],
@@ -234,7 +232,7 @@ module.exports = {
       text: stepText,
       step_order: stepOrder,
     }, {
-      where: {id: stepId}
+      where: { id: stepId }
     });
   },
 
@@ -251,13 +249,13 @@ module.exports = {
       text: choiceText,
       choice_order: choiceOrder,
     }, {
-      where: {id: stepChoiceId}
+      where: { id: stepChoiceId }
     });
   },
 
   getDocumentStep: stepId => {
     return models.document_step.find({
-      where: {step_id: stepId}
+      where: { step_id: stepId }
     });
   },
 
@@ -284,7 +282,7 @@ module.exports = {
       document_url: documentUrl,
       document_name: documentName,
     }, {
-      where: {step_id: stepId}
+      where: { step_id: stepId }
     });
   },
 
@@ -296,7 +294,7 @@ module.exports = {
 
   getOldestPendingFlowForUserEmail: email => {
     return new Promise((resolve, reject) => {
-      models.respondent.find({where: {email: email}}).then(respondent => {
+      models.respondent.find({ where: { email: email } }).then(respondent => {
         if (respondent) {
           models.respondent_flow.find({
             where: {
@@ -324,7 +322,7 @@ module.exports = {
 
   getOngoingFlowForUserEmail: email => {
     return new Promise((resolve, reject) => {
-      models.respondent.find({where: {email: email}}).then(respondent => {
+      models.respondent.find({ where: { email: email } }).then(respondent => {
         if (respondent) {
           models.respondent_flow.find({
             where: {
@@ -365,9 +363,9 @@ module.exports = {
         respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.IN_PROGRESS
       },
       include: [{
-        model: models.respondent
-      },]
-      // TODO: limit to the oldest per user
+          model: models.respondent
+        }, ]
+        // TODO: limit to the oldest per user
     }); //.then(flows => {
     // if (respondentFlow) {
     //   resolve(respondentFlow);
@@ -426,25 +424,25 @@ module.exports = {
       models.respondent_answer.findAll({
         attributes: ['id', 'text', 'document_url', 'answer_date'],
         where: {
-          answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED,  //ja respondidas
+          answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED, //ja respondidas
           respondent_flow_id: resp_id, //para este utilizador
         },
         include: [{
-          model: models.step,
-          attributes: ['step_order', 'text', 'step_type_id'],
-          where: {
-            $or: [
-              {step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT},
-              {step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE},
-              {step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT},
-              {step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK},
-            ]
+            model: models.step,
+            attributes: ['step_order', 'text', 'step_type_id'],
+            where: {
+              $or: [
+                { step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT },
+                { step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE },
+                { step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT },
+                { step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK },
+              ]
+            },
+            include: [{
+              model: models.document_step,
+              attributes: ['upload_dir_name'],
+            }, ],
           },
-          include: [{
-            model: models.document_step,
-            attributes: ['upload_dir_name'],
-          },],
-        },
           {
             model: models.step_choice,
             attributes: ['choice_order', 'text'],
@@ -465,7 +463,7 @@ module.exports = {
 
   getUsers: (flow_id, page, per_page, filter, orders) => {
     console.log(`getAnswers(${flow_id},${page},${per_page},${filter},[${orders}])`);
-    orders.forEach(function (order) {
+    orders.forEach(function(order) {
       order[0] = models.Sequelize.col(order[0]);
     });
 
@@ -475,13 +473,12 @@ module.exports = {
         where: {
           flow_id: flow_id,
           $or: [{
-            '$respondent.name$': {$iLike: '%' + filter + '%'}
+            '$respondent.name$': { $iLike: '%' + filter + '%' }
           }, {
-            '$respondent_flow_status.description$': {$iLike: '%' + filter + '%'},
+            '$respondent_flow_status.description$': { $iLike: '%' + filter + '%' },
           }],
         },
-        include: [
-          {
+        include: [{
             model: models.respondent,
             attributes: ['name'],
           },
@@ -494,7 +491,7 @@ module.exports = {
         offset: per_page * page,
         order: orders, //[[models.Sequelize.col(sort), order]]
       }).then(users => {
-        users.forEach(function (user) {
+        users.forEach(function(user) {
           user.details = null;
         });
         resolve(users);
@@ -513,17 +510,15 @@ module.exports = {
         where: {
           flow_id: flow_id
         },
-        include: [
-          {
-            model: models.respondent,
-            attributes: ['name'],
-            where: {
-              name: {
-                $like: '%' + filter + '%',
-              }
+        include: [{
+          model: models.respondent,
+          attributes: ['name'],
+          where: {
+            name: {
+              $like: '%' + filter + '%',
             }
           }
-        ],
+        }],
       }).then(res => {
         console.log(`----`);
         console.log(res);
@@ -544,36 +539,36 @@ module.exports = {
           answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED,
         },
         include: [{
-          model: models.respondent_flow,
-          attributes: ['id'],
-          where: {
-            flow_id: flow_id
+            model: models.respondent_flow,
+            attributes: ['id'],
+            where: {
+              flow_id: flow_id
+            },
+            include: [{
+                model: models.respondent,
+                attributes: ['name'],
+              },
+              {
+                model: models.respondent_flow_status,
+                attributes: ['description'],
+              }
+            ]
           },
-          include: [{
-            model: models.respondent,
-            attributes: ['name'],
-          },
-            {
-              model: models.respondent_flow_status,
-              attributes: ['description'],
-            }
-          ]
-        },
           {
             model: models.step,
             attributes: ['step_order', 'text', 'step_type_id'],
             where: {
               $or: [
-                {step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT},
-                {step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE},
-                {step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT},
-                {step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK}
+                { step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT },
+                { step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE },
+                { step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT },
+                { step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK }
               ],
             },
             include: [{
               model: models.document_step,
               attributes: ['upload_dir_name'],
-            },]
+            }, ]
           },
           {
             model: models.step_choice,
@@ -600,22 +595,26 @@ module.exports = {
     console.log(`getAnswersByQuestion(${flowId})`);
     return new Promise((resolve, reject) => {
       models.step.findAll({
-        attributes: [['step_order', 'name'], 'id', 'text', 'step_type_id'],
+        attributes: [
+          ['step_order', 'name'], 'id', 'text', 'step_type_id'
+        ],
         where: {
           flow_id: flowId,
           $or: [
-            {step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT},
-            {step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE},
-            {step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT},
-            {step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK}
+            { step_type_id: STATUS_TYPES.STEP_TYPES.FREE_TEXT },
+            { step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE },
+            { step_type_id: STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT },
+            { step_type_id: STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK }
           ],
         },
-        order: [[models.Sequelize.col('"name"'), 'ASC']]
+        order: [
+          [models.Sequelize.col('"name"'), 'ASC']
+        ]
       }).then(res => {
         //so avanca depois de preencher todos os elementos
         let counter = 0;
         //contar respostas por cada elemento
-        res.forEach(function (element) {
+        res.forEach(function(element) {
           models.respondent_answer.count({
             where: {
               step_id: element.dataValues.name,
@@ -650,104 +649,76 @@ module.exports = {
     });
   },
 
-  getStepChoiceAnswersByQuestion2: (flowId) => {
-    console.log(`getStepChoiceAnswersByQuestion(${flowId})`);
-    /*
-    return new Promise((resolve, reject) => {
-      models.step.findAll({
-        include: [
-          { model: Profile, required: true }
-        ]
-      });
-    });
-    */
-
-  },
-
   getStepChoiceAnswersByQuestion: (flowId) => {
     console.log(`getStepChoiceAnswersByQuestion(${flowId})`);
+
+    // Let's use a raw query since it is much easier to express our intents in SQL than in the ORM
+    let query = `select s.flow_id, 
+	    s.id as step_id,
+      s.text as step_text,
+      sc.id as step_choice_id, 
+      sc.text, 
+      sum(case when ra.id is null then 0 else 1 end) as hits
+    from step s
+    inner join flow f on f.id = s.flow_id
+    left outer join step_choice sc on sc.step_id = s.id
+    left outer join respondent_answer ra on ra.step_id = s.id and ra.step_choice_id = sc.id and ra.answer_status_id = 2
+    where f.id = :flowId
+    and s.step_type_id in (2, 3, 4, 6)
+    group by s.flow_id, s.id, s.text, sc.id, sc.text
+    order by 1, 2, s.step_order, sc.choice_order`;
+
     return new Promise((resolve, reject) => {
-      //conjunto de questoes de escolha multipla
-      models.step.findAll({
-        attributes: ['id', ['step_order', 'order'],
-          ['text', 'name']
-        ],
-        where: {
-          flow_id: flowId,
-          step_type_id: STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE
-        },
-        order: [
-          [models.Sequelize.col('"order"'), 'ASC']
-        ]
-      }).then(res => {
-        //sincronizar
-        let counter = 0;
+      models.sequelize.query(query, { replacements: { flowId: flowId }, type: models.sequelize.QueryTypes.SELECT }).then(answers => {
 
-        //conjunto de escolhas possiveis para essa escolha multipla
-        res.forEach(function (element) {
-          let step_id = element.dataValues.id;
-          let name = element.dataValues.order + " : " + element.dataValues.name;
-          element.dataValues.id = name;
-          element.dataValues.name = name;
-          element.dataValues.data = [];
+        // Let's combine the results into a data strtucture that can be processed by the frontend
+        let result = answers.reduce((agg, row, index, array) => {
+          if (agg.previous_step_id !== row.step_id) {
+            agg.previous_step_id = row.step_id;
+            agg.step_idx++;
+            agg.value_idx = 1;
+            agg.cat_idx = 0;
+            if (row.step_choice_id != null) {
+              agg.values[agg.step_idx] = [row.step_text];
+              agg.categories[agg.step_idx] = [];
+            }
+          }
+          if (row.step_choice_id != null) {
+            agg.values[agg.step_idx][agg.value_idx] = row.hits;
+            agg.categories[agg.step_idx][agg.cat_idx] = row.text;
+            agg.value_idx++;
+            agg.cat_idx++;
+          }
+          return agg;
 
-          models.step_choice.findAll({
-            attributes: ['id', 'choice_order', 'text'],
-            where: {
-              step_id: step_id
-            },
-            order: [
-              [models.Sequelize.col('"choice_order"'), 'ASC']
-            ]
-          }).then(options => {
-            //sincronizar
-            let counterOpt = 0;
+        }, {
+          flowId: flowId,
+          values: [],
+          categories: [],
+          step_idx: -1,
+          previous_step_id: -1,
+          value_idx: 0,
+          cat_idx: 0
+        });
 
-            //contar o numero de respostas para cada opcao da escolha multipla
-            options.forEach(function (option) {
-              models.respondent_answer.count({
-                where: {
-                  step_id: step_id,
-                  step_choice_id: option.dataValues.id,
-                  answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED
-                },
-              }).then(count => {
-                let optionName = option.dataValues.choice_order + " : " + option.dataValues.text;
-                let myOption = [optionName, count];
-                element.dataValues.data.push(myOption);
-
-                counterOpt++;
-                if (counterOpt === options.length) {
-                  counter++;
-                  //end
-                  if (counter === res.length) {
-                    resolve(res);
-                  }
-                }
-              });
-
-            }, err => {
-              console.error(`Error (complete)`);
-              console.error(err);
-              reject(err);
-            });
-
-          }, err => {
-            console.error(`Error (complete)`);
-            console.error(err);
-            reject(err);
-          });
-        }); // fim do ciclo
-
-        if (counter === res.length) {
-          resolve(res);
-        }
-      }, err => {
-        console.error(`Error getting step choice answers`);
-        console.error(err);
-        reject(err);
+        resolve(result);
       });
     });
+
+
+    // The above code should produce a data structure similar to the following
+    /*
+    let stepChoiceAnswers = {
+      flowId: flowId,
+      values: [, , ['How many years of experience do you have', 1, 0, 0, 2],
+        ['Another multiple-choice question', 1, 2, 0]
+      ],
+      categories: [, , ['None', 'Less than 2 years', 'Between 2 and 5 years', 'More than 5 years'],
+        ['First option', 'Second option', 'Third option']
+      ]
+    };
+    return stepChoiceAnswers;
+    */
   },
 
   saveAnnouncementAnswer: (respondentFlow, step, nextStep) => {
@@ -804,7 +775,7 @@ module.exports = {
     console.log(`At findOrCreateRespondent(sparkId = ${sparkId}, bearer = ${bearer})`);
     return new Promise((resolve, reject) => {
       // Get user info from Spark
-      sparkAPIUtils.getUserFromSpark({sparkId: sparkId}, bearer).then(users => {
+      sparkAPIUtils.getUserFromSpark({ sparkId: sparkId }, bearer).then(users => {
         console.log(`Result from Spark search:`);
         console.log(users);
 
@@ -840,8 +811,8 @@ module.exports = {
           respondent_id: userId,
           flow_id: flowId,
           $or: [
-            {respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.NOT_STARTED},
-            {respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.IN_PROGRESS},
+            { respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.NOT_STARTED },
+            { respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.IN_PROGRESS },
           ],
         },
         defaults: {
@@ -863,7 +834,9 @@ module.exports = {
     console.log("getRespondentsByStatus(flow_id)");
     return new Promise((resolve, reject) => {
       models.respondent_flow.count({
-        attributes: [['respondent_flow_status_id', 'name']],
+        attributes: [
+          ['respondent_flow_status_id', 'name']
+        ],
         where: {
           flow_id: flowId,
         },
@@ -872,7 +845,7 @@ module.exports = {
           [models.Sequelize.col('"respondent_flow_status_id"'), 'ASC']
         ]
       }).then(res => {
-        res.forEach(function (element) {
+        res.forEach(function(element) {
           models.respondent_flow_status.find({
             attributes: ['description'],
             where: {
@@ -895,7 +868,9 @@ module.exports = {
     console.log("getAvgFlowTime(flow_id)");
     return new Promise((resolve, reject) => {
       models.respondent_flow.find({
-        attributes: [[models.Sequelize.fn('AVG', models.Sequelize.col('duration_seconds')), 'avg']],
+        attributes: [
+          [models.Sequelize.fn('AVG', models.Sequelize.col('duration_seconds')), 'avg']
+        ],
         where: {
           respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.FINISHED,
           flow_id: flowId,
@@ -993,8 +968,8 @@ function getFlowStartingOnStepOrder(resolve, reject, flowId, startingStepOrder) 
         [models.step_choice, '"choice_order"', 'ASC']
       ],
       include: [{
-        model: models.step_choice
-      },
+          model: models.step_choice
+        },
         {
           model: models.document_step
         }

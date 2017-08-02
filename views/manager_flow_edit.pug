@@ -4,23 +4,23 @@ block content
   div#root
     div.row
       h1.mt-4.mb-4.col-8 Editing Flow !{title}
-      div.btn-group.mb-4.mt-4.col-4(role="group")
-        a.btn.btn-outline-primary.active(style={width: '110px'}, href='/manager/flow/' + flowId + '/edit', role="button", data-toggle="tooltip")
-          svg.icon(style={width: '20px', height: '20px'})
-            use(xlink:href=static.root + "/sprite.svg#settings")
-          | Edit
-        a.btn.btn-outline-primary(style={width: '110px'}, href='/manager/flow/' + flowId + '/send', role="button", data-toggle="tooltip")
-          svg.icon.send(style={width: '20px', height: '20px'})
-            use(xlink:href=static.root + "/sprite.svg#send")
-          | Send
-        a.btn.btn-outline-primary(style={width: '110px'}, href='/manager/flow/' + flowId + '/answers', role="button", data-toggle="tooltip")
-          svg.icon(style={width: '20px', height: '20px'})
-            use(xlink:href=static.root + "/sprite.svg#answer")
-          | Answers
-        a.btn.btn-outline-primary(style={width: '110px'}, href='/manager/flow/' + flowId + '/dashboard',role="button",data-toggle="tooltip")
-          svg.icon(style={width: '20px', height: '20px'})
-            use(xlink:href=static.root + "/sprite.svg#dashboard")
-          | Dashboard
+      div.btn-group.mb-4.mt-4.col-4.btn-header(role="group")
+       a.btn.btn-outline-dark.active(href='/manager/flow/' + flowId + '/edit', role="button", data-toggle="tooltip")
+         svg.icon
+           use(xlink:href=static.root + "/sprite.svg#settings")
+         | Edit
+       a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/send', role="button", data-toggle="tooltip")
+         svg.icon.send
+           use(xlink:href=static.root + "/sprite.svg#send")
+         | Send
+       a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/answers', role="button", data-toggle="tooltip")
+         svg.icon
+           use(xlink:href=static.root + "/sprite.svg#answer")
+         | Answers
+       a.btn.btn-outline-dark(href='/manager/flow/' + flowId +'/dashboard',role="button",data-toggle="tooltip")
+         svg.icon
+           use(xlink:href=static.root + "/sprite.svg#dashboard")
+         | Dashboard
     div.row
       div.col-md-3
         div.input-group

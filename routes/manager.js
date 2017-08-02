@@ -34,7 +34,7 @@ if (!gdrive_share_to) {
 //                  View All Flows
 // ——————————————————————————————————————————————————
 
-router.get('/', ensureAuthenticated, function (req, res, next) {
+router.get('/', ensureAuthenticated, function(req, res, next) {
   databaseServices.getFlows().then(flows => {
     res.render('manager_flows', {
       title: 'Onboarding manager',
@@ -54,15 +54,15 @@ router.get('/', ensureAuthenticated, function (req, res, next) {
 //                     View Flow
 // ——————————————————————————————————————————————————
 
-router.get('/api/flow/:id', ensureAuthenticated, function (req, res, next) {
+router.get('/api/flow/:id', ensureAuthenticated, function(req, res, next) {
   /**
    Used to show the steps at the edit flow page
    */
-    // TODO: filter by user, do not allow accessing other users flows
+  // TODO: filter by user, do not allow accessing other users flows
   let promises = [
-      // databaseServices.getBots(),
-      databaseServices.getFlowSteps(req.params.id)
-    ];
+    // databaseServices.getBots(),
+    databaseServices.getFlowSteps(req.params.id)
+  ];
   Promise.all(promises).then(values => {
     return res.send({
       flowId: req.params.id,
@@ -97,7 +97,7 @@ router.post('/api/flow', ensureAuthenticated, (req, res, next) => {
 //                     Edit Flow
 // ——————————————————————————————————————————————————
 
-router.get('/flow/:id/edit', ensureAuthenticated, function (req, res, next) {
+router.get('/flow/:id/edit', ensureAuthenticated, function(req, res, next) {
   let promises = [
     databaseServices.getStepTypes(),
     databaseServices.getFlow(req.params.id),
@@ -121,7 +121,7 @@ router.get('/flow/:id/edit', ensureAuthenticated, function (req, res, next) {
   });
 });
 
-router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
+router.put('/api/flow', ensureAuthenticated, function(req, res, next) {
   console.log(`————————————————————————————————————————————————————————————————————————————————————————————————————`);
   console.log(`Update flow, got:`);
   console.log(req.body);
@@ -196,12 +196,10 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
             if (step.step_type_id === STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT) {
               upload_id = step.upload_id;
               upload_dir_name = step.upload_dir_name;
-            }
-            else if (step.step_type_id === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT) {
+            } else if (step.step_type_id === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT) {
               document_id = step.document_id;
               document_name = step.document_name;
-            }
-            else {
+            } else {
               upload_id = step.upload_id;
               upload_dir_name = step.upload_dir_name;
               document_id = step.document_id;
@@ -278,7 +276,6 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                 }
               });
             } // Multiple choice
-
             else if (step.step_type_id === STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT ||
               step.step_type_id === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT ||
               step.step_type_id === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK) {
@@ -296,12 +293,10 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
               if (step.step_type_id === STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT) {
                 upload_id = step.upload_id;
                 upload_dir_name = step.upload_dir_name;
-              }
-              else if (step.step_type_id === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT) {
+              } else if (step.step_type_id === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT) {
                 document_id = step.document_id;
                 document_name = step.document_name;
-              }
-              else {
+              } else {
                 upload_id = step.upload_id;
                 upload_dir_name = step.upload_dir_name;
                 document_id = step.document_id;
@@ -326,8 +321,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                     console.error(err);
                     return res.send(err);
                   });
-                }
-                else {
+                } else {
                   // Update
                   databaseServices.updateDocumentStep(
                     step.id,
@@ -356,7 +350,8 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
 
   models.Sequelize.Promise
     .each(
-      promiseArray, function (result, index) {
+      promiseArray,
+      function(result, index) {
         console.log(`\n\n*****`);
         console.log(`Processed step:`);
         console.log(result);
@@ -385,7 +380,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
 //                    Send Flow
 // ——————————————————————————————————————————————————
 
-router.get('/flow/:id/send', ensureAuthenticated, function (req, res, next) {
+router.get('/flow/:id/send', ensureAuthenticated, function(req, res, next) {
   let promises = [
     databaseServices.getStepTypes(),
     databaseServices.getFlow(req.params.id)
@@ -404,7 +399,7 @@ router.get('/flow/:id/send', ensureAuthenticated, function (req, res, next) {
 });
 
 router.get('/api/search_users/:user', ensureAuthenticated, (req, res, next) => {
-  sparkAPIUtils.getUserFromSpark({user: req.params.user}, req.user.spark_token).then(users => {
+  sparkAPIUtils.getUserFromSpark({ user: req.params.user }, req.user.spark_token).then(users => {
     res.send(users);
   });
 });
@@ -452,7 +447,7 @@ router.post('/api/flow/:id/send', ensureAuthenticated, (req, res, next) => {
 //                   Flow Answers
 // ——————————————————————————————————————————————————
 
-router.get('/flow/:id/answers', ensureAuthenticated, function (req, res, next) {
+router.get('/flow/:id/answers', ensureAuthenticated, function(req, res, next) {
   let promises = [
     databaseServices.getStepTypes(),
     databaseServices.getFlow(req.params.id),
@@ -477,7 +472,7 @@ router.get('/flow/:id/answers', ensureAuthenticated, function (req, res, next) {
 //                   Flow Dashboard
 // ——————————————————————————————————————————————————
 
-router.get('/flow/:id/dashboard', ensureAuthenticated, function (req, res, next) {
+router.get('/flow/:id/dashboard', ensureAuthenticated, function(req, res, next) {
   let promises = [
     databaseServices.getStepTypes(),
     databaseServices.getFlow(req.params.id),
@@ -496,7 +491,8 @@ router.get('/flow/:id/dashboard', ensureAuthenticated, function (req, res, next)
       active: 'Manager', // left side bar icon
       usersArray: values[2],
       answersArray: values[3],
-      stepChoiceArray: values[4],
+      stepChoiceArray: values[4].values,
+      stepChoiceCategoriesArray: values[4].categories,
       minTime: values[5],
       maxTime: values[6],
       avgTime: values[7],
