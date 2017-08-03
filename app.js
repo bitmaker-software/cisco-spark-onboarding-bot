@@ -239,6 +239,7 @@ function registerBot() {
 }
 
 function callbackWhenBotsRegistered(botsControllers) {
+  // Setup bot routes
   databaseServices.takeTheBotsControllers(botsControllers);
   // import all the pre-defined bot routes that are present in /bot/components/routes
   const normalizedPath = require("path").join(__dirname, "bot/components/routes");
