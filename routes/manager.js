@@ -152,7 +152,7 @@ router.put('/api/flow', ensureAuthenticated, function(req, res, next) {
     if (step.id === undefined) {
       // Create step
       promiseArray.push(
-        databaseServices.createAnnouncementStep(
+        databaseServices.createBaseStep(
           step.text,
           index + 1,
           req.body.flowId,

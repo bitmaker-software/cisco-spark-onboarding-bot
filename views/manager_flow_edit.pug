@@ -5,22 +5,22 @@ block content
     div.row
       h1.mt-4.mb-4.col-8 Editing Flow !{title}
       div.btn-group.mb-4.mt-4.col-4.btn-header(role="group")
-       a.btn.btn-outline-dark.active(href='/manager/flow/' + flowId + '/edit', role="button", data-toggle="tooltip")
-         svg.icon
-           use(xlink:href=static.root + "/sprite.svg#settings")
-         | Edit
-       a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/send', role="button", data-toggle="tooltip")
-         svg.icon.send
-           use(xlink:href=static.root + "/sprite.svg#send")
-         | Send
-       a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/answers', role="button", data-toggle="tooltip")
-         svg.icon
-           use(xlink:href=static.root + "/sprite.svg#answer")
-         | Answers
-       a.btn.btn-outline-dark(href='/manager/flow/' + flowId +'/dashboard',role="button",data-toggle="tooltip")
-         svg.icon
-           use(xlink:href=static.root + "/sprite.svg#dashboard")
-         | Dashboard
+        a.btn.btn-outline-dark.active(href='/manager/flow/' + flowId + '/edit', role="button", data-toggle="tooltip")
+          svg.icon
+            use(xlink:href=static.root + "/sprite.svg#settings")
+          | Edit
+        a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/send', role="button", data-toggle="tooltip")
+          svg.icon.send
+            use(xlink:href=static.root + "/sprite.svg#send")
+          | Send
+        a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/answers', role="button", data-toggle="tooltip")
+          svg.icon
+            use(xlink:href=static.root + "/sprite.svg#answer")
+          | Answers
+        a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/dashboard',role="button",data-toggle="tooltip")
+          svg.icon
+            use(xlink:href=static.root + "/sprite.svg#dashboard")
+          | Dashboard
     div.row
       div.col-md-3
         div.input-group
@@ -64,19 +64,23 @@ block content
                   div.input-group-addon
                     svg.icon
                       use(v-bind="{'xlink:href':'" + static.root + "/sprite.svg#'+stepTypeIcons[step.step_type_id]}")
-                  input.form-control.question(type="text", v-model="step.text")
+                  input.form-control.question(type="text", placeholder="Add your question/phrase", v-model="step.text")
                 //- small {{ step.type_description }}
+
                 //
                 // Custom stuff depending on the step type
                 //
+
                 template(v-if="step.step_type_id === 1")
                   //
                   // Announcement, nothing to add
                   //
+
                 template(v-if="step.step_type_id === 2")
                   //
                   // Question, nothing to add
                   //
+
                 template(v-if="step.step_type_id === 3")
                   //
                   // Multiple Choice, add the choices
@@ -93,6 +97,7 @@ block content
                           i.material-icons delete
                       // TODO: add empty choices if the list is empty?
                     button.btn.btn-outline-primary(type="button", @click="step.step_choices.push({})") Add answer
+
                 template(v-if="step.step_type_id === 4")
                   //
                   // User Upload Document
@@ -103,6 +108,7 @@ block content
                       input(type='button', value='Box')
                       input(type='button', value='SFTP')
                   p.text-muted {{step.upload_dir_name}}
+
                 template(v-if="step.step_type_id === 5")
                   //
                   // User Read Document, add the file picker
@@ -113,6 +119,7 @@ block content
                       input(type='button', value='Box')
                       input(type='button', value='SFTP')
                   p.text-muted {{step.document_name}}
+
                 template(v-if="step.step_type_id === 6")
                   //
                   // User Read and Upload Document
@@ -130,10 +137,41 @@ block content
                       input(type='button', value='Box')
                       input(type='button', value='SFTP')
                   p.text-muted {{step.upload_dir_name}}
+
+                template(v-if="step.step_type_id === 7")
+                  //
+                  // People to meet
+                  //
+                  h6(style='margin-top: 20px;') People to meet list:
+                  div(v-if='step.peopleToMeet.list.length === 0', style='color: #666; font-style: italic;') Empty. Search bellow to add people to the list.
+                  div(v-for='person in step.peopleToMeet.list')
+                    div - {{ person.displayName }} ({{ person.email }}) {{index}}
+                      a(@click='removePersonFromPeopleToMeet(person, step.peopleToMeet.list)', style='cursor: pointer; color: red;')  [remove]
+                  div.row.search
+                    div.col-10
+                      input.form-control(type='text', name='search-user', placeholder='Type a username to search', v-model='step.peopleToMeet.searchInput', @keyup.enter='searchUserToMeet(step)')
+                    div.col-2
+                      input.btn.btn-primary.btn-block(type='button', name='btn-search-user', :value='step.peopleToMeet.searching ? "Searching" : "Search"', @click='searchUserToMeet(step)', :disabled='step.peopleToMeet.searching || step.peopleToMeet.searchInput.trim() === \'\'')
+
+                  div.row.mt-4
+                    div.col(v-if='step.peopleToMeet.searchResultsInfo')
+                      h2.mb-4.text-muted {{ step.peopleToMeet.searchResultsInfo }}
+
+                  div.row(v-for='user in step.peopleToMeet.searchResults')
+                    div.col
+                      a
+                        h5.mb-1 {{ user.displayName }}
+                        a(href="#").mb-1 {{ user.email }}
+                    div.col.text-right
+                      input.btn.btn-outline-primary(type="button", value="Add", @click="addPersonToPeopleToMeet(user, step.peopleToMeet.list)")
+                  //
+                  // end of People to meet
+                  //
+
               span.input-group-addon.delete-answer(@click="deleteStep(step.id,index1)")
                 i.material-icons delete
         // Trigger the modal with a button
-        draggable(v-model="stepTypes2",:options="{group:'elem'}",@add="addStepByDrop").drag-area Drag & drop questions here or click the button below
+        draggable(v-model="stepTypes2", :options="{group:'elem'}", @add="addStepByDrop").drag-area Drag & drop questions here or click the button below
         hr
         div.row
           div.col
@@ -170,7 +208,7 @@ block pageScripts
     var stepTypesObj = {};
     stepTypesFromServer.forEach(function (element) {
       stepTypesObj[element.id] = element;
-        console.log(element)
+      console.log(element)
     });
     var flowId = !{flowId}; // used on AJAX requests
     var titleReceived = "!{title}"; // used on AJAX requests

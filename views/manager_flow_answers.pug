@@ -6,22 +6,22 @@ block content
     div.row
       h1.mt-4.mb-4.col-8  Answers Collected on Flow !{title}
       div.btn-group.mb-4.mt-4.col-4.btn-header(role="group")
-       a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/edit', role="button", data-toggle="tooltip")
-         svg.icon
-           use(xlink:href=static.root + "/sprite.svg#settings")
-         | Edit
-       a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/send', role="button", data-toggle="tooltip")
-         svg.icon.send
-           use(xlink:href=static.root + "/sprite.svg#send")
-         | Send
-       a.btn.btn-outline-dark.active(href='/manager/flow/' + flowId + '/answers', role="button", data-toggle="tooltip")
-         svg.icon
-           use(xlink:href=static.root + "/sprite.svg#answer")
-         | Answers
-       a.btn.btn-outline-dark(href='/manager/flow/' + flowId +'/dashboard',role="button",data-toggle="tooltip")
-         svg.icon
-           use(xlink:href=static.root + "/sprite.svg#dashboard")
-         | Dashboard
+        a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/edit', role="button", data-toggle="tooltip")
+          svg.icon
+            use(xlink:href=static.root + "/sprite.svg#settings")
+          | Edit
+        a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/send', role="button", data-toggle="tooltip")
+          svg.icon.send
+            use(xlink:href=static.root + "/sprite.svg#send")
+          | Send
+        a.btn.btn-outline-dark.active(href='/manager/flow/' + flowId + '/answers', role="button", data-toggle="tooltip")
+          svg.icon
+            use(xlink:href=static.root + "/sprite.svg#answer")
+          | Answers
+        a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/dashboard', role="button", data-toggle="tooltip")
+          svg.icon
+            use(xlink:href=static.root + "/sprite.svg#dashboard")
+          | Dashboard
     div
       label(style='margin-right: 10px;') Search for
       input.mb-4(type="text", v-model="filterText", @keyup.enter="doFilter", placeholder="username or status")
@@ -29,19 +29,19 @@ block content
       button.btn.btn-border(style='margin: 15px;', @click="resetFilter") Reset
       button.btn.btn-success.pull-right.mt-3(@click="exportCSV") Export to CSV
     vuetable.vuetable(
-      ref="vuetable",
-      api-url= "../../../test/users/" + flowId + "/" + totalAnswers ,
-      :fields= "fields",
-      :css="css",
-      pagination-path="",
-      :per-page="10",
-      :sort-order="sortOrder",
-      :muti-sort="true",
-      :append-params="moreParams",
-      @vuetable:load-success="closeAllDetailRows",
-      detail-row-component="DetailRow",
-      @vuetable:row-clicked="onCellClicked",
-      @vuetable:pagination-data="onPaginationData")
+    ref="vuetable",
+    api-url= "../../../test/users/" + flowId + "/" + totalAnswers ,
+    :fields= "fields",
+    :css="css",
+    pagination-path="",
+    :per-page="10",
+    :sort-order="sortOrder",
+    :muti-sort="true",
+    :append-params="moreParams",
+    @vuetable:load-success="closeAllDetailRows",
+    detail-row-component="DetailRow",
+    @vuetable:row-clicked="onCellClicked",
+    @vuetable:pagination-data="onPaginationData")
     div
       vuetable-pagination-info(ref="paginationInfo", :css="cssPagination", info-class="pull-left")
       vuetable-pagination.mb-3(ref="pagination", :css="cssPagination", @vuetable-pagination:change-page="onChangePage")

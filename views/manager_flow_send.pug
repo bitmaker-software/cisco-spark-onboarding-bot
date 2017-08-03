@@ -7,22 +7,22 @@ block content
         strong  !{title}
         |  to the respondents
       div.btn-group.mb-4.mt-4.col-4.btn-header(role="group")
-       a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/edit', role="button", data-toggle="tooltip")
-         svg.icon
-           use(xlink:href=static.root + "/sprite.svg#settings")
-         | Edit
-       a.btn.btn-outline-dark.active(href='/manager/flow/' + flowId + '/send', role="button", data-toggle="tooltip")
-         svg.icon.send
-           use(xlink:href=static.root + "/sprite.svg#send")
-         | Send
-       a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/answers', role="button", data-toggle="tooltip")
-         svg.icon
-           use(xlink:href=static.root + "/sprite.svg#answer")
-         | Answers
-       a.btn.btn-outline-dark(href='/manager/flow/' + flowId +'/dashboard',role="button",data-toggle="tooltip")
-         svg.icon
-           use(xlink:href=static.root + "/sprite.svg#dashboard")
-         | Dashboard
+        a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/edit', role="button", data-toggle="tooltip")
+          svg.icon
+            use(xlink:href=static.root + "/sprite.svg#settings")
+          | Edit
+        a.btn.btn-outline-dark.active(href='/manager/flow/' + flowId + '/send', role="button", data-toggle="tooltip")
+          svg.icon.send
+            use(xlink:href=static.root + "/sprite.svg#send")
+          | Send
+        a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/answers', role="button", data-toggle="tooltip")
+          svg.icon
+            use(xlink:href=static.root + "/sprite.svg#answer")
+          | Answers
+        a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/dashboard',role="button",data-toggle="tooltip")
+          svg.icon
+            use(xlink:href=static.root + "/sprite.svg#dashboard")
+          | Dashboard
 
     //div.row(style="height: initial; background-color: #bbb; font-size: 10px; margin: 20px; position: absolute; bottom: 0;")
     //  div.col-lg-12
@@ -39,9 +39,9 @@ block content
       div.col-6.offset-3
         div.row.search
           div.col-10
-            input.form-control#txt-search-user(type='text', name='search-user', placeholder='Type a username to search', v-model='searchInput', @keyup.enter='doSearch')
+            input.form-control(type='text', name='search-user', placeholder='Type a username to search', v-model='searchInput', @keyup.enter='doSearch')
           div.col-2
-            input#btn-search-user.btn.btn-primary.btn-block(type='button', name='btn-search-user', :value='searching ? "Searching" : "Search"', @click='doSearch', :disabled='searching || searchInput.trim() === \'\'')
+            input.btn.btn-primary.btn-block(type='button', name='btn-search-user', :value='searching ? "Searching" : "Search"', @click='doSearch', :disabled='searching || searchInput.trim() === \'\'')
 
         div.row.mt-4
           div.col(v-if='searchResultsInfo')

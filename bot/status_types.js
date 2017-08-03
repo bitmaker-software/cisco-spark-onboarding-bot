@@ -27,5 +27,6 @@ module.exports = {
     UPLOAD_TO_BOT: 4,
     DOWNLOAD_FROM_BOT: 5,
     DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK: 6,
+    PEOPLE_TO_MEET: 7,
   },
 };

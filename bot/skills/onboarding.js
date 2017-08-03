@@ -224,6 +224,9 @@ module.exports = controller => {
                 case STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK:
                   addStepToConversation.downloadDocumentFromTheBotAndUploadItBack(stepArguments);
                   break;
+                case STATUS_TYPES.STEP_TYPES.PEOPLE_TO_MEET:
+                  // TODO
+                  break;
                 default:
                   break;
               }

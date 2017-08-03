@@ -218,7 +218,7 @@ module.exports = {
     });
   },
 
-  createAnnouncementStep: (stepText, stepOrder, flowId, stepTypeId) => {
+  createBaseStep: (stepText, stepOrder, flowId, stepTypeId) => {
     return models.step.create({
       text: stepText,
       step_order: stepOrder,
