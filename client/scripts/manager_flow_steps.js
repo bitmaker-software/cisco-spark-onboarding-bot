@@ -28,6 +28,7 @@ $(function () {
       stepTypeIcons: {},
       newStepTypeSelected: 1,
       title: titleReceived,
+      saveStepsButtonText: "Save Flow",
     },
     methods: {
 
@@ -45,9 +46,7 @@ $(function () {
         app.stepsToDelete.push(stepid);
         app.steps.splice(index, 1);
         //change background
-        if (app.steps.length === 0) {
-          $('#empty-flow').removeClass('hidden');
-        }
+
         //backend
         /*if (typeof stepid !== 'undefined'){
           //delete at bd
@@ -152,19 +151,31 @@ $(function () {
   let addNewStep = (stepType, isModal) => {
     let stepTypeInt = parseInt(stepType);
 
-    let step = {
+    let curatedStep = {
+      // id: ---, // no ID for a new step
+      text: '',
       step_type_id: stepTypeInt,
-      step_choices: [],
-      document_id: null,
-      upload_id: null,
-      document_name: 'No Document Selected',
-      upload_dir_name: 'No Folder Selected',
+      // type_description: getStepTypeFromTypeId(step.step_type_id).description, // TODO: is this needed?
     };
 
-    console.log(stepTypeInt);
     switch (stepTypeInt) {
+      case app.STEP_TYPES.ANNOUNCEMENT:
+        break;
+      case app.STEP_TYPES.FREE_TEXT:
+        break;
+      case app.STEP_TYPES.MULTIPLE_CHOICE:
+        curatedStep.step_choices = []; // multiple choice questions
+        break;
+      case app.STEP_TYPES.UPLOAD_TO_BOT:
+      case app.STEP_TYPES.DOWNLOAD_FROM_BOT:
+      case app.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK:
+        curatedStep.document_id = null;
+        curatedStep.upload_id = null;
+        curatedStep.document_name = 'No Document Selected';
+        curatedStep.upload_dir_name = 'No Folder Selected';
+        break;
       case app.STEP_TYPES.PEOPLE_TO_MEET:
-        step.peopleToMeet = {
+        curatedStep.peopleToMeet = {
           list: [],
           searchInput: '',
           searching: false,
@@ -174,10 +185,7 @@ $(function () {
         break;
     }
 
-    app.steps.push(step);
-
-    $('#empty-flow').addClass('hidden');
-    $('#save-steps').removeClass('hidden');
+    app.steps.push(curatedStep);
 
     if (isModal) {
       // reset selected type, so the next time we open the modal the first one is selected
@@ -220,8 +228,11 @@ $(function () {
             curatedStep.upload_dir_name = getUploadDirName(step);
             break;
           case app.STEP_TYPES.PEOPLE_TO_MEET:
+
+            // TODO: get from what came from the server
+
             curatedStep.peopleToMeet = {
-              list: [],
+              list: getListOfPeopleToMeet(step),
               searchInput: '',
               searching: false,
               searchResultsInfo: '',
@@ -235,13 +246,6 @@ $(function () {
 
       console.log('Steps:');
       console.log(app.steps);
-
-      if (flow.steps.length === 0) {
-        // TODO: do it on Vue, template side
-        $('#empty-flow').removeClass('hidden');
-      } else {
-        $('#save-steps').removeClass('hidden');
-      }
     });
   }
 
@@ -290,39 +294,54 @@ $(function () {
     return "No Folder Selected";
   }
 
+  function getListOfPeopleToMeet(step) {
+    if (step.people_to_meet) {
+      let peopleToMeetList = step.people_to_meet.map(person => {
+        return {
+          id: person.spark_id,
+          displayName: person.display_name,
+          email: person.email,
+        };
+      });
+      console.log(peopleToMeetList);
+      return peopleToMeetList;
+    }
+    return [];
+  }
+
   function saveSteps() {
-    // TODO adapt to Vue
-    let saveStepsButton = $('#save-steps');
-    console.log('Clicked save steps');
-    saveStepsButton.text("Saving…");
+    app.saveStepsButtonText = "Saving…";
 
-    console.log('Save Steps : ');
-    console.log(app.steps);
-    for (let i = 0; i < app.steps.length; i++)
-      console.log(app.steps[i].id)
-
-    let postData = {
+    app.$http.put('/manager/api/flow', {
       flowId: flowId,
       botId: app.selectedBot,
       steps: app.steps,
       title: app.title,
       stepsToDelete: app.stepsToDelete,
       stepChoicesToDelete: app.stepChoicesToDelete,
-    };
+    }).then(response => {
+      // success callback
+      swal({
+        title: 'Saved',
+        type: 'success'
+      }).then(() => {
+        // when clicking OK / closing the message:
+        location.reload(); // TODO: is this needed?
+      });
 
-    $.ajax({
-      url: '/manager/api/flow',
-      type: 'PUT',
-      data: JSON.stringify(postData),
-      contentType: 'application/json; charset=utf-8',
-      dataType: 'json',
-      complete: function (data) {
-        console.log("Request to save flow complete");
-        saveStepsButton.text("Saved");
-        app.stepsToDelete = [];
-        app.stepChoicesToDelete = [];
-        location.reload();
-      }
+      console.log("Request to save flow complete");
+      app.stepsToDelete = [];
+      app.stepChoicesToDelete = [];
+
+    }, error => {
+      // error callback
+      swal({
+        title: 'Oops...',
+        text: error.body,
+        type: 'error'
+      });
+    }).finally(() => {
+      app.saveStepsButtonText = "Save Flow";
     });
   }
 

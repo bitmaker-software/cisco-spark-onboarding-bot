@@ -76,6 +76,7 @@ Object.keys(db).forEach(function (modelName) {
   m.step.belongsTo(m.step_type); // adds step_type_id to step table
   m.step.hasMany(m.step_choice); // adds step_id to step_choice table
   m.step.hasOne(m.document_step); // adds step_id to document_step table
+  m.step.hasMany(m.people_to_meet, {as: 'people_to_meet'}); // adds step_id to people_to_meet table
 
   // —————————— Step Type ——————————
 

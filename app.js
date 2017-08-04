@@ -48,7 +48,7 @@ const CREATE_DB_AND_LOAD_FIXTURES = false;
 let databaseReady = true;
 if (CREATE_DB_AND_LOAD_FIXTURES) {
   databaseReady = false;
-  sequelize.sync({ force: true }).then(() => {
+  sequelize.sync({force: true}).then(() => {
     console.log(`\n\n`);
     console.log(`Database models synced, will now load the fixtures`);
     console.log(`\n`);
@@ -86,7 +86,7 @@ passport.use(new CiscoSparkStrategy({
   },
   (accessToken, refreshToken, profile, done) => {
     databaseServices.userLoggedIn(profile.id, profile.displayName, profile.emails, profile._json.orgId).then(user => {
-      const sessionUser = { id: user.id, name: user.name, avatar: profile._json.avatar, spark_token: accessToken };
+      const sessionUser = {id: user.id, name: user.name, avatar: profile._json.avatar, spark_token: accessToken};
       return done(null, sessionUser);
     }, err => {
       return done(err);
@@ -138,7 +138,7 @@ app.use(config.static.root, express.static(`${__dirname}/public`, {
 
 app.use(compression());
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 
 // app.use(sassMiddleware({
@@ -157,7 +157,7 @@ app.use(session({
   secret: process.env.session_secret,
   resave: false,
   saveUninitialized: false,
-  store: new SequelizeStore({ db: sequelize })
+  store: new SequelizeStore({db: sequelize})
 }));
 app.use(passport.initialize());
 app.use(passport.session());
