@@ -177,6 +177,7 @@ $(function () {
       case app.STEP_TYPES.PEOPLE_TO_MEET:
         curatedStep.peopleToMeet = {
           list: [],
+          showSearch: false,
           searchInput: '',
           searching: false,
           searchResultsInfo: '',
@@ -233,6 +234,7 @@ $(function () {
 
             curatedStep.peopleToMeet = {
               list: getListOfPeopleToMeet(step),
+              showSearch: false,
               searchInput: '',
               searching: false,
               searchResultsInfo: '',

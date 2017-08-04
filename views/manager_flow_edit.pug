@@ -93,7 +93,7 @@ block content
                             use(xlink:href=static.root + "/sprite.svg#drag")
                         //label
                         input.form-control.answer(type="text" v-model="item.text")
-                        span.input-group-addon.delete-answer(@click="deleteStepChoice(step,index2)")
+                        span.input-group-addon(@click="deleteStepChoice(step,index2)")
                           i.material-icons delete
                       // TODO: add empty choices if the list is empty?
                     button.btn.btn-outline-primary(type="button", @click="step.step_choices.push({})") Add answer
@@ -146,24 +146,29 @@ block content
                   div(v-if='step.peopleToMeet.list.length === 0', style='color: #666; font-style: italic;') Empty. Search bellow to add people to the list.
                   div(v-for='person in step.peopleToMeet.list')
                     div - {{ person.displayName }} ({{ person.email }})
-                      a(@click='removePersonFromPeopleToMeet(person, step.peopleToMeet.list)', style='cursor: pointer; color: red;')  [remove]
-                  div.row.search
-                    div.col-10
-                      input.form-control(type='text', name='search-user', placeholder='Type a username to search', v-model='step.peopleToMeet.searchInput', @keyup.enter='searchUserToMeet(step)')
-                    div.col-2
-                      input.btn.btn-primary.btn-block(type='button', name='btn-search-user', :value='step.peopleToMeet.searching ? "Searching" : "Search"', @click='searchUserToMeet(step)', :disabled='step.peopleToMeet.searching || step.peopleToMeet.searchInput.trim() === \'\'')
+                      span.input-group-addon(@click='removePersonFromPeopleToMeet(person, step.peopleToMeet.list)',
+                      style='margin-left: 20px; display: inline-block; padding: 2px;')
+                        i.material-icons delete
+                  a(v-if='!step.peopleToMeet.showSearch', @click='step.peopleToMeet.showSearch = true;') Search for people
+                  a(v-else, @click='step.peopleToMeet.showSearch = false;') Hide search
+                  div(v-if='step.peopleToMeet.showSearch')
+                    div.row.search
+                      div.col-10
+                        input.form-control(type='text', name='search-user', placeholder='Type a username to search', v-model='step.peopleToMeet.searchInput', @keyup.enter='searchUserToMeet(step)')
+                      div.col-2
+                        input.btn.btn-primary.btn-block(type='button', name='btn-search-user', :value='step.peopleToMeet.searching ? "Searching" : "Search"', @click='searchUserToMeet(step)', :disabled='step.peopleToMeet.searching || step.peopleToMeet.searchInput.trim() === \'\'')
 
-                  div.row.mt-4
-                    div.col(v-if='step.peopleToMeet.searchResultsInfo')
-                      h2.mb-4.text-muted {{ step.peopleToMeet.searchResultsInfo }}
+                    div.row.mt-4
+                      div.col(v-if='step.peopleToMeet.searchResultsInfo')
+                        h2.mb-4.text-muted {{ step.peopleToMeet.searchResultsInfo }}
 
-                  div.row(v-for='user in step.peopleToMeet.searchResults')
-                    div.col
-                      a
-                        h5.mb-1 {{ user.displayName }}
-                        a(href="#").mb-1 {{ user.email }}
-                    div.col.text-right
-                      input.btn.btn-outline-primary(type="button", value="Add", @click="addPersonToPeopleToMeet(user, step.peopleToMeet.list)")
+                    div.row(v-for='user in step.peopleToMeet.searchResults')
+                      div.col
+                        a
+                          h5.mb-1 {{ user.displayName }}
+                          a(href="#").mb-1 {{ user.email }}
+                      div.col.text-right
+                        input.btn.btn-outline-primary(type="button", value="Add", @click="addPersonToPeopleToMeet(user, step.peopleToMeet.list)")
                   //
                   // end of People to meet
                   //

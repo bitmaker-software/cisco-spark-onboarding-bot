@@ -796,6 +796,10 @@ module.exports = {
     updateRespondentFlowCurrentStep(respondentFlow, nextStep);
   },
 
+  savePeopleToMeetAnswer: (respondentFlow, step, nextStep) => {
+    updateRespondentFlowCurrentStep(respondentFlow, nextStep);
+  },
+
   getGoogleDriveCredentials: (userId, storeId) => {
     return new Promise((resolve, reject) => {
       models.sequelize.query('select * from ﻿document_stores');
