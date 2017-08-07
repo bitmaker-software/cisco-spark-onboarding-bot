@@ -207,7 +207,6 @@ module.exports = {
       include: [
         {model: models.step_choice},
         {model: models.document_step},
-        {model: models.people_to_meet, as: 'people_to_meet'},
       ],
       order: [
         [models.Sequelize.col('"step_order"'), 'ASC'],
@@ -239,28 +238,6 @@ module.exports = {
     }, {
       where: {id: stepId}
     });
-  },
-
-  createOrUpdatePeopleToMeetStep: (stepId, people) => {
-    console.log(`createOrUpdatePeopleToMeetStep people:`);
-
-
-    // Remove existing
-    models.people_to_meet.destroy({
-      where: {
-        step_id: stepId
-      }
-    }).then(() => {
-      people.forEach(person => {
-        models.people_to_meet.create({
-            step_id: stepId,
-            spark_id: person.id,
-            display_name: person.displayName,
-            email: person.email,
-          });
-      });
-    });
-
   },
 
   createStepChoice: (choiceText, choiceOrder, stepId) => {
@@ -327,7 +304,11 @@ module.exports = {
             where: {
               respondent_id: respondent.id,
               respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.NOT_STARTED
-            }
+            },
+            include: [
+              {model: models.flow, attributes: ['name']},
+              {model: models.people_to_meet, as: 'people_to_meet'},
+            ],
             // TODO: sort by ID and resolve the oldest?
           }).then(respondentFlow => {
             if (respondentFlow) {
@@ -359,10 +340,10 @@ module.exports = {
               }
               //respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.IN_PROGRESS
             },
-            include: [{
-              model: models.flow,
-              attributes: ['name']
-            }],
+            include: [
+              {model: models.flow, attributes: ['name']},
+              {model: models.people_to_meet, as: 'people_to_meet'},
+            ],
             // TODO: limit to the oldest per user
           }).then(respondentFlow => {
             if (respondentFlow) {
@@ -389,9 +370,9 @@ module.exports = {
       where: {
         respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.IN_PROGRESS
       },
-      include: [{
-        model: models.respondent
-      },]
+      include: [
+        {model: models.respondent},
+      ]
       // TODO: limit to the oldest per user
     }); //.then(flows => {
     // if (respondentFlow) {
@@ -838,7 +819,7 @@ module.exports = {
     });
   },
 
-  findOrCreateRespondentFlow: (assignerId, userId, flowId, date) => {
+  findOrCreateRespondentFlow: (assignerId, userId, flowId, peopleToMeetForEachStep, date) => {
     console.log(`At findOrCreateRespondentFlow(assignerId = ${assignerId}, userId = ${userId}, flowId = ${flowId}, date = ${date})`);
     return new Promise((resolve, reject) => {
       models.respondent_flow.findOrCreate({
@@ -858,10 +839,19 @@ module.exports = {
           assign_date: date,
           start_date: date,
         },
-        include: [{
-          model: models.flow
-        }]
-      }).then(result => resolve(result[0]));
+        include: [
+          {model: models.flow},
+          {model: models.people_to_meet, as: 'people_to_meet'},
+        ]
+      }).then(respondentFlows => {
+        const respondentFlow = respondentFlows[0];
+        if (peopleToMeetForEachStep) {
+          createOrUpdatePeopleToMeetStep(respondentFlow.id, peopleToMeetForEachStep).then(result => resolve(respondentFlow));
+        } else {
+          // no people to meet step
+          resolve(respondentFlow)
+        }
+      });
     });
   },
 
@@ -1068,4 +1058,36 @@ function secondsToTime(seconds) {
   }
 
   return dateStr;
+}
+
+function createOrUpdatePeopleToMeetStep(respondentFlowId, peopleForEachStep) {
+  console.log(`createOrUpdatePeopleToMeetStep people`);
+  // console.log(people);
+  return new Promise((resolve, reject) => {
+    // Remove existing
+    models.people_to_meet.destroy({
+      where: {
+        respondent_flow_id: respondentFlowId
+      }
+    }).then(() => {
+      let promises = [];
+      peopleForEachStep.forEach(peopleForStep => {
+        peopleForStep.list.forEach(person => {
+          console.log(`Adding person (${person.displayName}) to the database (respondent flow ID ${respondentFlowId}).`);
+          promises.push(models.people_to_meet.create({
+            step_id: peopleForStep.stepId,
+            respondent_flow_id: respondentFlowId,
+            spark_id: person.id,
+            display_name: person.displayName,
+            email: person.email,
+          }));
+        });
+      });
+      Promise.all(promises).then(results => {
+        resolve(results);
+      }, error => {
+        reject(error);
+      });
+    });
+  });
 }

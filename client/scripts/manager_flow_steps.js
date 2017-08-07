@@ -109,29 +109,6 @@ $(function () {
       stopDraggingStepTypes: (x) => {
         console.log("Stop dragging");
       },
-
-      searchUserToMeet: step => {
-        step.peopleToMeet.searching = true;
-        step.peopleToMeet.searchResultsInfo = '';
-        step.peopleToMeet.searchResults = [];
-        const searchString = encodeURIComponent(step.peopleToMeet.searchInput);
-        console.log(this);
-        app.$http.get('/manager/api/search_users/' + searchString).then(response => {
-          step.peopleToMeet.searchResultsInfo = `Found ${response.body.length} result${response.body.length === 1 ? '' : 's' }.`;
-          step.peopleToMeet.searchResults = response.body;
-          step.peopleToMeet.searching = false;
-        }, error => {
-          if (error.status === 401) {
-            window.location.replace('/auth/spark');
-          }
-        });
-      },
-
-      addPersonToPeopleToMeet: (person, list) => list.push(person),
-      removePersonFromPeopleToMeet: (person, list) => list.splice(list.indexOf(person), 1),
-      getPersonToAddButtonText: () => {
-        return "fok";
-      }
     },
     components: {
       draggable
@@ -175,14 +152,6 @@ $(function () {
         curatedStep.upload_dir_name = 'No Folder Selected';
         break;
       case app.STEP_TYPES.PEOPLE_TO_MEET:
-        curatedStep.peopleToMeet = {
-          list: [],
-          showSearch: false,
-          searchInput: '',
-          searching: false,
-          searchResultsInfo: '',
-          searchResults: [],
-        };
         break;
     }
 
@@ -229,17 +198,6 @@ $(function () {
             curatedStep.upload_dir_name = getUploadDirName(step);
             break;
           case app.STEP_TYPES.PEOPLE_TO_MEET:
-
-            // TODO: get from what came from the server
-
-            curatedStep.peopleToMeet = {
-              list: getListOfPeopleToMeet(step),
-              showSearch: false,
-              searchInput: '',
-              searching: false,
-              searchResultsInfo: '',
-              searchResults: [],
-            };
             break;
         }
 
@@ -294,21 +252,6 @@ $(function () {
       //return step.document_step.upload_dir_name;
     }
     return "No Folder Selected";
-  }
-
-  function getListOfPeopleToMeet(step) {
-    if (step.people_to_meet) {
-      let peopleToMeetList = step.people_to_meet.map(person => {
-        return {
-          id: person.spark_id,
-          displayName: person.display_name,
-          email: person.email,
-        };
-      });
-      console.log(peopleToMeetList);
-      return peopleToMeetList;
-    }
-    return [];
   }
 
   function saveSteps() {

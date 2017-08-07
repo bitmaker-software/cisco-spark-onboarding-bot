@@ -142,36 +142,7 @@ block content
                   //
                   // People to meet
                   //
-                  h6(style='margin-top: 20px;') People to meet list:
-                  div(v-if='step.peopleToMeet.list.length === 0', style='color: #666; font-style: italic;') Empty. Search bellow to add people to the list.
-                  div(v-for='person in step.peopleToMeet.list')
-                    div - {{ person.displayName }} ({{ person.email }})
-                      span.input-group-addon(@click='removePersonFromPeopleToMeet(person, step.peopleToMeet.list)',
-                      style='margin-left: 20px; display: inline-block; padding: 2px;')
-                        i.material-icons delete
-                  a(v-if='!step.peopleToMeet.showSearch', @click='step.peopleToMeet.showSearch = true;') Search for people
-                  a(v-else, @click='step.peopleToMeet.showSearch = false;') Hide search
-                  div(v-if='step.peopleToMeet.showSearch')
-                    div.row.search
-                      div.col-10
-                        input.form-control(type='text', name='search-user', placeholder='Type a username to search', v-model='step.peopleToMeet.searchInput', @keyup.enter='searchUserToMeet(step)')
-                      div.col-2
-                        input.btn.btn-primary.btn-block(type='button', name='btn-search-user', :value='step.peopleToMeet.searching ? "Searching" : "Search"', @click='searchUserToMeet(step)', :disabled='step.peopleToMeet.searching || step.peopleToMeet.searchInput.trim() === \'\'')
-
-                    div.row.mt-4
-                      div.col(v-if='step.peopleToMeet.searchResultsInfo')
-                        h2.mb-4.text-muted {{ step.peopleToMeet.searchResultsInfo }}
-
-                    div.row(v-for='user in step.peopleToMeet.searchResults')
-                      div.col
-                        a
-                          h5.mb-1 {{ user.displayName }}
-                          a(href="#").mb-1 {{ user.email }}
-                      div.col.text-right
-                        input.btn.btn-outline-primary(type="button", value="Add", @click="addPersonToPeopleToMeet(user, step.peopleToMeet.list)")
-                  //
-                  // end of People to meet
-                  //
+                  h6(style='margin-top: 20px;') You can select, on "Send flow", whom the respondent will meet.
 
               span.input-group-addon.delete-answer(@click="deleteStep(step.id,index1)")
                 i.material-icons delete

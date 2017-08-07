@@ -411,15 +411,16 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
 
 router.get('/flow/:id/send', ensureAuthenticated, function (req, res, next) {
   let promises = [
-    databaseServices.getStepTypes(),
     databaseServices.getFlow(req.params.id)
   ];
   Promise.all(promises).then(values => {
+
+    let flow = values[0];
+
     res.render('manager_flow_send', {
-      title: values[1].name,
+      flow: flow,
       flowId: req.params.id,
-      stepTypes: values[0],
-      active: 'Manager' // left side bar icon
+      active: 'Manager', // left side bar icon
     });
   }, err => {
     console.error(`Error fetching the step types or flow:`);
@@ -436,6 +437,7 @@ router.get('/api/search_users/:user', ensureAuthenticated, (req, res, next) => {
 router.post('/api/flow/:id/send', ensureAuthenticated, (req, res, next) => {
   // Initiate the flow for this user
   const userId = req.body.userId;
+  const peopleToMeetForEachStep = req.body.peopleToMeet;
   const assignerId = req.user.id;
   const flowId = req.params.id;
   const assignDate = new Date();
@@ -450,7 +452,7 @@ router.post('/api/flow/:id/send', ensureAuthenticated, (req, res, next) => {
         return res.status(400).send(`The flow has no steps.`);
       }
       // Continue
-      databaseServices.findOrCreateRespondentFlow(assignerId, user.id, flowId, assignDate).then(respondentFlow => {
+      databaseServices.findOrCreateRespondentFlow(assignerId, user.id, flowId, peopleToMeetForEachStep, assignDate).then(respondentFlow => {
         // OK
         databaseServices.getFlowBotController(respondentFlow.flow_id).then(bot => {
           sparkAPIUtils.startFlowForUser(flowId, user.spark_id, bot);

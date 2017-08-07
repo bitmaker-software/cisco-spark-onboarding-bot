@@ -290,10 +290,12 @@ function startTheServer() {
 }
 
 function resumeOngoingFlowsAfterServerStart() {
+  // TODO: fetch also the flows that are ready to start (status 1)
   console.log('resumeOngoingFlowsAfterServerStart()');
+  console.log(`Will call getAllOngoingFlows`);
   databaseServices.getAllOngoingFlows().then(respondentFlows => {
-    // console.log('Pending flows:');
-    // console.log(flows);
+    console.log(`Result from getAllOngoingFlows:`);
+    console.log(respondentFlows);
     respondentFlows.forEach(respondentFlow => {
       console.log(`Resuming flow ${respondentFlow.id}`); // TODO
       databaseServices.getFlowBotController(respondentFlow.flow_id).then(bot => {

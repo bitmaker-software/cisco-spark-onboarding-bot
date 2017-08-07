@@ -7,7 +7,9 @@ let app = new Vue({
     searching: false,
     searchInput: '',
     searchResultsInfo: '',
-    searchResults: []
+    searchResults: [],
+    flow: flowFromServer,
+    peopleToMeetSteps: [],
   },
   methods: {
     addEmailToInput: event => {
@@ -30,7 +32,15 @@ let app = new Vue({
       });
     },
     sendFlowToUser: user => {
-      app.$http.post('/manager/api/flow/' + flowId + '/send', {userId: user.id}).then(response => {
+      app.$http.post('/manager/api/flow/' + flowId + '/send', {
+        userId: user.id,
+        peopleToMeet: app.peopleToMeetSteps.map(item => {
+          return {
+            stepId: item.stepId,
+            list: item.list,
+          };
+        }),
+      }).then(response => {
         swal({
           title: 'Sent!',
           type: 'success'
@@ -47,6 +57,44 @@ let app = new Vue({
           })
         }
       });
-    }
+    },
+
+    searchUserToMeet: item => {
+      item.searching = true;
+      item.searchResultsInfo = '';
+      item.searchResults = [];
+      const searchString = encodeURIComponent(item.searchInput);
+      console.log(this);
+      app.$http.get('/manager/api/search_users/' + searchString).then(response => {
+        item.searchResultsInfo = `Found ${response.body.length} result${response.body.length === 1 ? '' : 's' }.`;
+        item.searchResults = response.body;
+        item.searching = false;
+      }, error => {
+        if (error.status === 401) {
+          window.location.replace('/auth/spark');
+        }
+      });
+    },
+    addPersonToPeopleToMeet: (person, list) => list.push(person),
+    removePersonFromPeopleToMeet: (person, list) => list.splice(list.indexOf(person), 1),
   },
+  mounted() {
+    this.flow.steps.forEach(step => {
+      console.log(`this.flow.steps.forEach step:`);
+      console.log(step);
+      if (step.step_type_id === 7) {
+        // People to meet
+        this.peopleToMeetSteps.push({
+          stepText: step.text,
+          stepId: step.id,
+          list: [],
+          showSearch: false,
+          searchInput: '',
+          searching: false,
+          searchResultsInfo: '',
+          searchResults: [],
+        });
+      }
+    });
+  }
 });

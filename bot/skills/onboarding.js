@@ -158,16 +158,18 @@ module.exports = controller => {
   controller.hears(['start'], 'direct_message', function (bot, message) {
 
     // Is there an ongoing flow? Resume it.
+    console.log(`Calling getOngoingFlowForUserEmail for user ${message.user}`);
     databaseServices.getOngoingFlowForUserEmail(message.user).then(respondentFlow => {
-      console.log(`getOngoingFlowForUserEmail ${message.user}`);
+      console.log(`getOngoingFlowForUserEmail result flow_id:`);
       console.log(respondentFlow.flow_id);
       buildConversationFromCurrentFlow(bot, message, respondentFlow);
     }, error => {
       console.log(error);
       // No flow to resume, check for flows to be started
       // Get the oldest pending (not started) flow and start it
+      console.log(`Calling getOldestPendingFlowForUserEmail for user ${message.user}`);
       databaseServices.getOldestPendingFlowForUserEmail(message.user).then(respondentFlow => {
-        console.log(`getOldestPendingFlowForUserEmail ${message.user}`);
+        console.log(`getOldestPendingFlowForUserEmail result flow_id:`);
         console.log(respondentFlow.flow_id);
         buildConversationFromCurrentFlow(bot, message, respondentFlow);
       }, error => {
@@ -624,26 +626,29 @@ module.exports = controller => {
         thread
       } = stepArguments;
 
-      console.log("Adding people to meet step: " + step.text);
+      console.log(`Adding "people to meet" step: ${step.text}`);
 
+      console.log(step.people_to_meet);
       let peopleText = '';
-      const lastPersonIndex = step.people_to_meet.length - 1;
-      const penultimatePersonIndex = step.people_to_meet.length - 2;
-      step.people_to_meet.forEach((person, index) => {
-        peopleText += person.display_name;
-        if (index === penultimatePersonIndex) {
-          peopleText += ' and '
-        } else if (index !== lastPersonIndex) {
-          peopleText += ', '
+      const lastPersonIndex = respondentFlow.people_to_meet.length - 1; // TODO: fix this
+      const penultimatePersonIndex = respondentFlow.people_to_meet.length - 2; // TODO: fix this
+      respondentFlow.people_to_meet.forEach((person, index) => {
+        if (person.step_id === step.id) {
+          peopleText += person.display_name;
+          if (index === penultimatePersonIndex) {
+            peopleText += ' and '
+          } else if (index !== lastPersonIndex) {
+            peopleText += ', '
+          }
+          console.log(`Should meet ${person.display_name} (${person.email})`);
         }
-        console.log(`Should meet ${person.display_name} (${person.email})`);
       });
 
       console.log(`Todo: create channel with the people..`);
       console.log('~~');
 
       convo.addQuestion({
-        text: `You will now meet ${peopleText} in a new chat room. Type **ok** after the conversation is done.`,
+        text: `${step.text}.\nYou will now meet ${peopleText} in a new chat room. Type **ok** after the conversation is done.`,
       }, [{
         "pattern": "^ok$",
         "callback": function (response, convo) {
