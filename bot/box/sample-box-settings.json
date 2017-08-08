@@ -1,0 +1,12 @@
+{
+  "boxAppSettings": {
+    "clientID": "agszwl7bw045eetr8ixtfmw14gzc64rp",
+    "clientSecret": "2iYDbbLnH5ixrCn8aDbWsqjBxM4z8tNf",
+    "appAuth": {
+      "publicKeyID": "op1nftim",
+      "privateKey": "-----BEGIN ENCRYPTED PRIVATE KEY-----\nMIIFDjBABgkqhkiG9w0BBQ0wMzAbBgkqhkiG9w0BBQwwDgQIQ64Db/ODbC8CAggA\nMBQGCCqGSIb3DQMHBAgEJRnjDj1SxwSCBMgmkGsM02BEAM736bhYnWJDFZijrXP8\njvfk9Wv4CNwypLfhmpSad1+Nc4/sG/82Ge6y/9P0EezLKvpRkUmlTaEaewAX5/Cb\nJBk5kIqqTuxHDciFFjN5oTSHtPyiUqku1Hjs9YjwxnJ9j8F4A9kK63t78pHk+GU/\nR4zE0ExB0P0dfEod+gEWuj+H1Pk2pWsOt3I3PkXa3Hv5HxJrYWIywy3ym43B/Vw5\nG88U0i4okHqJzpbnBo/qRUvZWAbOQgyXB4MvidFfYND+Dst7qVqgC/CGatQQaxFc\nBqJs/VvbehxCKjdXKCQ9v6GkL/Cg8Fx/fkSjhuEc94aE42EoG6++soBnL9rDdr9U\nRVb8YsyejWju5O18iCmqVoC/GZlPLf6WohDguQdCWzcW+PjeBNZD92eHqR29G15X\n65hFtO6X0mjW57sgEHI/VhZxeRmhJ3C+b4wVyVHphV75bqenwoqTfMdQbMZ6pgd7\n9H5jAtExQJG4TIM+1czLskNfc8Dqqwu9eaa8qhT5w6fqmjykqG9FyGeLDb7Q3zJU\n/CaaET2QMzb84k7NaAUnqb/Cd/b6PVVt7KdTPvPzxfBmtSpMsLDYD+x64KQxEOK5\nQXkvyEEPxuZ42k3nv+nShz/8JvfCr+CovF8/JXrBrm0b26TBbNm7rlEVA86rdRwz\nO9NmvfMzqx9A+dk9qvT0itC3YQv4JRHldxv3tK422SC9nV7bWXs8xbZqCEHZjEex\n1FmcsYfEY0Ek20y8VsnP3GlddcgnLaGD3Zp8CTA0fn2r79PmlCu4dZpvOWmmQPkg\nTR8bQHbhHlUUU6Y1yAZ8BW2pNxqZBHJ2Ra+K77A5N7o72aIZag4n8ypq4MYVhk0Q\nju48pYwdJY4w7pwa1LZea6UiS4tZODazRe+L0z6X9S8bo3vJnYscqANnYLRmN6Vp\nT2BtNk+vxYDA+obbv/2JhxoUJvA+MF93fZojr8+d8TdF+Fj8WPmks75CDYhBoj9S\nH9ep0uwUjzlIjBSv5WHZhk3e1YBi2NNan7kL9SBTAIlZcbotnoUJe5O23m/QVs0U\nEiN2VNJ1lDmqSMz6+UTcVN+twIMTjurREw5x6delXol1298mtcm5oURgtgfhk+M3\nOYOkZXjpZhpc7wbwpRCbUPYI2Sjvir6hhZIp/XNw82jod9frjmnkTJ+OkRRSSDYZ\nDIvqrfZAUCu3sl9iEinv4OWVyDifwFT3KjtMxdH7DTTTEHk2foysIiiH4h824l/2\nB7hPQ8ag8stCfA4VjyMA5VSHx77nHzUJf9ZARTJat0lh47JiVLSugI2CTH+tv2zn\nwh1IWK3uOnZfGGU78k4dD/Z0UTWPmKDuCLPayjIJBdj0ZrhN0faOPe9yAcswyF/j\ndnK4XHgQZz5W1oByCuy45Zxee4ZG/auyMYoHcQfr1oRgZh7fSAWrl/SlMG5F95kn\nKxafR1iszzIHBgedQCJWL17TvdKKFLnR0sxvloQjdpxVd4lrJGhHV79fiEpMeYAw\nkQbJdIwUVDqJe97SpI/hi8ReP7jUNrvMNIYVFM2WviTN1Soo3rvCFlYygzG7C/xR\njILTW4AcABA7Yqh3emTi6nUWYAwgJiVrv5pe/A5QI9GiUmfUc7q4JB9Pa04djDbq\nDzc=\n-----END ENCRYPTED PRIVATE KEY-----\n",
+      "passphrase": "3b156b5a078ec107a2ab33c433fa6785"
+    }
+  },
+  "enterpriseID": "24548080"
+}
