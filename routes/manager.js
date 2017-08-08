@@ -34,7 +34,7 @@ if (!gdrive_share_to) {
 //                  View All Flows
 // ——————————————————————————————————————————————————
 
-router.get('/', ensureAuthenticated, function(req, res, next) {
+router.get('/', ensureAuthenticated, function (req, res, next) {
   databaseServices.getFlows().then(flows => {
     res.render('manager_flows', {
       title: 'Onboarding manager',
@@ -54,15 +54,15 @@ router.get('/', ensureAuthenticated, function(req, res, next) {
 //                     View Flow
 // ——————————————————————————————————————————————————
 
-router.get('/api/flow/:id', ensureAuthenticated, function(req, res, next) {
+router.get('/api/flow/:id', ensureAuthenticated, function (req, res, next) {
   /**
    Used to show the steps at the edit flow page
    */
-  // TODO: filter by user, do not allow accessing other users flows
+    // TODO: filter by user, do not allow accessing other users flows
   let promises = [
-    // databaseServices.getBots(),
-    databaseServices.getFlowSteps(req.params.id)
-  ];
+      // databaseServices.getBots(),
+      databaseServices.getFlowSteps(req.params.id)
+    ];
   Promise.all(promises).then(values => {
     return res.send({
       flowId: req.params.id,
@@ -97,7 +97,7 @@ router.post('/api/flow', ensureAuthenticated, (req, res, next) => {
 //                     Edit Flow
 // ——————————————————————————————————————————————————
 
-router.get('/flow/:id/edit', ensureAuthenticated, function(req, res, next) {
+router.get('/flow/:id/edit', ensureAuthenticated, function (req, res, next) {
   let promises = [
     databaseServices.getStepTypes(),
     databaseServices.getFlow(req.params.id),
@@ -121,7 +121,7 @@ router.get('/flow/:id/edit', ensureAuthenticated, function(req, res, next) {
   });
 });
 
-router.put('/api/flow', ensureAuthenticated, function(req, res, next) {
+router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
   console.log(`————————————————————————————————————————————————————————————————————————————————————————————————————`);
   console.log(`Update flow, got:`);
   console.log(req.body);
@@ -152,134 +152,40 @@ router.put('/api/flow', ensureAuthenticated, function(req, res, next) {
     if (step.id === undefined) {
       // Create step
       promiseArray.push(
-        databaseServices.createAnnouncementStep(
+        databaseServices.createBaseStep(
           step.text,
           index + 1,
           req.body.flowId,
           step.step_type_id
         ).then(newStep => {
-          console.log(`Result from new step`);
+          console.log(`Result from new base step`);
           console.log(newStep);
 
-          if (step.step_type_id === STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE) {
-            console.log(`step.step_choices:`);
-            console.log(step.step_choices);
-            step.step_choices.forEach((choice, index) => {
-              console.log(`Step index: ${index}`);
-              databaseServices.createStepChoice(
-                choice.text,
-                index + 1,
-                newStep.id
-              ).then(newStepChoice => {
-                // Done
-                console.log(`Created choice step`);
-              }, err => {
-                console.error(`Error saving the step choice:`);
-                console.error(err);
-                return res.send(err); // TODO: calling return from inside the callback function?!
-              });
-            });
-          } else if (step.step_type_id === STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT ||
-            step.step_type_id === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT ||
-            step.step_type_id === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK) {
-            // Upload documents
-            console.log(`step.upload_id: ${step.upload_id}`);
-            console.log(`step.document_id: ${step.document_id}`);
-            console.log(`step.document_name: ${step.document_name}`);
-            console.log(`step.upload_dir_name: ${step.upload_dir_name}`);
-
-            let document_id = null;
-            let document_name = null;
-            let upload_id = null;
-            let upload_dir_name = null;
-
-            if (step.step_type_id === STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT) {
-              upload_id = step.upload_id;
-              upload_dir_name = step.upload_dir_name;
-            } else if (step.step_type_id === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT) {
-              document_id = step.document_id;
-              document_name = step.document_name;
-            } else {
-              upload_id = step.upload_id;
-              upload_dir_name = step.upload_dir_name;
-              document_id = step.document_id;
-              document_name = step.document_name;
-            }
-
-            databaseServices.createDocumentStep(
-              newStep.id,
-              upload_id,
-              upload_dir_name,
-              document_id,
-              document_name
-            ).then(result => {
-              // Done
-              console.log(`Created document step`);
-            }, err => {
-              console.error(`Error saving the document step:`);
-              console.error(err);
-              return res.send(err); // TODO: calling return from inside the callback function?!
-            });
-          } // Documents
-        })
-      );
-    } else {
-      // Update step
-      promiseArray.push(
-        databaseServices.updateStep(
-          step.text,
-          index + 1,
-          step.id
-        ).then(result => {
-          let affectedCount = result[0];
-          // let affectedRows = result[1]; // only supported in postgres with options.returning = true
-
-          console.log(`Result from updated step`);
-          console.log(affectedCount);
-          // console.log(affectedRows);
-
-          if (affectedCount === 1) {
-            // Check if is multiple choice
-            console.log(`Step updated (type = ${step.step_type_id})`);
-            if (step.step_type_id === STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE) {
+          switch (step.step_type_id) {
+            case STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE:
+              console.log(`step.step_choices:`);
+              console.log(step.step_choices);
               step.step_choices.forEach((choice, index) => {
-                // TODO: what if the user removed options? etc.
-                console.log(`Choice index: ${index}`);
-                if (choice.id === undefined) {
-                  // Create choice
-                  databaseServices.createStepChoice(
-                    choice.text,
-                    index + 1,
-                    step.id
-                  ).then(result => {
-                    // Done
-                    console.log(`Created choice step`);
-                  }, err => {
-                    console.error(`Error saving the step choice:`);
-                    console.error(err);
-                    return res.send(err);
-                  });
-                } else {
-                  // Update choice
-                  databaseServices.updateStepChoice(
-                    choice.text,
-                    index + 1,
-                    choice.id
-                  ).then(result => {
-                    // Done
-                    console.log(`Updated choice step`);
-                  }, err => {
-                    console.error(`Error saving the step choice:`);
-                    console.error(err);
-                    return res.send(err);
-                  });
-                }
+                console.log(`Step index: ${index}`);
+                databaseServices.createStepChoice(
+                  choice.text,
+                  index + 1,
+                  newStep.id
+                ).then(newStepChoice => {
+                  // Done
+                  console.log(`Created choice step`);
+                }, err => {
+                  console.error(`Error saving the step choice:`);
+                  console.error(err);
+                  return res.send(err); // TODO: calling return from inside the callback function?!
+                });
               });
-            } // Multiple choice
-            else if (step.step_type_id === STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT ||
-              step.step_type_id === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT ||
-              step.step_type_id === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK) {
-              //DOCUMENTS
+              break;
+
+            case STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT:
+            case STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT:
+            case STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK:
+              // Upload documents
               console.log(`step.upload_id: ${step.upload_id}`);
               console.log(`step.document_id: ${step.document_id}`);
               console.log(`step.document_name: ${step.document_name}`);
@@ -303,44 +209,167 @@ router.put('/api/flow', ensureAuthenticated, function(req, res, next) {
                 document_name = step.document_name;
               }
 
-              databaseServices.getDocumentStep(step.id).then(documentStep => {
+              databaseServices.createDocumentStep(
+                newStep.id,
+                upload_id,
+                upload_dir_name,
+                document_id,
+                document_name
+              ).then(result => {
+                // Done
+                console.log(`Created document step`);
+              }, err => {
+                console.error(`Error saving the document step:`);
+                console.error(err);
+                return res.send(err); // TODO: calling return from inside the callback function?!
+              });
+              break;
 
-                if (documentStep === null) {
-                  // No document step (how?)
-                  databaseServices.createDocumentStep(
-                    step.id,
-                    upload_id,
-                    upload_dir_name,
-                    document_id,
-                    document_name
-                  ).then(result => {
-                    // Done
-                    console.log(`Created document step`);
-                  }, err => {
-                    console.error(`Error creating the document step:`);
-                    console.error(err);
-                    return res.send(err);
-                  });
-                } else {
-                  // Update
-                  databaseServices.updateDocumentStep(
-                    step.id,
-                    upload_id,
-                    upload_dir_name,
-                    document_id,
-                    document_name
-                  ).then(
-                    result => {
+            case STATUS_TYPES.STEP_TYPES.PEOPLE_TO_MEET:
+              databaseServices.createOrUpdatePeopleToMeetStep(newStep.id, step.peopleToMeet.list).then(result => {
+                // Done
+                console.log(`Created people to meet step`);
+              }, err => {
+                console.error(`Error creating the people to meet step:`);
+                console.error(err);
+                return res.send(err); // TODO: calling return from inside the callback function?!
+              });
+              break;
+
+          }
+        })
+      );
+    } else {
+      // Update step
+      promiseArray.push(
+        databaseServices.updateStep(
+          step.text,
+          index + 1,
+          step.id
+        ).then(result => {
+          let affectedCount = result[0];
+          // let affectedRows = result[1]; // only supported in postgres with options.returning = true
+
+          console.log(`Result from updated step`);
+          console.log(affectedCount);
+          // console.log(affectedRows);
+
+          if (affectedCount === 1) {
+            // Check if is multiple choice
+            console.log(`Step updated (type = ${step.step_type_id})`);
+
+            switch (step.step_type_id) {
+              case STATUS_TYPES.STEP_TYPES.MULTIPLE_CHOICE:
+                step.step_choices.forEach((choice, index) => {
+                  // TODO: what if the user removed options? etc.
+                  console.log(`Choice index: ${index}`);
+                  if (choice.id === undefined) {
+                    // Create choice
+                    databaseServices.createStepChoice(
+                      choice.text,
+                      index + 1,
+                      step.id
+                    ).then(result => {
                       // Done
-                      console.log(`Updated document step`);
-                    },
-                    err => {
-                      console.error(`Error updating the step document: `);
+                      console.log(`Created choice step`);
+                    }, err => {
+                      console.error(`Error saving the step choice:`);
                       console.error(err);
                       return res.send(err);
                     });
+                  } else {
+                    // Update choice
+                    databaseServices.updateStepChoice(
+                      choice.text,
+                      index + 1,
+                      choice.id
+                    ).then(result => {
+                      // Done
+                      console.log(`Updated choice step`);
+                    }, err => {
+                      console.error(`Error saving the step choice:`);
+                      console.error(err);
+                      return res.send(err);
+                    });
+                  }
+                });
+                break;
+              case  STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT:
+              case STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT:
+              case STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK:
+                //DOCUMENTS
+                console.log(`step.upload_id: ${step.upload_id}`);
+                console.log(`step.document_id: ${step.document_id}`);
+                console.log(`step.document_name: ${step.document_name}`);
+                console.log(`step.upload_dir_name: ${step.upload_dir_name}`);
+
+                let document_id = null;
+                let document_name = null;
+                let upload_id = null;
+                let upload_dir_name = null;
+
+                if (step.step_type_id === STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT) {
+                  upload_id = step.upload_id;
+                  upload_dir_name = step.upload_dir_name;
+                } else if (step.step_type_id === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT) {
+                  document_id = step.document_id;
+                  document_name = step.document_name;
+                } else {
+                  upload_id = step.upload_id;
+                  upload_dir_name = step.upload_dir_name;
+                  document_id = step.document_id;
+                  document_name = step.document_name;
                 }
-              });
+
+                databaseServices.getDocumentStep(step.id).then(documentStep => {
+
+                  if (documentStep === null) {
+                    // No document step (how?)
+                    databaseServices.createDocumentStep(
+                      step.id,
+                      upload_id,
+                      upload_dir_name,
+                      document_id,
+                      document_name
+                    ).then(result => {
+                      // Done
+                      console.log(`Created document step`);
+                    }, err => {
+                      console.error(`Error creating the document step:`);
+                      console.error(err);
+                      return res.send(err);
+                    });
+                  } else {
+                    // Update
+                    databaseServices.updateDocumentStep(
+                      step.id,
+                      upload_id,
+                      upload_dir_name,
+                      document_id,
+                      document_name
+                    ).then(
+                      result => {
+                        // Done
+                        console.log(`Updated document step`);
+                      },
+                      err => {
+                        console.error(`Error updating the step document: `);
+                        console.error(err);
+                        return res.send(err);
+                      });
+                  }
+                });
+                break;
+              case STATUS_TYPES.STEP_TYPES.PEOPLE_TO_MEET:
+                databaseServices.createOrUpdatePeopleToMeetStep(step.id, step.peopleToMeet.list).then(result => {
+                  // Done
+                  console.log(`Updated people to meet step`);
+                }, err => {
+                  console.error(`Error updating the people to meet step:`);
+                  console.error(err);
+                  return res.send(err); // TODO: calling return from inside the callback function?!
+                });
+                break;
             } // Documents
           }
         })
@@ -351,7 +380,7 @@ router.put('/api/flow', ensureAuthenticated, function(req, res, next) {
   models.Sequelize.Promise
     .each(
       promiseArray,
-      function(result, index) {
+      function (result, index) {
         console.log(`\n\n*****`);
         console.log(`Processed step:`);
         console.log(result);
@@ -380,17 +409,18 @@ router.put('/api/flow', ensureAuthenticated, function(req, res, next) {
 //                    Send Flow
 // ——————————————————————————————————————————————————
 
-router.get('/flow/:id/send', ensureAuthenticated, function(req, res, next) {
+router.get('/flow/:id/send', ensureAuthenticated, function (req, res, next) {
   let promises = [
-    databaseServices.getStepTypes(),
     databaseServices.getFlow(req.params.id)
   ];
   Promise.all(promises).then(values => {
+
+    let flow = values[0];
+
     res.render('manager_flow_send', {
-      title: values[1].name,
+      flow: flow,
       flowId: req.params.id,
-      stepTypes: values[0],
-      active: 'Manager' // left side bar icon
+      active: 'Manager', // left side bar icon
     });
   }, err => {
     console.error(`Error fetching the step types or flow:`);
@@ -399,7 +429,7 @@ router.get('/flow/:id/send', ensureAuthenticated, function(req, res, next) {
 });
 
 router.get('/api/search_users/:user', ensureAuthenticated, (req, res, next) => {
-  sparkAPIUtils.getUserFromSpark({ user: req.params.user }, req.user.spark_token).then(users => {
+  sparkAPIUtils.getUserFromSpark({user: req.params.user}, req.user.spark_token).then(users => {
     res.send(users);
   });
 });
@@ -407,6 +437,7 @@ router.get('/api/search_users/:user', ensureAuthenticated, (req, res, next) => {
 router.post('/api/flow/:id/send', ensureAuthenticated, (req, res, next) => {
   // Initiate the flow for this user
   const userId = req.body.userId;
+  const peopleToMeetForEachStep = req.body.peopleToMeet;
   const assignerId = req.user.id;
   const flowId = req.params.id;
   const assignDate = new Date();
@@ -421,7 +452,7 @@ router.post('/api/flow/:id/send', ensureAuthenticated, (req, res, next) => {
         return res.status(400).send(`The flow has no steps.`);
       }
       // Continue
-      databaseServices.findOrCreateRespondentFlow(assignerId, user.id, flowId, assignDate).then(respondentFlow => {
+      databaseServices.findOrCreateRespondentFlow(assignerId, user.id, flowId, peopleToMeetForEachStep, assignDate).then(respondentFlow => {
         // OK
         databaseServices.getFlowBotController(respondentFlow.flow_id).then(bot => {
           sparkAPIUtils.startFlowForUser(flowId, user.spark_id, bot);
@@ -447,7 +478,7 @@ router.post('/api/flow/:id/send', ensureAuthenticated, (req, res, next) => {
 //                   Flow Answers
 // ——————————————————————————————————————————————————
 
-router.get('/flow/:id/answers', ensureAuthenticated, function(req, res, next) {
+router.get('/flow/:id/answers', ensureAuthenticated, function (req, res, next) {
   let promises = [
     databaseServices.getStepTypes(),
     databaseServices.getFlow(req.params.id),
@@ -472,7 +503,7 @@ router.get('/flow/:id/answers', ensureAuthenticated, function(req, res, next) {
 //                   Flow Dashboard
 // ——————————————————————————————————————————————————
 
-router.get('/flow/:id/dashboard', ensureAuthenticated, function(req, res, next) {
+router.get('/flow/:id/dashboard', ensureAuthenticated, function (req, res, next) {
   let promises = [
     databaseServices.getStepTypes(),
     databaseServices.getFlow(req.params.id),

@@ -19,10 +19,11 @@ router.get('/', ensureAuthenticated, function (req, res, next) {
 
 router.post('/api/saveBots', ensureAuthenticated, function (req, res, next) {
   const bots = req.body;
+  let promises = [];
   bots.forEach(bot => {
     console.log(`Will save bot:`);
     console.log(bot);
-    databaseServices.saveBot({
+    promises.push(databaseServices.saveBot({
       id: bot.id,
       managerId: 1,
       name: bot.name,
@@ -30,40 +31,18 @@ router.post('/api/saveBots', ensureAuthenticated, function (req, res, next) {
       publicHttpsAddress: bot.public_https_address,
       webhookName: bot.webhook_name,
       secret: bot.secret,
-    });
+    }));
   });
-  // const token = req.body.token;
-  // if (token) {
-  //   models.tenant.create({
-  //     name: 'auto',
-  //     bot_key: req.body.token
-  //   }).then(function () {
-  //     res.send('OK, saved token ' + token);
-  //   }, err => {
-  //     console.error("Error saving the token:");
-  //     console.error(err);
-  //   });
-  // } else {
-  //   res.send('No token provided')
-  // }
+
+  Promise.all(promises).then(results => {
+    // TODO: reload bots
+    res.status(200).send();
+  }, err => {
+    console.log(`Error saving the bots:`);
+    console.log(err);
+    return res.send(err);
+  });
   res.send('OK');
 });
-
-// router.post('/api/saveToken', ensureAuthenticated, function (req, res, next) {
-//   const token = req.body.token;
-//   if (token) {
-//     models.tenant.create({
-//       name: 'auto',
-//       bot_key: req.body.token
-//     }).then(function () {
-//       res.send('OK, saved token ' + token);
-//     }, err => {
-//       console.error("Error saving the token:");
-//       console.error(err);
-//     });
-//   } else {
-//     res.send('No token provided')
-//   }
-// });
 
 module.exports = router;

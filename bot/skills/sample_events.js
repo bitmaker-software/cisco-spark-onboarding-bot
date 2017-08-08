@@ -28,7 +28,7 @@ module.exports = function (controller) {
         console.log(`Got respondent flow with ID ${respondentFlow.id} and status ${respondentFlow.respondent_flow_status_id}`);
       if (respondentFlow.respondent_flow_status_id === STATUS_TYPES.RESPONDENT_FLOW_STATUS.NOT_STARTED) {
         console.log(`This flow is to be started`);
-        bot.reply(message, `\n\nStarting onboarding for, ${respondentFlow.flow.name}.\n\n *(Please say* **start** *to begin)*`);
+        bot.reply(message, `\n\nStarting onboarding for ${respondentFlow.flow.name}.\n\n *(Please say* **start** *to begin)*`);
       } else {
         console.log(`This flow is to be resumed`);
         bot.reply(message, `Hello, there is one onboarding process in progress, ${respondentFlow.flow.name}. Type **start** to resume it.`);

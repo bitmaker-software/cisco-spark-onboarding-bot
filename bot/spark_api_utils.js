@@ -105,12 +105,14 @@ module.exports = {
   },
 
   startFlowForUser: (flowId, sparkUserId, bot) => {
+    // This is only called from "Send flow" page ( POST to /api/flow/:id/send )
     console.log(`startFlowForUser(flowId=${flowId}, sparkUserId=${sparkUserId})`);
     const resume = false;
     spawnBotAndStartConversation(flowId, sparkUserId, bot, resume);
   },
 
   resumeFlowForUser: (flowId, sparkUserId, bot) => {
+    // This is only called from "resumeOngoingFlowsAfterServerStart" from the app.js
     console.log(`resumeFlowForUser(flowId=${flowId}, sparkUserId=${sparkUserId})`);
     const resume = true;
     spawnBotAndStartConversation(flowId, sparkUserId, bot, resume);

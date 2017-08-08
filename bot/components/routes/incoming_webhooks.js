@@ -7,7 +7,9 @@ module.exports = function (app, botsControllers) {
   debug('Configuring POST /ciscospark/receive url for receiving events');
   console.log(`Configuring POST /ciscospark/receive url for receiving events`);
 
-  app.post('/ciscospark/receive', (req, res) => {
+  app.post('/ciscospark/receive', ciscoSparkReceive);
+
+  function ciscoSparkReceive(req, res) {
     //
     // This is called by Spark for "all" messages (even the ones the bot sends)
     //
@@ -51,6 +53,28 @@ module.exports = function (app, botsControllers) {
       console.log(`WARNING, controller for webhook name "${requestWebhookName}" not found!`);
     }
 
-  });
+  }
 
+  function notUsedYet_updateRoute() {
+    // This would be called on runtime after saving the bots settings
+    console.log(`app._router.stack:`);
+    const routes = app._router.stack;
+    routes.forEach(replaceExistingRoute);
+
+    function replaceExistingRoute(route, i, routes) {
+      // console.log(i);
+      // console.log(route.handle.name);
+      // console.log(`~~~`);
+
+      if (route.handle.name === 'ciscoSparkReceive') {
+        console.log(`Replacing ciscoSparkReceive route by a new one`);
+        routes[i] = ciscoSparkReceive;
+      }
+
+      if (route.route) {
+        console.log(`The route has route`);
+        route.route.stack.forEach(replaceExistingRoute);
+      }
+    }
+  }
 };

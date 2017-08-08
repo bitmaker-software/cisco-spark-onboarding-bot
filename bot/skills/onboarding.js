@@ -28,7 +28,7 @@ let drive = google.drive({
 });
 
 //authorize a request
-jwtClient.authorize(function(err, tokens) {
+jwtClient.authorize(function (err, tokens) {
   if (err) {
     console.log(err);
     return;
@@ -75,7 +75,7 @@ function getDriveDocument(fileId, callback) {
   drive.files.get({
     'fileId': fileId,
     'fields': "id,mimeType,name"
-  }, function(err, file) {
+  }, function (err, file) {
     console.log(`getDriveDocument, file:`);
     console.log(file);
     let mimetype = file.mimeType;
@@ -107,14 +107,14 @@ function getDriveDocument(fileId, callback) {
       let filePath = "./bot/files_to_serve/" + file.name + extension;
       let dest = fs.createWriteStream(filePath);
 
-      dest.on('open', function(fd) {
+      dest.on('open', function (fd) {
         drive.files.export({
           fileId: file.id,
           mimeType: mimetype
-        }).on('end', function() {
+        }).on('end', function () {
           console.log('Done');
           callback(fs.createReadStream(filePath));
-        }).on('error', function(err) {
+        }).on('error', function (err) {
           console.log('Error during download', err);
         }).pipe(dest);
       });
@@ -124,14 +124,14 @@ function getDriveDocument(fileId, callback) {
       let filePath = "./bot/files_to_serve/" + file.name;
       let dest = fs.createWriteStream(filePath);
 
-      dest.on('open', function(fd) {
+      dest.on('open', function (fd) {
         drive.files.get({
           fileId: fileId,
           alt: 'media'
-        }).on('end', function() {
+        }).on('end', function () {
           console.log('Download Done');
           callback(fs.createReadStream(filePath));
-        }).on('error', function(err) {
+        }).on('error', function (err) {
           console.log('Error during download', err);
         }).pipe(dest);
       });
@@ -155,19 +155,21 @@ module.exports = controller => {
   // }
   // });
 
-  controller.hears(['start'], 'direct_message', function(bot, message) {
+  controller.hears(['start'], 'direct_message', function (bot, message) {
 
     // Is there an ongoing flow? Resume it.
+    console.log(`Calling getOngoingFlowForUserEmail for user ${message.user}`);
     databaseServices.getOngoingFlowForUserEmail(message.user).then(respondentFlow => {
-      console.log(`getOldestPendingFlowForUserEmail ${message.user}`);
+      console.log(`getOngoingFlowForUserEmail result flow_id:`);
       console.log(respondentFlow.flow_id);
       buildConversationFromCurrentFlow(bot, message, respondentFlow);
     }, error => {
       console.log(error);
       // No flow to resume, check for flows to be started
       // Get the oldest pending (not started) flow and start it
+      console.log(`Calling getOldestPendingFlowForUserEmail for user ${message.user}`);
       databaseServices.getOldestPendingFlowForUserEmail(message.user).then(respondentFlow => {
-        console.log(`getOldestPendingFlowForUserEmail ${message.user}`);
+        console.log(`getOldestPendingFlowForUserEmail result flow_id:`);
         console.log(respondentFlow.flow_id);
         buildConversationFromCurrentFlow(bot, message, respondentFlow);
       }, error => {
@@ -181,16 +183,16 @@ module.exports = controller => {
   /*
    Retrieve the current flow from the datastore, and build the conversation accordingly
    */
-  let buildConversationFromCurrentFlow = function(bot, message, respondentFlow) {
+  let buildConversationFromCurrentFlow = function (bot, message, respondentFlow) {
     console.log(`buildConversationFromCurrentFlow(bot=${bot}, message=${message}, flowId=${respondentFlow.flow_id})`);
     //get the flow from the database
     databaseServices.getFlow(respondentFlow.flow_id, respondentFlow.current_step_id).then(flow => {
       let thread = 'default';
 
-      updateDownloadedDocs(flow).then(function(flow) {
+      updateDownloadedDocs(flow).then(function (flow) {
 
         //create the conversation
-        bot.createConversation(message, function(err, convo) {
+        bot.createConversation(message, function (err, convo) {
           // console.log("createConversation callback. convo: ⏎");
           // console.log(convo);
           if (!err && convo) {
@@ -224,6 +226,9 @@ module.exports = controller => {
                 case STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK:
                   addStepToConversation.downloadDocumentFromTheBotAndUploadItBack(stepArguments);
                   break;
+                case STATUS_TYPES.STEP_TYPES.PEOPLE_TO_MEET:
+                  addStepToConversation.peopleToMeet(stepArguments);
+                  break;
                 default:
                   break;
               }
@@ -253,7 +258,7 @@ module.exports = controller => {
   };
 
   function addEndConversationHandler(bot, convo, respondentFlow) {
-    convo.on('end', function(convo) {
+    convo.on('end', function (convo) {
       if (convo.status === 'completed') {
         databaseServices.setRespondentFlowFinished(respondentFlow);
         bot.reply(convo.source_message, "Thank you so much for your time! Have a nice day!");
@@ -289,7 +294,7 @@ module.exports = controller => {
       convo.addQuestion(text, [ // OK
         {
           "pattern": "^ok$",
-          "callback": function(response, convo) {
+          "callback": function (response, convo) {
             console.log("OK");
             //save response
             databaseServices.saveAnnouncementAnswer(respondentFlow, step, nextStep);
@@ -299,7 +304,7 @@ module.exports = controller => {
         },
         {
           "default": true,
-          "callback": function(response, convo) {
+          "callback": function (response, convo) {
             console.log("NOT OK");
             //repeat the question
             //convo.say("Please type ok to continue");
@@ -328,22 +333,22 @@ module.exports = controller => {
       let text = step.text + "\n\n*(You can write as many lines as you want. Please type* **@end** *in a single line when you're done)*";
 
       convo.addQuestion(text, [{
-          "pattern": "^@end$",
-          "callback": function(response, convo) {
-            //console.log(convo.extractResponse(step.step_id));
-            let answer = convo.extractResponse(step.id);
-            //remove the terminator
-            answer = answer.replace("@end", "");
-            console.log("Answer: " + answer);
-            databaseServices.saveTextAnswer(respondentFlow, step, nextStep, answer);
-            //save response
-            //go to next
-            convo.next();
-          }
-        },
+        "pattern": "^@end$",
+        "callback": function (response, convo) {
+          //console.log(convo.extractResponse(step.step_id));
+          let answer = convo.extractResponse(step.id);
+          //remove the terminator
+          answer = answer.replace("@end", "");
+          console.log("Answer: " + answer);
+          databaseServices.saveTextAnswer(respondentFlow, step, nextStep, answer);
+          //save response
+          //go to next
+          convo.next();
+        }
+      },
         {
           "default": true,
-          "callback": function(response, convo) {
+          "callback": function (response, convo) {
             //do nothing, wait for @end and collect all lines
           }
         }
@@ -370,7 +375,7 @@ module.exports = controller => {
       if (!step.step_choices) {
         console.error("The multiple choice step has no choices!");
       } else {
-        step.step_choices.forEach(function(choice) {
+        step.step_choices.forEach(function (choice) {
           console.log(choice.choice_order);
           console.log(choice.text);
 
@@ -378,7 +383,7 @@ module.exports = controller => {
 
           patternsAndCallbacks.push({
             "pattern": "^" + choice.choice_order + "$",
-            "callback": function(response, convo) {
+            "callback": function (response, convo) {
               // TODO: check the option is valid! repeat the question if not
               //save response
               databaseServices.saveMultipleChoiceAnswer(respondentFlow, step, nextStep, choice.id);
@@ -393,7 +398,7 @@ module.exports = controller => {
       //add the default option
       patternsAndCallbacks.push({
         "default": true,
-        "callback": function(response, convo) {
+        "callback": function (response, convo) {
           //repeat the question
           bot.reply(convo.source_message, "Sorry, that's not an option. Please choose one of the available options.");
           //convo.repeat();
@@ -420,21 +425,21 @@ module.exports = controller => {
 
       convo.addQuestion(text, [{
         "default": true,
-        "callback": function(response, convo) {
+        "callback": function (response, convo) {
           if (response.original_message.files) {
             console.log("OK");
             //save answer
-            bot.retrieveFileInfo(response.original_message.files[0], function(err, file_info) {
+            bot.retrieveFileInfo(response.original_message.files[0], function (err, file_info) {
               request({
                 url: response.original_message.files[0],
                 headers: {
                   'Authorization': 'Bearer ' + process.env.access_token
                 },
                 encoding: null,
-              }, function(err, response, body) {
+              }, function (err, response, body) {
                 if (step.document_step !== null) {
                   if (step.document_step.upload_dir !== null) {
-                    uploadToDrive(file_info, body, step.document_step.upload_dir, function(file) {
+                    uploadToDrive(file_info, body, step.document_step.upload_dir, function (file) {
                       databaseServices.saveDocumentUploadAnswer(respondentFlow, step, nextStep, file.id, file.webContentLink);
                     });
                   } else {
@@ -493,19 +498,19 @@ module.exports = controller => {
           // files: [step.stream] // does not work with private files
           // files: [fs.createReadStream(filePath)] // TypeError: source.on is not a function
         }, [{
-            "pattern": "^ok$",
-            "callback": function(response, convo) {
-              // go to next
-              bot.reply(convo.source_message, {
-                text: 'I made this file for you.',
-                files: [step.stream]
-              });
-              convo.next();
-            }
-          },
+          "pattern": "^ok$",
+          "callback": function (response, convo) {
+            // go to next
+            bot.reply(convo.source_message, {
+              text: 'I made this file for you.',
+              files: [step.stream]
+            });
+            convo.next();
+          }
+        },
           {
             "default": true,
-            "callback": function(response, convo) {
+            "callback": function (response, convo) {
               console.log("NOT OK");
               //repeat the question
               //convo.say("Please type ok to continue");
@@ -522,16 +527,16 @@ module.exports = controller => {
           // files: [step.stream] // does not work with private files
           // files: [fs.createReadStream(filePath)] // TypeError: source.on is not a function
         }, [{
-            "pattern": "^ok$",
-            "callback": function(response, convo) {
-              databaseServices.saveDocumentDownloadAnswer(respondentFlow, step, nextStep);
-              // go to next
-              convo.next();
-            }
-          },
+          "pattern": "^ok$",
+          "callback": function (response, convo) {
+            databaseServices.saveDocumentDownloadAnswer(respondentFlow, step, nextStep);
+            // go to next
+            convo.next();
+          }
+        },
           {
             "default": true,
-            "callback": function(response, convo) {
+            "callback": function (response, convo) {
               console.log("NOT OK");
               //repeat the question
               bot.reply(convo.source_message, "Sorry, I didn't get that. Please type **ok** to continue.");
@@ -570,21 +575,21 @@ module.exports = controller => {
           //files: [step.stream]
         }, [{
           "default": true,
-          "callback": function(response, convo) {
+          "callback": function (response, convo) {
             if (response.original_message.files) {
               console.log("OK");
               //save answer
-              bot.retrieveFileInfo(response.original_message.files[0], function(err, file_info) {
+              bot.retrieveFileInfo(response.original_message.files[0], function (err, file_info) {
                 request({
                   url: response.original_message.files[0],
                   headers: {
                     'Authorization': 'Bearer ' + process.env.access_token
                   },
                   encoding: null,
-                }, function(err, response, body) {
+                }, function (err, response, body) {
                   if (step.document_step !== null) {
                     if (step.document_step.upload_dir !== null) {
-                      uploadToDrive(file_info, body, step.document_step.upload_dir, function(file) {
+                      uploadToDrive(file_info, body, step.document_step.upload_dir, function (file) {
                         databaseServices.saveDocumentUploadAnswer(respondentFlow, step, nextStep, file.id, file.webContentLink);
                       });
                     } else {
@@ -609,7 +614,59 @@ module.exports = controller => {
           }
         }], {}, thread);
       }
-    }
+    },
+
+    peopleToMeet(stepArguments) {
+      let {
+        bot,
+        convo,
+        step,
+        nextStep,
+        respondentFlow,
+        thread
+      } = stepArguments;
+
+      console.log(`Adding "people to meet" step: ${step.text}`);
+
+      console.log(step.people_to_meet);
+      let peopleText = '';
+      const lastPersonIndex = respondentFlow.people_to_meet.length - 1; // TODO: fix this
+      const penultimatePersonIndex = respondentFlow.people_to_meet.length - 2; // TODO: fix this
+      respondentFlow.people_to_meet.forEach((person, index) => {
+        if (person.step_id === step.id) {
+          peopleText += person.display_name;
+          if (index === penultimatePersonIndex) {
+            peopleText += ' and '
+          } else if (index !== lastPersonIndex) {
+            peopleText += ', '
+          }
+          console.log(`Should meet ${person.display_name} (${person.email})`);
+        }
+      });
+
+      console.log(`Todo: create channel with the people..`);
+      console.log('~~');
+
+      convo.addQuestion({
+        text: `${step.text}.\nYou will now meet ${peopleText} in a new chat room. Type **ok** after the conversation is done.`,
+      }, [{
+        "pattern": "^ok$",
+        "callback": function (response, convo) {
+          databaseServices.savePeopleToMeetAnswer(respondentFlow, step, nextStep);
+          // go to next
+          convo.next();
+        }
+      },
+        {
+          "default": true,
+          "callback": function (response, convo) {
+            console.log("NOT OK");
+            //repeat the question
+            bot.reply(convo.source_message, "Sorry, I didn't get that. Please type **ok** to continue.");
+          }
+        }
+      ], {}, thread);
+    },
   };
 
   function uploadToDrive(file_info, file, folderId, callback) {
@@ -632,7 +689,7 @@ module.exports = controller => {
       resource: fileMetadata,
       media: media,
       fields: 'id',
-    }, function(err, file) {
+    }, function (err, file) {
       if (err) {
         console.log("Error uploading file :");
         console.log(err);
@@ -644,7 +701,7 @@ module.exports = controller => {
 
   //faz download dos documentos que o utilizador precisa de ler para um ficheiro local
   function updateDownloadedDocs(flow) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
       console.log('updateDownloadedDocs()');
       let stepsMax = flow.steps.length - 1;
 

@@ -48,7 +48,7 @@ const CREATE_DB_AND_LOAD_FIXTURES = false;
 let databaseReady = true;
 if (CREATE_DB_AND_LOAD_FIXTURES) {
   databaseReady = false;
-  sequelize.sync({ force: true }).then(() => {
+  sequelize.sync({force: true}).then(() => {
     console.log(`\n\n`);
     console.log(`Database models synced, will now load the fixtures`);
     console.log(`\n`);
@@ -86,7 +86,7 @@ passport.use(new CiscoSparkStrategy({
   },
   (accessToken, refreshToken, profile, done) => {
     databaseServices.userLoggedIn(profile.id, profile.displayName, profile.emails, profile._json.orgId).then(user => {
-      const sessionUser = { id: user.id, name: user.name, avatar: profile._json.avatar, spark_token: accessToken };
+      const sessionUser = {id: user.id, name: user.name, avatar: profile._json.avatar, spark_token: accessToken};
       return done(null, sessionUser);
     }, err => {
       return done(err);
@@ -138,7 +138,7 @@ app.use(config.static.root, express.static(`${__dirname}/public`, {
 
 app.use(compression());
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 
 // app.use(sassMiddleware({
@@ -157,7 +157,7 @@ app.use(session({
   secret: process.env.session_secret,
   resave: false,
   saveUninitialized: false,
-  store: new SequelizeStore({ db: sequelize })
+  store: new SequelizeStore({db: sequelize})
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -239,6 +239,7 @@ function registerBot() {
 }
 
 function callbackWhenBotsRegistered(botsControllers) {
+  // Setup bot routes
   databaseServices.takeTheBotsControllers(botsControllers);
   // import all the pre-defined bot routes that are present in /bot/components/routes
   const normalizedPath = require("path").join(__dirname, "bot/components/routes");
@@ -289,10 +290,12 @@ function startTheServer() {
 }
 
 function resumeOngoingFlowsAfterServerStart() {
+  // TODO: fetch also the flows that are ready to start (status 1)
   console.log('resumeOngoingFlowsAfterServerStart()');
+  console.log(`Will call getAllOngoingFlows`);
   databaseServices.getAllOngoingFlows().then(respondentFlows => {
-    // console.log('Pending flows:');
-    // console.log(flows);
+    console.log(`Result from getAllOngoingFlows:`);
+    console.log(respondentFlows);
     respondentFlows.forEach(respondentFlow => {
       console.log(`Resuming flow ${respondentFlow.id}`); // TODO
       databaseServices.getFlowBotController(respondentFlow.flow_id).then(bot => {

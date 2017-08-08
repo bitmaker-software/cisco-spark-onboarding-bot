@@ -5,22 +5,22 @@ block content
     div.row
       h1.mt-4.mb-4.col-8 Editing Flow !{title}
       div.btn-group.mb-4.mt-4.col-4.btn-header(role="group")
-       a.btn.btn-outline-dark.active(href='/manager/flow/' + flowId + '/edit', role="button", data-toggle="tooltip")
-         svg.icon
-           use(xlink:href=static.root + "/sprite.svg#settings")
-         | Edit
-       a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/send', role="button", data-toggle="tooltip")
-         svg.icon.send
-           use(xlink:href=static.root + "/sprite.svg#send")
-         | Send
-       a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/answers', role="button", data-toggle="tooltip")
-         svg.icon
-           use(xlink:href=static.root + "/sprite.svg#answer")
-         | Answers
-       a.btn.btn-outline-dark(href='/manager/flow/' + flowId +'/dashboard',role="button",data-toggle="tooltip")
-         svg.icon
-           use(xlink:href=static.root + "/sprite.svg#dashboard")
-         | Dashboard
+        a.btn.btn-outline-dark.active(href='/manager/flow/' + flowId + '/edit', role="button", data-toggle="tooltip")
+          svg.icon
+            use(xlink:href=static.root + "/sprite.svg#settings")
+          | Edit
+        a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/send', role="button", data-toggle="tooltip")
+          svg.icon.send
+            use(xlink:href=static.root + "/sprite.svg#send")
+          | Send
+        a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/answers', role="button", data-toggle="tooltip")
+          svg.icon
+            use(xlink:href=static.root + "/sprite.svg#answer")
+          | Answers
+        a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/dashboard',role="button",data-toggle="tooltip")
+          svg.icon
+            use(xlink:href=static.root + "/sprite.svg#dashboard")
+          | Dashboard
     div.row
       div.col-md-3
         div.input-group
@@ -45,7 +45,7 @@ block content
 
       div.col-md-9.flow-container
         h2.title.text-primary Steps
-        div#empty-flow.hidden
+        div(v-if="steps.length === 1")
           img.illustration(src=static.root + "/images/add.svg")
           h4.text-center You have no steps yet. Start by adding one!
 
@@ -64,19 +64,23 @@ block content
                   div.input-group-addon
                     svg.icon
                       use(v-bind="{'xlink:href':'" + static.root + "/sprite.svg#'+stepTypeIcons[step.step_type_id]}")
-                  input.form-control.question(type="text", v-model="step.text")
+                  input.form-control.question(type="text", placeholder="Add your question/phrase", v-model="step.text")
                 //- small {{ step.type_description }}
+
                 //
                 // Custom stuff depending on the step type
                 //
+
                 template(v-if="step.step_type_id === 1")
                   //
                   // Announcement, nothing to add
                   //
+
                 template(v-if="step.step_type_id === 2")
                   //
                   // Question, nothing to add
                   //
+
                 template(v-if="step.step_type_id === 3")
                   //
                   // Multiple Choice, add the choices
@@ -89,10 +93,11 @@ block content
                             use(xlink:href=static.root + "/sprite.svg#drag")
                         //label
                         input.form-control.answer(type="text" v-model="item.text")
-                        span.input-group-addon.delete-answer(@click="deleteStepChoice(step,index2)")
+                        span.input-group-addon(@click="deleteStepChoice(step,index2)")
                           i.material-icons delete
                       // TODO: add empty choices if the list is empty?
                     button.btn.btn-outline-primary(type="button", @click="step.step_choices.push({})") Add answer
+
                 template(v-if="step.step_type_id === 4")
                   //
                   // User Upload Document
@@ -103,6 +108,7 @@ block content
                       input(type='button', value='Box')
                       input(type='button', value='SFTP')
                   p.text-muted {{step.upload_dir_name}}
+
                 template(v-if="step.step_type_id === 5")
                   //
                   // User Read Document, add the file picker
@@ -113,6 +119,7 @@ block content
                       input(type='button', value='Box')
                       input(type='button', value='SFTP')
                   p.text-muted {{step.document_name}}
+
                 template(v-if="step.step_type_id === 6")
                   //
                   // User Read and Upload Document
@@ -130,16 +137,23 @@ block content
                       input(type='button', value='Box')
                       input(type='button', value='SFTP')
                   p.text-muted {{step.upload_dir_name}}
+
+                template(v-if="step.step_type_id === 7")
+                  //
+                  // People to meet
+                  //
+                  h6(style='margin-top: 20px;') You can select, on "Send flow", whom the respondent will meet.
+
               span.input-group-addon.delete-answer(@click="deleteStep(step.id,index1)")
                 i.material-icons delete
         // Trigger the modal with a button
-        draggable(v-model="stepTypes2",:options="{group:'elem'}",@add="addStepByDrop").drag-area Drag & drop questions here or click the button below
+        draggable(v-model="stepTypes2", :options="{group:'elem'}", @add="addStepByDrop").drag-area Drag & drop questions here or click the button below
         hr
         div.row
           div.col
             button.btn.btn-outline-primary.btn-lg.mr-4(type="button", data-toggle="modal", data-target="#myModal") Add step
           div.col.text-right
-            button#save-steps.btn.btn-primary.btn-lg.hidden(type="button", @click="saveSteps") Save
+            button.btn.btn-primary.btn-lg(type="button", @click="saveSteps") {{ saveStepsButtonText }}
 
     // Modal
     div#myModal.modal.fade(role="dialog")
@@ -170,7 +184,7 @@ block pageScripts
     var stepTypesObj = {};
     stepTypesFromServer.forEach(function (element) {
       stepTypesObj[element.id] = element;
-        console.log(element)
+      console.log(element)
     });
     var flowId = !{flowId}; // used on AJAX requests
     var titleReceived = "!{title}"; // used on AJAX requests
