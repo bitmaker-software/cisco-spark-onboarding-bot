@@ -42,6 +42,9 @@ let app = new Vue({
 
 let onLoad = false;
 
+console.log(">> ANSWERS <<");
+console.log(app.answers);
+
 let chart = c3.generate({
   bindto: '#questionsChart',
   data: {
@@ -105,6 +108,5 @@ d3.select('#back').on('click', function(d, element) {
       columns: [app.answers],
       categories: app.answersCategories
     });
-    console.log(app.answers);
   }
 });

@@ -3,7 +3,7 @@
 let router = require('express').Router();
 let ensureAuthenticated = require('./auth_middleware');
 const databaseServices = require('../bot/database_services');
-const googleDriveConfig = require('../bot/keys/Integration test-6661fdb0c0a7.json');
+const googleDriveConfig = require('../bot/keys/sample-gdrive-settings.json');
 let env = require('node-env-file');
 env(__dirname + '/../bot/.env');
 
@@ -49,7 +49,7 @@ router.get('/users/:flow_id/:total', ensureAuthenticated, (req, res, next) => {
   //verificar o numero de ordenacoes
   let allSorts = sort.split(',');
   let orders = [];
-  allSorts.forEach(function(currSort){
+  allSorts.forEach(function(currSort) {
     let order = "asc";
     let n = currSort.search(/asc$/);
     //desc
@@ -57,21 +57,20 @@ router.get('/users/:flow_id/:total', ensureAuthenticated, (req, res, next) => {
       order = "desc";
       n = currSort.search(/desc$/);
     }
-      currSort = currSort.substring(0, n - 1);
+    currSort = currSort.substring(0, n - 1);
 
-    orders.push([currSort,order]);
+    orders.push([currSort, order]);
   });
 
   if (typeof filter === 'undefined') {
     filter = "";
-  }
-  else {
+  } else {
     databaseServices.countUsers(flow_id, filter).then(result => {
       total = result;
     }, err => res.send(err));
   }
 
-  databaseServices.getUsers(flow_id, page - 1, per_page, filter,orders).then(answers => {
+  databaseServices.getUsers(flow_id, page - 1, per_page, filter, orders).then(answers => {
     const dataJSON = createDataJSON(answers, flow_id, total, sort, page, per_page);
     console.log(dataJSON);
     res.send(dataJSON);
@@ -82,7 +81,7 @@ router.get('/answers/:flow_id/:resp_id', ensureAuthenticated, (req, res, next) =
   databaseServices.getAnswers(req.params.flow_id, req.params.resp_id).then(answers => {
     const dataJSON = answers.map(answer => {
       let myanswer = formatAnswer(answer);
-      return{
+      return {
         question_num: answer.step.step_order,
         question: answer.step.text,
         answer: myanswer,
@@ -95,13 +94,13 @@ router.get('/answers/:flow_id/:resp_id', ensureAuthenticated, (req, res, next) =
 });
 
 router.get('/export/:flow_id', ensureAuthenticated, (req, res, next) => {
-  let fields = ['username', 'status', 'question_num', 'question', 'answer','answer_date'];
+  let fields = ['username', 'status', 'question_num', 'question', 'answer', 'answer_date'];
   databaseServices.totalAnswers(req.params.flow_id).then(answers => {
 
-    let allAnswers = answers.map( answer => {
+    let allAnswers = answers.map(answer => {
       return {
         username: answer.respondent_flow.respondent.name,
-        status : answer.respondent_flow.respondent_flow_status.description,
+        status: answer.respondent_flow.respondent_flow_status.description,
         question_num: answer.step.step_order,
         question: answer.step.text,
         answer: formatAnswer(answer),
@@ -109,15 +108,15 @@ router.get('/export/:flow_id', ensureAuthenticated, (req, res, next) => {
       }
     });
 
-    let csv = json2csv({data: allAnswers, fields: fields});
+    let csv = json2csv({ data: allAnswers, fields: fields });
     let file = './public/file.csv';
 
-    fs.writeFile(file, csv, function (err) {
+    fs.writeFile(file, csv, function(err) {
       if (err) throw err;
 
       res.set('Content-disposition', 'attachment; filename=file.csv');
       res.set('Content-Type', 'text/csv');
-      res.download('./public/file.csv', 'file.csv', function (error) {
+      res.download('./public/file.csv', 'file.csv', function(error) {
         console.log(error);
       });
 
@@ -169,24 +168,24 @@ function createDataJSON(answers, flow_id, total, sort, page, per_page) {
 
 function createUsersJSON(users) {
 
-  return users.map((user,index) => {
+  return users.map((user, index) => {
 
     let start = null;
     let end = null;
 
-    if(user.start_date !== null)
+    if (user.start_date !== null)
       start = user.start_date.toUTCString();
 
-    if(user.end_date !== null)
+    if (user.end_date !== null)
       end = user.end_date.toUTCString();
 
-    if(user.start_date !== null && user.respondent_flow_status.id === 1){
+    if (user.start_date !== null && user.respondent_flow_status.id === 1) {
       start = null;
     }
 
     return {
       id: index,
-      resp_id : user.id,
+      resp_id: user.id,
       username: user.respondent.name,
       status: user.respondent_flow_status.description,
       details: null,
@@ -208,9 +207,9 @@ function formatAnswer(answer) {
     myanswer = answer.step_choice.choice_order + " : " + answer.step_choice.text;
   } else if (stepType === STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT ||
     stepType === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK) { //|| stepType === STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT
-    myanswer = 'https://drive.google.com/file/d/'+answer.document_url+'/view';
-        //'Check your "' + answer.step.document_step.upload_dir_name +
-        //'" shared folder to download the "' + answer.document_url + '" document.';
+    myanswer = 'https://drive.google.com/file/d/' + answer.document_url + '/view';
+    //'Check your "' + answer.step.document_step.upload_dir_name +
+    //'" shared folder to download the "' + answer.document_url + '" document.';
   }
 
   return myanswer;

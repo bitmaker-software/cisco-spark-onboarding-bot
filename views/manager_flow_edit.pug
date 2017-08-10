@@ -1,7 +1,23 @@
 extends layout
-
 block content
+  - var has_gdrive = gdrive_client_id != null && gdrive_developer_key != null;
+  - var has_box = box_client_id != null;
+  - var has_ftp = false;
   div#root
+    if selectedBot == null
+      div.alert.alert-danger.alert-dismissable.fade.show(role="alert")
+        button.close(type="button", data-dismiss="alert", aria-label="Close")
+          span(aria-hidden="true")
+            | &times;
+        | No bot assigned to this flow. Please select a bot from the drop-down below.
+
+    if !has_gdrive || !has_box
+      div.alert.alert-warning.alert-dismissable.fade.show(role="alert")
+        button.close(type="button", data-dismiss="alert", aria-label="Close")
+          span(aria-hidden="true")
+            | &times;
+        | Some document storage settings are empty, If you like to use Google Drive and/or Box integration please check your settings.
+
     div.row
       h1.mt-4.mb-4.col-8 Editing Flow !{title}
       div.btn-group.mb-4.mt-4.col-4.btn-header(role="group")
@@ -25,8 +41,8 @@ block content
       div.col-md-3
         div.input-group
           label Select the bot for this flow
-          select.custom-select(v-model="selectedBot")
-            option(v-for='bot in bots', :value="bot.id") {{ bot.name }}
+            select.ml-2.custom-select(v-model="selectedBot")
+              option(v-for='bot in bots', :value="bot.id") {{ bot.name }}
 
     div.row
       div.col-md-3.step-container
@@ -103,10 +119,11 @@ block content
                   // User Upload Document
                   //
                   div.input-group.file-type
-                    label Answer Destination Folder
-                      input(type='button', value='Google Drive', @click='getFolderId(step)')
-                      input(type='button', value='Box')
-                      input(type='button', value='SFTP')
+                    span.mr-1
+                      | Answer Destination Folder
+                    input.btn.btn-sm.btn-outline-primary.ml-1(type='button', value='Google Drive', @click='getFolderId(step)', disabled=!has_gdrive )
+                    input.btn.btn-sm.btn-outline-primary.ml-1(type='button', value='Box', @click='getBoxFolderId(step)', disabled=!has_box)
+                    input.btn.btn-sm.btn-outline-primary.ml-1(type='button', value='SFTP', disabled=!has_ftp)
                   p.text-muted {{step.upload_dir_name}}
 
                 template(v-if="step.step_type_id === 5")
@@ -114,10 +131,11 @@ block content
                   // User Read Document, add the file picker
                   //
                   div.input-group.file-type
-                    label Document to read
-                      input(type='button', value='Google Drive', @click='getFileId(step)')
-                      input(type='button', value='Box')
-                      input(type='button', value='SFTP')
+                    span.mr-1 
+                      | Document to read
+                    input.btn.btn-sm.btn-outline-primary.ml-1(type='button', value='Google Drive', @click='getFileId(step)', disabled=!has_gdrive)
+                    input.btn.btn-sm.btn-outline-primary.ml-1(type='button', value='Box', @click='getBoxFileId(step)', disabled=!has_box)
+                    input.btn.btn-sm.btn-outline-primary.ml-1(type='button', value='SFTP', disabled=!has_ftp)
                   p.text-muted {{step.document_name}}
 
                 template(v-if="step.step_type_id === 6")
@@ -125,17 +143,19 @@ block content
                   // User Read and Upload Document
                   //
                   div.input-group.file-type
-                    label Document to read
-                      input(type='button', value='Google Drive', @click='getFileId(step)')
-                      input(type='button', value='Box')
-                      input(type='button', value='SFTP')
+                    span.mr-1 
+                      | Document to read
+                    input.btn.btn-sm.btn-outline-primary.ml-1(type='button', value='Google Drive', @click='getFileId(step)', disabled=!has_gdrive)
+                    input.btn.btn-sm.btn-outline-primary.ml-1(type='button', value='Box', @click='getBoxFileId(step)', disabled=!has_box)
+                    input.btn.btn-sm.btn-outline-primary.ml-1(type='button', value='SFTP', disabled=!has_ftp)
                   p.text-muted {{step.document_name}}
                   hr
                   div.input-group.file-type
-                    label Answer destination folder
-                      input(type='button', value='Google Drive', @click='getFolderId(step)')
-                      input(type='button', value='Box')
-                      input(type='button', value='SFTP')
+                    span.mr-1 
+                      | Answer destination folder
+                    input.btn.btn-sm.btn-outline-primary.ml-1(type='button', value='Google Drive', @click='getFolderId(step)', disabled=!has_gdrive)
+                    input.btn.btn-sm.btn-outline-primary.ml-1(type='button', value='Box', @click='getBoxFolderId(step)', disabled=!has_box)
+                    input.btn.btn-sm.btn-outline-primary.ml-1(type='button', value='SFTP', disabled=!has_ftp)
                   p.text-muted {{step.upload_dir_name}}
 
                 template(v-if="step.step_type_id === 7")
@@ -201,7 +221,13 @@ block pageScripts
   script(id='gdrive', src=static.root + '/js/gdrive.js',
   data-gdrive-client-id=gdrive_client_id,
   data-gdrive-developer-key=gdrive_developer_key,
-  data-gdrive-share-to=gdrive_share_to)
+  data-gdrive-share-to=gdrive_share_to,
+  data-gdrive-document-store-id=gdrive_document_store_id)
+
+  script(id='box', src=static.root + '/js/box.js',
+  data-box-client-id=box_client_id,
+  data-box-document-store-id=box_document_store_id)
 
   script(async, defer, src="https://apis.google.com/js/api.js", onload="GDrive.onApiLoaded()")
+  script(async, defer, src="https://cdn01.boxcdn.net/js/static/select.js", onload="Box.onApiLoaded()")
   //onreadystatechange="if (this.readyState === 'complete') this.onload()")

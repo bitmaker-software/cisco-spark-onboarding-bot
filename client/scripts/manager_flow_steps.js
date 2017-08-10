@@ -2,7 +2,7 @@
 
 import draggable from 'vuedraggable';
 
-$(function () {
+$(function() {
   console.log("manager_flow_steps.js");
 
   let app = new Vue({
@@ -77,25 +77,49 @@ $(function () {
       },
 
       getFileId: (step) => {
-        GDrive.selectFile(function (id, name) {
+        GDrive.selectFile(function(id, name, document_store_id) {
           if (id === 'wrong') {
             alert('The document ' + name + ' can not be shared due to incompatible document type.')
-          }
-          else {
+          } else {
             step.document_name = name;
             step.document_id = id;
+            step.document_store_id = document_store_id;
           }
         })
       },
 
       getFolderId: (step) => {
-        GDrive.selectFolder(function (id, name) {
+        GDrive.selectFolder(function(id, name, document_store_id) {
           if (id === 'wrong') {
             alert('The document ' + name + ' can not be shared due to incompatible document type.')
-          }
-          else {
+          } else {
             step.upload_dir_name = name;
             step.upload_id = id;
+            step.document_store_id = document_store_id;
+          }
+        })
+      },
+
+      getBoxFileId: (step) => {
+        Box.selectFile(function(id, name, document_store_id) {
+          if (id === 'wrong') {
+            alert('The document ' + name + ' can not be shared due to incompatible document type.')
+          } else {
+            step.document_name = name;
+            step.document_id = id;
+            step.document_store_id = document_store_id;
+          }
+        })
+      },
+
+      getBoxFolderId: (step) => {
+        Box.selectFolder(function(id, name, document_store_id) {
+          if (id === 'wrong') {
+            alert('The document ' + name + ' can not be shared due to incompatible document type.')
+          } else {
+            step.upload_dir_name = name;
+            step.upload_id = id;
+            step.document_store_id = document_store_id;
           }
         })
       },
@@ -168,7 +192,7 @@ $(function () {
   // Get data
   //
   function fetchSteps() {
-    $.get('/manager/api/flow/' + flowId, {}, function (flow) {
+    $.get('/manager/api/flow/' + flowId, {}, function(flow) {
       // console.log("Raw flow steps from the server:");
       // console.log(flow.steps);
       // console.log("Flow steps curated to be handled by Vue:"); // TODO: do it on server-side?
@@ -215,7 +239,7 @@ $(function () {
     if (stepTypesObj[typeId]) {
       return stepTypesObj[typeId];
     }
-    return {description: "Unknown step type"};
+    return { description: "Unknown step type" };
   }
 
   function getDocumentUrl(step) {

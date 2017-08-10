@@ -1,4 +1,4 @@
-(function () {
+(function() {
   console.log('GDrive initializing');
   let self = {};
   window.GDrive = self;
@@ -7,6 +7,7 @@
   self.clientId = scriptElement.getAttribute("data-gdrive-client-id");
   self.developerKey = scriptElement.getAttribute("data-gdrive-developer-key");
   self.shareTo = scriptElement.getAttribute("data-gdrive-share-to");
+  self.document_store_id = scriptElement.getAttribute("data-gdrive-document-store-id");
 
   // self.oauthToken;
 
@@ -19,24 +20,24 @@
   self.selectMode = 'none';
   self.afterSelectionCallback = null;
 
-  self.onApiLoaded = function () {
+  self.onApiLoaded = function() {
     console.log('GDrive main API loaded');
     //load sub-components
-    gapi.load('auth', {'callback': self.onAuthApiLoaded});
-    gapi.load('picker', {'callback': self.onPickerApiLoad});
-    gapi.load('client', {'callback': self.onClientApiLoad});
+    gapi.load('auth', { 'callback': self.onAuthApiLoaded });
+    gapi.load('picker', { 'callback': self.onPickerApiLoad });
+    gapi.load('client', { 'callback': self.onClientApiLoad });
     //gapi.load('drive-share', {'callback': self.onDriveShareLoaded});
   };
 
   /**
    * Auth API was loaded
    */
-  self.onAuthApiLoaded = function () {
+  self.onAuthApiLoaded = function() {
     console.log('GDrive auth API loaded');
     self.authApiLoaded = true;
   };
 
-  self.askForUserAuthorization = function () {
+  self.askForUserAuthorization = function() {
     if (self.authApiLoaded) {
       //call the authorization method
       console.log(`Auth with client ID ${self.clientId}`);
@@ -55,7 +56,7 @@
    * handle the authentication result. Save the access token for next requests
    * @param authResult
    */
-  self.handleAuthResult = function (authResult) {
+  self.handleAuthResult = function(authResult) {
     console.log("Got auth response");
     if (authResult && !authResult.error) {
       self.oauthToken = authResult.access_token;
@@ -66,23 +67,23 @@
     }
   };
 
-  self.onPickerApiLoad = function () {
+  self.onPickerApiLoad = function() {
     self.pickerApiLoaded = true;
     console.log('GDrive picker API loaded');
   };
 
-  self.onClientApiLoad = function () {
+  self.onClientApiLoad = function() {
     self.clientApiLoaded = true;
     console.log('GDrive client API loaded');
     gapi.client.load('drive', 'v3', self.onDriveShareLoaded);
   };
 
-  self.onDriveShareLoaded = function () {
+  self.onDriveShareLoaded = function() {
     self.driveShareLoaded = true;
     console.log('GDrive share API loaded');
   };
 
-  self.createPicker = function () {
+  self.createPicker = function() {
     if (!self.oauthToken) {
       console.log("No OAuth token yet, starting OAuth workflow");
       //user authorization wasn't asked yet
@@ -115,7 +116,7 @@
 
   };
 
-  self.pickerCallback = function (data) {
+  self.pickerCallback = function(data) {
     let url;
     let docid = '';
     let docname = '';
@@ -130,41 +131,36 @@
       console.log(`Mimetype: ${mimetype}`);
 
       self.verifyMimeType(mimetype, docid, docname);
-    }
-    else if (data[google.picker.Response.ACTION] === google.picker.Action.CANCEL) {
+    } else if (data[google.picker.Response.ACTION] === google.picker.Action.CANCEL) {
       self.selectMode = 'none';
-    }
-    else {
+    } else {
       url = 'nothing';
     }
     let message = 'You picked: ' + url + ' (' + docid + ' ; ' + docname + ')';
     console.log(message);
   };
 
-  self.verifyMimeType = function (mimetype, docid, docname) {
+  self.verifyMimeType = function(mimetype, docid, docname) {
 
     if (mimetype.includes('google-apps')) {
       //google apps different than the known ones
-      if (
-        !mimetype.includes('document') &&
+      if (!mimetype.includes('document') &&
         !mimetype.includes('spreadsheet') &&
         !mimetype.includes('drawing') &&
         !mimetype.includes('presentation') &&
-        !mimetype === 'application/vnd.google-apps.folder'  //folders
+        !mimetype === 'application/vnd.google-apps.folder' //folders
       ) {
         self.afterSelectionCallback('wrong', docname);
-      }
-      else {
+      } else {
         self.shareFile(docid, docname);
       }
-    }
-    else {
+    } else {
       self.shareFile(docid, docname);
     }
 
   };
 
-  self.shareFile = function (fileId, fileName) {
+  self.shareFile = function(fileId, fileName) {
     if (self.driveShareLoaded) {
       let role = self.selectMode === 'file' ? 'reader' : 'writer';
 
@@ -178,12 +174,12 @@
         }
       });
 
-      req.execute(function (resp) {
+      req.execute(function(resp) {
         console.log("Request User:");
         console.log(resp);
         if (resp.kind && resp.kind === 'drive#permission') {
           //share ok
-          self.afterSelectionCallback(fileId, fileName);
+          self.afterSelectionCallback(fileId, fileName, self.document_store_id);
         }
         self.selectMode = 'none';
         self.afterSelectionCallback = null;
@@ -194,13 +190,13 @@
     }
   };
 
-  self.selectFile = function (callback) {
+  self.selectFile = function(callback) {
     self.afterSelectionCallback = callback;
     self.selectMode = 'file';
     self.createPicker();
   };
 
-  self.selectFolder = function (callback) {
+  self.selectFolder = function(callback) {
     self.afterSelectionCallback = callback;
     self.selectMode = 'folder';
     self.createPicker();

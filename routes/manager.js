@@ -5,7 +5,7 @@ const router = require('express').Router();
 const ensureAuthenticated = require('./auth_middleware');
 const databaseServices = require('../bot/database_services');
 const sparkAPIUtils = require('../bot/spark_api_utils');
-const googleDriveConfig = require('../bot/keys/Integration test-6661fdb0c0a7.json');
+//const googleDriveConfig = require('../bot/keys/Integration test-6661fdb0c0a7.json');
 
 const STATUS_TYPES = require('../bot/status_types');
 
@@ -13,28 +13,28 @@ const STATUS_TYPES = require('../bot/status_types');
 let env = require('node-env-file');
 env(__dirname + '/../bot/.env');
 
-const gdrive_client_id = process.env.gdrive_client_id;
-const gdrive_developer_key = process.env.gdrive_developer_key;
-const gdrive_share_to = googleDriveConfig.client_email;
+// const gdrive_client_id = process.env.gdrive_client_id;
+// const gdrive_developer_key = process.env.gdrive_developer_key;
+// const gdrive_share_to = googleDriveConfig.client_email;
 
-//let bot = require('../app').bot;
+// //let bot = require('../app').bot;
 
-if (!gdrive_client_id) {
-  console.error(`WARNING: gdrive_client_id is not defined!`);
-}
-if (!gdrive_developer_key) {
-  console.error(`WARNING: gdrive_developer_key is not defined!`);
-}
-if (!gdrive_share_to) {
-  console.error(`WARNING: gdrive_share_to is not defined!`);
-}
+// if (!gdrive_client_id) {
+//   console.error(`WARNING: gdrive_client_id is not defined!`);
+// }
+// if (!gdrive_developer_key) {
+//   console.error(`WARNING: gdrive_developer_key is not defined!`);
+// }
+// if (!gdrive_share_to) {
+//   console.error(`WARNING: gdrive_share_to is not defined!`);
+// }
 
 
 // ——————————————————————————————————————————————————
 //                  View All Flows
 // ——————————————————————————————————————————————————
 
-router.get('/', ensureAuthenticated, function (req, res, next) {
+router.get('/', ensureAuthenticated, function(req, res, next) {
   databaseServices.getFlows().then(flows => {
     res.render('manager_flows', {
       title: 'Onboarding manager',
@@ -54,15 +54,15 @@ router.get('/', ensureAuthenticated, function (req, res, next) {
 //                     View Flow
 // ——————————————————————————————————————————————————
 
-router.get('/api/flow/:id', ensureAuthenticated, function (req, res, next) {
+router.get('/api/flow/:id', ensureAuthenticated, function(req, res, next) {
   /**
    Used to show the steps at the edit flow page
    */
-    // TODO: filter by user, do not allow accessing other users flows
+  // TODO: filter by user, do not allow accessing other users flows
   let promises = [
-      // databaseServices.getBots(),
-      databaseServices.getFlowSteps(req.params.id)
-    ];
+    // databaseServices.getBots(),
+    databaseServices.getFlowSteps(req.params.id)
+  ];
   Promise.all(promises).then(values => {
     return res.send({
       flowId: req.params.id,
@@ -84,7 +84,7 @@ router.post('/api/flow', ensureAuthenticated, (req, res, next) => {
   // New flow
   console.log(`Got a request to create a new flow`);
   console.log(req.body);
-  databaseServices.createFlow(req.body.name).then(() => {
+  databaseServices.createFlow(req.body.name, req.user.id).then(() => {
     return res.send(`OK, saved flow`);
   }, err => {
     console.error(`Error creating the flow`);
@@ -97,11 +97,13 @@ router.post('/api/flow', ensureAuthenticated, (req, res, next) => {
 //                     Edit Flow
 // ——————————————————————————————————————————————————
 
-router.get('/flow/:id/edit', ensureAuthenticated, function (req, res, next) {
+router.get('/flow/:id/edit', ensureAuthenticated, function(req, res, next) {
   let promises = [
     databaseServices.getStepTypes(),
     databaseServices.getFlow(req.params.id),
     databaseServices.getBotsNames(),
+    databaseServices.getDocumentStore(req.user.id, 1),
+    databaseServices.getDocumentStore(req.user.id, 2)
   ];
   Promise.all(promises).then(values => {
     res.render('manager_flow_edit', {
@@ -111,9 +113,12 @@ router.get('/flow/:id/edit', ensureAuthenticated, function (req, res, next) {
       bots: values[2],
       selectedBot: values[1].botId,
       active: 'Manager', // left side bar icon
-      gdrive_client_id: gdrive_client_id,
-      gdrive_developer_key: gdrive_developer_key,
-      gdrive_share_to: gdrive_share_to
+      gdrive_client_id: values[3].google_drive_client_id, //gdrive_client_id,
+      gdrive_developer_key: values[3].google_drive_developer_key, //gdrive_developer_key,
+      gdrive_share_to: values[3].google_drive_user_account, //gdrive_share_to,
+      gdrive_document_store_id: values[3].id,
+      box_client_id: values[4].box_client_id,
+      box_document_store_id: values[4].id
     });
   }, err => {
     console.error(`Error fetching the step types or flow:`);
@@ -121,7 +126,7 @@ router.get('/flow/:id/edit', ensureAuthenticated, function (req, res, next) {
   });
 });
 
-router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
+router.put('/api/flow', ensureAuthenticated, function(req, res, next) {
   console.log(`————————————————————————————————————————————————————————————————————————————————————————————————————`);
   console.log(`Update flow, got:`);
   console.log(req.body);
@@ -195,6 +200,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
               let document_name = null;
               let upload_id = null;
               let upload_dir_name = null;
+              let document_store_id = null;
 
               if (step.step_type_id === STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT) {
                 upload_id = step.upload_id;
@@ -208,13 +214,15 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                 document_id = step.document_id;
                 document_name = step.document_name;
               }
+              document_store_id = step.document_store_id;
 
               databaseServices.createDocumentStep(
                 newStep.id,
                 upload_id,
                 upload_dir_name,
                 document_id,
-                document_name
+                document_name,
+                document_store_id
               ).then(result => {
                 // Done
                 console.log(`Created document step`);
@@ -294,7 +302,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                   }
                 });
                 break;
-              case  STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT:
+              case STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT:
               case STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT:
               case STATUS_TYPES.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK:
                 //DOCUMENTS
@@ -307,6 +315,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                 let document_name = null;
                 let upload_id = null;
                 let upload_dir_name = null;
+                let document_store_id = null;
 
                 if (step.step_type_id === STATUS_TYPES.STEP_TYPES.UPLOAD_TO_BOT) {
                   upload_id = step.upload_id;
@@ -320,6 +329,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                   document_id = step.document_id;
                   document_name = step.document_name;
                 }
+                document_store_id = step.document_store_id;
 
                 databaseServices.getDocumentStep(step.id).then(documentStep => {
 
@@ -330,7 +340,8 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                       upload_id,
                       upload_dir_name,
                       document_id,
-                      document_name
+                      document_name,
+                      document_store_id
                     ).then(result => {
                       // Done
                       console.log(`Created document step`);
@@ -346,7 +357,8 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
                       upload_id,
                       upload_dir_name,
                       document_id,
-                      document_name
+                      document_name,
+                      document_store_id
                     ).then(
                       result => {
                         // Done
@@ -380,7 +392,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
   models.Sequelize.Promise
     .each(
       promiseArray,
-      function (result, index) {
+      function(result, index) {
         console.log(`\n\n*****`);
         console.log(`Processed step:`);
         console.log(result);
@@ -409,7 +421,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
 //                    Send Flow
 // ——————————————————————————————————————————————————
 
-router.get('/flow/:id/send', ensureAuthenticated, function (req, res, next) {
+router.get('/flow/:id/send', ensureAuthenticated, function(req, res, next) {
   let promises = [
     databaseServices.getFlow(req.params.id)
   ];
@@ -429,7 +441,7 @@ router.get('/flow/:id/send', ensureAuthenticated, function (req, res, next) {
 });
 
 router.get('/api/search_users/:user', ensureAuthenticated, (req, res, next) => {
-  sparkAPIUtils.getUserFromSpark({user: req.params.user}, req.user.spark_token).then(users => {
+  sparkAPIUtils.getUserFromSpark({ user: req.params.user }, req.user.spark_token).then(users => {
     res.send(users);
   });
 });
@@ -478,7 +490,7 @@ router.post('/api/flow/:id/send', ensureAuthenticated, (req, res, next) => {
 //                   Flow Answers
 // ——————————————————————————————————————————————————
 
-router.get('/flow/:id/answers', ensureAuthenticated, function (req, res, next) {
+router.get('/flow/:id/answers', ensureAuthenticated, function(req, res, next) {
   let promises = [
     databaseServices.getStepTypes(),
     databaseServices.getFlow(req.params.id),
@@ -503,7 +515,7 @@ router.get('/flow/:id/answers', ensureAuthenticated, function (req, res, next) {
 //                   Flow Dashboard
 // ——————————————————————————————————————————————————
 
-router.get('/flow/:id/dashboard', ensureAuthenticated, function (req, res, next) {
+router.get('/flow/:id/dashboard', ensureAuthenticated, function(req, res, next) {
   let promises = [
     databaseServices.getStepTypes(),
     databaseServices.getFlow(req.params.id),
