@@ -23,6 +23,7 @@ const env = require('node-env-file');
 env(__dirname + '/.env');
 
 module.exports = callbackWhenBotsRegistered => {
+  /*
   // Default: read from .env, but this will be replaced by what is on the database
   let botInfo = {
     accessToken: process.env.access_token,
@@ -42,11 +43,12 @@ module.exports = callbackWhenBotsRegistered => {
     usage_tip();
     process.exit(1);
   }
+  */
 
   const Botkit = require('botkit');
   const debug = require('debug')('botkit:main');
 
-// Create the Botkit controller, which controls all instances of the bot.
+  // Create the Botkit controller, which controls all instances of the bot.
   const controllers = [];
 
   const databaseServices = require('./database_services');

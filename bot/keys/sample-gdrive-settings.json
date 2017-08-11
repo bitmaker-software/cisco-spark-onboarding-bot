@@ -1,12 +1,12 @@
 {
   "type": "service_account",
-  "project_id": "integration-test-167208",
-  "private_key_id": "6661fdb0c0a7b47860214fee3a3a3feaf34e757d",
-  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCgYRHuWeJl/279\nNaZa2Uu6meLG7XDLkSrxUUxNYt9pFQI4PGiOEpq2Qo6tD3+aYlFsykPh07ViKZ7+\no+SYTPagOPfcB2slueJ8OBkgtDtJHrPcYyvDwYTqi9GhGDT7iziSIjc6nZvL4bGz\nGs+tRPK7m0cfLwj7+LUcpvW3CuawUBx/ip67L7eQs0UFbczVaySLRHeVT7Ac6bkV\nnYtCwonz9Xic0+VSEl8X2jP26O7VttjR7XjzxVTMkkzJT0qMnXvzZYFRiJRJb/78\nuAcEMcm0J6FHwNl0YS5NOk9qvj9aHAhUxqHPn98LKMWtlnjj9EU3VlKDq44TndVr\nSlZXH44pAgMBAAECggEAYh5hGQC2yQ44OgO7rfMpKJWDL48Opgw/SHojg2jNI/3t\naLhUgy8QphccMPa9a5dhF3y7gQrD+rVaB5H/hcn4TNftlBiZze/mh3bOsLpzVu3I\nvjmSCeZ4SgKWksc7ivWG+6ihP2Qzb825qMjra6c2Fd8O6R4ekgF71Ha093Jc5lp0\nvsfkckdb9YaSWtRn90v7ZYZFRJX9YTKjazk+90rFZlBmaQvHZTvpyYuhItNGNv73\n3K1kIRMlBrbdyQs03PU1Yizbun8Tyt4FpLdzqpLhN6uQVk2BjrnoicXgl4RTk6Bf\n3s5kpsuSoQdJzhbttXI7qtLPpwALTj+UFRIt1ceTvQKBgQDQMkPHIGjJgq35uD3U\nsZFYI0vibB/l7at7K/aCXlLajLoq9fcTFM3us7JTr3nB7nX/Z+tpvb/BNGpMrZJU\nTrKN6Z0OP/umDRRyL7HXRQONropq1dyX0SJfPYdfxwWta7865zp0ynF70sBPgQQ0\nVi6EMlV0L9psYvvNYJcCWbudQwKBgQDFNB9u/Otski7zF6oyDWov5dZhYx1ZwLVv\nuMDPIbTzKJkCSerVSOlLnJUQsT28w8WIkK+OSRKH3cb14wWNOrswMGWehYAYYebR\ntSt4tMa2Sbw+MMeyqrz4tIvgsk3xU8XulvBTUljOQ8EioeuCirIC54Cc/HfJYSLW\nRJIsF1raIwKBgB95ue185NqyOwMp648gWUzt6ScOGbR1PhudBeOnxvbrl6mvDe+A\nkbGo0Sj9unarSoOWfmy6FydqeTemdhzw2OXDj877tVvhVln9A/H7qRHedWa5dmQt\nZfjoIHNGb4FMbNjG5HuLr6R8tD5QzwXqkZXC1lB+e5MvU8o09B+S2V5pAoGBAJB3\nlcuON73q/cAShxlx4GfEfaAMpzTYS1LUS1Oywsgb5rPZiNLFPjupMz7uSWcfGHfq\nXuHiwFOOcjIyJSAIdZdg7SELdgLmvdzFV1pvPN/P9rqsq69FC3k7cvmiRh1UHL2k\nD91Kh0pcMoH3kvuoNa6RABSBlBOQOKA1zcvFNEZ3AoGBAJq/fjCZiXlu4HH7BtbE\nGeEej2O9ggUa/i6jIhtQNyjGk3sRP2yQDc96TFdZKPaNnW3IpLUsH3atjDqfa7hs\nGUaPMg5MQ39Hx625Jry5Ibm4Y8ILVhpxGhsm3eBJ8WceMvLfvl+89RGWk9B3a48f\nYK/FYAat+XNCo49ML/P4zmqB\n-----END PRIVATE KEY-----\n",
-  "client_email": "bitmaker@integration-test-167208.iam.gserviceaccount.com",
-  "client_id": "104565207166186386849",
-  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-  "token_uri": "https://accounts.google.com/o/oauth2/token",
-  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/bitmaker%40integration-test-167208.iam.gserviceaccount.com"
+  "project_id": "",
+  "private_key_id": "",
+  "private_key": "",
+  "client_email": "",
+  "client_id": "",
+  "auth_uri": "",
+  "token_uri": "",
+  "auth_provider_x509_cert_url": "",
+  "client_x509_cert_url": ""
 }

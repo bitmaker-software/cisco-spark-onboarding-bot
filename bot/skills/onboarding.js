@@ -512,7 +512,7 @@ module.exports = controller => {
       console.log('~~');
 
       convo.addQuestion({
-        text: `${step.text}.\nYou will now meet ${peopleText} in a new chat room. Type **ok** after the conversation is done.`,
+        text: `${step.text}.\n\n You should now meet with ${peopleText} in a new chat room. Type **ok** after the conversation is done.`,
       }, [{
           "pattern": "^ok$",
           "callback": function(response, convo) {

@@ -211,19 +211,7 @@ let botsReady = true;
   } else {
     console.log('The database is ready.');
 
-    if (CREATE_DB_AND_LOAD_FIXTURES) {
-      console.log(`Will save the bot to the database with the info from the env file`);
-      databaseServices.saveBot({
-        managerId: 1,
-        name: `Read from env`,
-        accessToken: process.env.access_token,
-        publicHttpsAddress: process.env.public_address,
-        webhookName: process.env.webhook_name,
-        secret: process.env.secret
-      }).then(registerBot);
-    } else {
-      registerBot()
-    }
+    registerBot();
 
   }
 })();
