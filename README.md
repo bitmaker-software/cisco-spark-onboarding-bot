@@ -37,11 +37,11 @@ This project uses BotKit
 * Go to Credentials Management (https://console.developers.google.com/projectselector/apis/credentials)
 * create a new project
 * create the credentials (service account key, for server to server communication)
-  * create new service account
-    * service account name should describe what the account will do (e.g., spark-drive)
-    * select a role. Not yet sure the minimum role that we need. Start with project → owner
-    * key type should be JSON
-    * a JSON file download starts. Copy the contents of this file to the file bot/sample-gdrive-settings.json
+    * create new service account
+        * service account name should describe what the account will do (e.g., spark-drive)
+        * select a role. Not yet sure the minimum role that we need. Start with project → owner
+        * key type should be JSON
+        * a JSON file download starts. Copy the contents of this file to the file bot/sample-gdrive-settings.json
 * in the same site, select "Library" on the left
 * make sure that the newly created project is selected (on top bar, after Google APIs logo)
 * search for Google Drive API
@@ -60,9 +60,9 @@ This project uses BotKit
 * create credentials
 * one API key is created, if following the wizard
 * create "OAuth Client ID" credentials for the same project
-  * Configure consent screen. Fill only the mandatory fields (product name)
-  * Choose Web application for the application type
-  * a client ID and client secret are generated. Only need the client ID
+    * Configure consent screen. Fill only the mandatory fields (product name)
+    * Choose Web application for the application type
+    * a client ID and client secret are generated. Only need the client ID
 * Use the information in the Google Drive settings page
 
 ## Box Configuration ##
