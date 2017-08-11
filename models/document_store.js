@@ -17,6 +17,12 @@ module.exports = function(sequelize, DataTypes) {
     box_client_id: {
       type: DataTypes.STRING
     },
+    box_user_account: {
+      type: DataTypes.STRING
+    },
+    box_user_id: {
+      type: DataTypes.STRING
+    },
     server_config_file: {
       type: DataTypes.STRING(2048)
     },

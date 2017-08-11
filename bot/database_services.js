@@ -62,9 +62,23 @@ module.exports = {
     }
   },
 
-  getBotsNames: () => {
+  getBotsByUser: managerId => {
+    const attributes = ['id', 'name', 'access_token', 'public_https_address', 'webhook_name', 'secret'];
     return models.bot.findAll({
-      attributes: ['id', 'name']
+      attributes: attributes,
+      where: {
+        manager_id: managerId
+      }
+    });
+  },
+
+  getBotsNames: (managerId) => {
+    console.log(`GETTING BOTS!!!! ${managerId}`);
+    return models.bot.findAll({
+      attributes: ['id', 'name'],
+      where: {
+        manager_id: managerId
+      }
     });
   },
 
@@ -134,14 +148,13 @@ module.exports = {
     });
   },
 
-  getFlows: () => {
-    console.log(`getFlows()`);
+  getFlows: (managerId) => {
+    console.log(`getFlows() for user ${managerId}`);
     // Returns flows for the logged in tenant
     return models.flow.findAll({
       attributes: ['id', 'name'],
       where: {
-        // TODO filter by logged in user !!!
-        //   ownerId: 1
+        owner_id: managerId
       },
       order: [
         ['id', 'ASC']
@@ -320,6 +333,39 @@ module.exports = {
     });
   },
 
+  getDocumentStoreById: (id) => {
+    console.log(`Retrieving store id: ${id}`);
+    return new Promise((resolve, reject) => {
+      models.document_store.find({
+        where: {
+          id: id
+        }
+      }).then((store) => {
+        if (store) {
+          resolve(store);
+        } else {
+          reject(`Unable to retrieve store with id: ${id}`);
+        }
+      }, (err) => {
+        eject(`Unable to retrieve store with id: ${id}`);
+      });
+    });
+  },
+
+  updateDocumentStoreUserId: (id, box_user_id) => {
+    return models.document_store.update({
+      box_user_id: box_user_id
+    }, {
+      where: { id: id }
+    });
+  },
+
+  saveDocumentStore: (data, managerId, documentStoreTypeId) => {
+    return models.document_store.update(data, {
+      where: { manager_id: managerId, document_store_type_id: documentStoreTypeId }
+    });
+  },
+
   getOldestPendingFlowForUserEmail: email => {
     return new Promise((resolve, reject) => {
       models.respondent.find({ where: { email: email } }).then(respondent => {
@@ -454,7 +500,7 @@ module.exports = {
     console.log(`getAnswers(${flow_id},${resp_id})`);
     return new Promise((resolve, reject) => {
       models.respondent_answer.findAll({
-        attributes: ['id', 'text', 'document_url', 'answer_date'],
+        attributes: ['id', 'text', 'document_url', 'answer_date', 'document_view_url'],
         where: {
           answer_status_id: STATUS_TYPES.ANSWER_STATUS.ANSWERED, //ja respondidas
           respondent_flow_id: resp_id, //para este utilizador

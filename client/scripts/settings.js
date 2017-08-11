@@ -5,6 +5,8 @@ let app = new Vue({
   el: '#app',
   data: {
     bots: serverSideSettingsList.bots,
+    gdriveSettings: serverSideSettingsList.gdriveSettings,
+    boxSettings: serverSideSettingsList.boxSettings,
     other: "Hello1",
     saveBotsBtnText: "Save bots"
   },
@@ -35,6 +37,26 @@ let app = new Vue({
         })
       }).finally(() => {
         app.saveBotsBtnText = "Save bots";
+      });
+    },
+    saveSettings: () => {
+      console.log("Saving settings...");
+      //app.saveBotsBtnText = "Saving";
+      app.$http.post('/settings/api/save', { gdriveSettings: app.gdriveSettings, boxSettings: app.boxSettings }).then(response => {
+        // success callback
+        swal({
+          title: 'Saved',
+          type: 'success'
+        });
+      }, error => {
+        // error callback
+        swal({
+          title: 'Oops...',
+          text: error.body,
+          type: 'error'
+        })
+      }).finally(() => {
+        //app.saveBotsBtnText = "Save bots";
       });
     }
   }

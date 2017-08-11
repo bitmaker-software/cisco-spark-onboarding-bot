@@ -108,7 +108,13 @@ let upload = (drive, file_info, file, folderId, callback) => {
       console.log("Error uploading file :");
       console.log(err);
     } else {
-      callback(file);
+
+      let fileData = {
+        id: file.id,
+        webContentLink: 'https://drive.google.com/file/d/' + file.id + '/view'
+      }
+
+      callback(fileData);
     }
   });
 };
@@ -116,31 +122,29 @@ let upload = (drive, file_info, file, folderId, callback) => {
 //
 // Retrieves the user store in order to build the drive object and execute the function
 //
-let buildDriveAndExecute = (managerId, callback) => {
+let buildDriveAndExecute = (store, callback) => {
 
   // Go get information about the store first
-  databaseServices.getDocumentStore(managerId, 1).then((store) => {
-    if (store.server_config_file != null) {
-      //this is the json file with the private key
-      let key = require(store.server_config_file);
+  if (store.server_config_file != null) {
+    //this is the json file with the private key
+    let key = require(store.server_config_file);
 
-      // create an access token for read only access
-      let jwtClient = new google.auth.JWT(
-        key.client_email,
-        null,
-        key.private_key, ['https://www.googleapis.com/auth/drive'], //.readonly
-        null
-      );
+    // create an access token for read only access
+    let jwtClient = new google.auth.JWT(
+      key.client_email,
+      null,
+      key.private_key, ['https://www.googleapis.com/auth/drive'], //.readonly
+      null
+    );
 
-      let drive = google.drive({
-        version: 'v3',
-        auth: jwtClient
-      });
+    let drive = google.drive({
+      version: 'v3',
+      auth: jwtClient
+    });
 
-      // Pass the drive to the callback
-      callback(drive);
-    }
-  });
+    // Pass the drive to the callback
+    callback(drive);
+  }
 };
 
 //
@@ -151,9 +155,9 @@ module.exports = {
   //
   // Downloads a document from google drive
   //
-  getDriveDocument: (managerId, fileId, callback) => {
+  getDriveDocument: (store, fileId, callback) => {
 
-    buildDriveAndExecute(managerId, (drive) => {
+    buildDriveAndExecute(store, (drive) => {
       // Download the file now
       getDocument(drive, fileId, callback);
     });
@@ -162,9 +166,9 @@ module.exports = {
   // 
   // Uploads a document to google drive
   //
-  uploadToDrive: (managerId, file_info, file, folderId, callback) => {
+  uploadToDrive: (store, file_info, file, folderId, callback) => {
 
-    buildDriveAndExecute(managerId, (drive) => {
+    buildDriveAndExecute(store, (drive) => {
       // upload the file
       upload(drive, file_info, file, folderId, callback);
     });

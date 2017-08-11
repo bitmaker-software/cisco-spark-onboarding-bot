@@ -43,13 +43,13 @@ block content
                 input#bot-secret.form-control(v-model="bot.secret")
             div.card-footer
 
-      input.btn.btn-primary(
+      input.mt-2.btn.btn-primary(
       type='button',
       value='Add bot',
       @click='addBot'
       )
 
-      input.btn.btn-primary(
+      input.mt-2.ml-2.btn.btn-primary(
       type='button',
       v-model="saveBotsBtnText",
       @click='saveBots'
@@ -80,10 +80,54 @@ block content
       //  h2#results
 
 
-      h2 Google Drive
+      h2.mt-4 Google Drive
       div.row
         div.col-6
-          span Work in progress. Set on .env for now.
+          div.card
+            div.card-block
+              div.form-group
+                label(
+                for='gdrive-client-id'
+                class='blue'
+                ) Client ID
+                input#gdrive-client-id.form-control(v-model="gdriveSettings.google_drive_client_id")
+              div.form-group
+                label(
+                for='gdrive-developer-key'
+                class='blue'
+                ) Developer Key
+                input#gdrive-developer-key.form-control(v-model="gdriveSettings.google_drive_developer_key")
+              div.form-group
+                label(
+                for='gdrive-user-account'
+                class='blue'
+                ) User Account
+                input#gdrive-user-account.form-control(v-model="gdriveSettings.google_drive_user_account")
+
+      h2.mt-4 Box
+      div.row
+        div.col-6
+          div.card
+            div.card-block
+              div.form-group
+                label(
+                for='box-client-id'
+                class='blue'
+                ) Client ID
+                input#box-client-id.form-control(v-model="boxSettings.box_client_id")
+              div.form-group
+                label(
+                for='box-user-account'
+                class='blue'
+                ) User Account
+                input#box-user-account.form-control(v-model="boxSettings.box_user_account")
+
+
+    hr
+    div.row
+      div.col.text-right
+        button.mb-3.btn.btn-primary.btn-lg(type="button", @click="saveSettings") Save
+
 
 block pageScripts
   script.

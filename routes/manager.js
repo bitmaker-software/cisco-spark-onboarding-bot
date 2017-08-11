@@ -35,7 +35,9 @@ env(__dirname + '/../bot/.env');
 // ——————————————————————————————————————————————————
 
 router.get('/', ensureAuthenticated, function(req, res, next) {
-  databaseServices.getFlows().then(flows => {
+  //console.log(">>USER_ID<<");
+  //console.log(req.user.id);
+  databaseServices.getFlows(req.user.id).then(flows => {
     res.render('manager_flows', {
       title: 'Onboarding manager',
       flows: flows,
@@ -101,7 +103,7 @@ router.get('/flow/:id/edit', ensureAuthenticated, function(req, res, next) {
   let promises = [
     databaseServices.getStepTypes(),
     databaseServices.getFlow(req.params.id),
-    databaseServices.getBotsNames(),
+    databaseServices.getBotsNames(req.user.id),
     databaseServices.getDocumentStore(req.user.id, 1),
     databaseServices.getDocumentStore(req.user.id, 2)
   ];
