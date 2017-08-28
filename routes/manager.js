@@ -62,13 +62,11 @@ router.get('/api/flow/:id', ensureAuthenticated, function(req, res, next) {
    */
   // TODO: filter by user, do not allow accessing other users flows
   let promises = [
-    // databaseServices.getBots(),
     databaseServices.getFlowSteps(req.params.id)
   ];
   Promise.all(promises).then(values => {
     return res.send({
       flowId: req.params.id,
-      // bots: values[0],
       steps: values[0],
     });
   }, err => {

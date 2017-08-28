@@ -35,35 +35,6 @@ env(__dirname + '/bot/.env');
 
 
 // ——————————————————————————————————————————————————
-//             Database (create tables)
-// ——————————————————————————————————————————————————
-
-//
-// sync() will create all table if they doesn't exist in database
-//
-// {force: true} means DROP TABLE IF EXISTS before trying to create the table
-// {alter: true} uses ALTER TABLE
-//
-const CREATE_DB_AND_LOAD_FIXTURES = false;
-let databaseReady = true;
-if (CREATE_DB_AND_LOAD_FIXTURES) {
-  databaseReady = false;
-  sequelize.sync({ force: true }).then(() => {
-    console.log(`\n\n`);
-    console.log(`Database models synced, will now load the fixtures`);
-    console.log(`\n`);
-    // Load database fixtures
-    models.startLoadingDatabaseFixtures(() => {
-      databaseReady = true;
-    });
-  }, err => {
-    console.error("Error on sequelize.sync():");
-    console.error(err);
-  });
-}
-
-
-// ——————————————————————————————————————————————————
 //             Passport configuration
 // ——————————————————————————————————————————————————
 
@@ -86,7 +57,7 @@ passport.use(new CiscoSparkStrategy({
   },
   (accessToken, refreshToken, profile, done) => {
     databaseServices.userLoggedIn(profile.id, profile.displayName, profile.emails, profile._json.orgId).then(user => {
-      const sessionUser = { id: user.id, name: user.name, avatar: profile._json.avatar, spark_token: accessToken };
+      const sessionUser = {id: user.id, name: user.name, avatar: profile._json.avatar, spark_token: accessToken};
       return done(null, sessionUser);
     }, err => {
       return done(err);
@@ -138,7 +109,7 @@ app.use(config.static.root, express.static(`${__dirname}/public`, {
 
 app.use(compression());
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 
 // app.use(sassMiddleware({
@@ -157,7 +128,7 @@ app.use(session({
   secret: process.env.session_secret,
   resave: false,
   saveUninitialized: false,
-  store: new SequelizeStore({ db: sequelize })
+  store: new SequelizeStore({db: sequelize})
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -203,27 +174,12 @@ app.use('/test', routes_test);
 
 const REGISTER_WITH_SPARK = true; // set to false to avoid registering with Spark
 let botsReady = true;
-// Read from the .env file and save to the database (the first bot only)
-(function checkDatabaseReadyAndSaveTheBot() {
-  if (!databaseReady) {
-    console.log('Saving the bot but the database is not ready yet; waiting 1 second.');
-    setTimeout(checkDatabaseReadyAndSaveTheBot, 1000);
-  } else {
-    console.log('The database is ready.');
-
-    registerBot();
-
-  }
-})();
-
-function registerBot() {
-  // called from checkDatabaseReadyAndSaveTheBot
+if (REGISTER_WITH_SPARK) {
   console.log(`Registering the bot`);
-  if (REGISTER_WITH_SPARK) {
-    botsReady = false;
-
-    require('./bot/bot')(callbackWhenBotsRegistered);
-  }
+  botsReady = false;
+  require('./bot/bot')(callbackWhenBotsRegistered);
+} else {
+  console.log(`Skipping registering the bot`);
 }
 
 function callbackWhenBotsRegistered(botsControllers) {
@@ -294,12 +250,12 @@ function resumeOngoingFlowsAfterServerStart() {
 }
 
 
-(function checkDatabaseReadyAndStartTheServer() {
-  if (!databaseReady || !botsReady) {
-    console.log('The database or the bots are not ready yet; waiting 1 second.');
-    setTimeout(checkDatabaseReadyAndStartTheServer, 1000);
+(function checkBotsReadyAndStartTheServer() {
+  if (!botsReady) {
+    console.log('The bots are not ready yet; waiting 1 second.');
+    setTimeout(checkBotsReadyAndStartTheServer, 1000);
   } else {
-    console.log('Database and bots ready.');
+    console.log('Bots ready.');
     setupLastRoutes();
     startTheServer();
   }

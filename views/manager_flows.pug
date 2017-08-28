@@ -2,15 +2,11 @@ extends layout
 
 block content
 
-
-
   script.
-    // WORKAROUND TO REDIRECT TO 3000 ON DEV
+    // Workaround to redirect to 3000 on dev after signing in
     if (window.location.port === "8080") {
       window.location.replace("http://localhost:3000")
     }
-
-
 
   div.p-4
     h1.mb-4 Your flows

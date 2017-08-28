@@ -52,7 +52,7 @@ module.exports = callbackWhenBotsRegistered => {
   const controllers = [];
 
   const databaseServices = require('./database_services');
-  databaseServices.getBots().then(bots => {
+  databaseServices.getAllBots().then(bots => {
     console.log(`Got ${bots.length} bot(s) from the database`);
 
     if (bots.length) {

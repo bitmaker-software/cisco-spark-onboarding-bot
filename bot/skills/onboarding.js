@@ -194,7 +194,6 @@ module.exports = controller => {
       convo.addQuestion(text, [{
           "pattern": "^@end$",
           "callback": function(response, convo) {
-            //console.log(convo.extractResponse(step.step_id));
             let answer = convo.extractResponse(step.id);
             //remove the terminator
             answer = answer.replace("@end", "");

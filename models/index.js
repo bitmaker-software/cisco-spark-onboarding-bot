@@ -51,7 +51,7 @@ Object.keys(db).forEach(function (modelName) {
 
 // describe relationships
 (function (m) {
-  console.log('\nSetting up models relationships');
+  console.log('\nmodels/index.js: Setting up models relationships');
 
   //
   //

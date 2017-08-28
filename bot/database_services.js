@@ -13,7 +13,6 @@ module.exports = {
   },
 
   saveBot: bot => {
-    // TODO: save the manager_id
     let { id, managerId, name, accessToken, publicHttpsAddress, webhookName, secret } = bot;
     console.log(`Bot to save:`);
     console.log(id);
@@ -52,8 +51,7 @@ module.exports = {
     }
   },
 
-  getBots: id => {
-    // TODO: filter by manager?
+  getAllBots: id => {
     const attributes = ['id', 'name', 'access_token', 'public_https_address', 'webhook_name', 'secret'];
     if (id >= 0) {
       return models.bot.find({ attributes: attributes, where: { id: id } });

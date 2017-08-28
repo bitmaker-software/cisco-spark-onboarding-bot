@@ -8,6 +8,7 @@
     "dev:js": "node --inspect=12345 --stack-trace-limit=1000 index dev",
     "dev:css": "gulp scss:watch copy-static",
     "dev": "npm-run-all clean -p dev:*",
+    "cleanAndSetupDatabase": "node cleanAndSetupDatabase",
     "build:js": "webpack",
     "build:css": "gulp scss:build copy-static",
     "compress": "bash -c 'gzip -9 -q public/**/*.{css,js,map}'",
