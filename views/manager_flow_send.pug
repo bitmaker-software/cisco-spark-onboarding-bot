@@ -60,11 +60,11 @@ block content
 
 
 
-    div.div.col-6.offset-3
+    div.div.col-6.offset-3(v-if='peopleToMeetSteps.length > 0')
       h3 People to meet steps
       h5 This flow has people to meet steps. Add the people for each step:
 
-      div(v-for='(item, index) in peopleToMeetSteps', style='margin-top: 30px;')
+      div(v-for='(item, index) in peopleToMeetSteps', style='margin-top: 30px; padding: 20px; background-color: #f3f3f3;')
         h5 {{ index + 1 }}) {{ item.stepText }}
         div(v-if='item.list.length === 0', style='color: #666; font-style: italic;') No person added yet. Search bellow to add people to the list.
         div(v-for='person in item.list')
@@ -75,15 +75,15 @@ block content
         //a(v-if='!item.showSearch', @click='item.showSearch = true;') Search for people
         //a(v-else, @click='item.showSearch = false;') Hide search
         //div(v-if='item.showSearch')
-        div
-          div.row.search
-            div.col-10
-              input.form-control(type='text', name='search-user', placeholder='Type a username to search', v-model='item.searchInput', @keyup.enter='searchUserToMeet(item)')
+        div(style='padding: 20px 0 20px 0; background-color: #f3f3f3;')
+          div.row.search(style='margin: 0;')
+            div.col-10(style='padding: 0;')
+              input.form-control(name='search-user', placeholder='Type a username to search', v-model='item.searchInput', @keyup.enter='searchUserToMeet(item)')
             div.col-2
               input.btn.btn-primary.btn-block(type='button', name='btn-search-user', :value='item.searching ? "Searching" : "Search"', @click='searchUserToMeet(item)', :disabled='item.searching || item.searchInput.trim() === \'\'')
 
-          div.row.mt-4
-            div.col(v-if='item.searchResultsInfo')
+          div.row.mt-4(v-if='item.searchResultsInfo')
+            div.col
               h2.mb-4.text-muted {{ item.searchResultsInfo }}
 
           div.row(v-for='user in item.searchResults')

@@ -16,7 +16,9 @@ block content
         button.close(type="button", data-dismiss="alert", aria-label="Close")
           span(aria-hidden="true")
             | &times;
-        | Some document storage settings are empty, If you like to use Google Drive and/or Box integration please check your settings.
+        | Some document storage settings are empty. If you would like to use Google Drive and/or Box integration please check your
+        a(href='/settings')  settings
+        | .
 
     div.row
       h1.mt-4.mb-4.col-8 Editing Flow !{title}
@@ -131,7 +133,7 @@ block content
                   // User Read Document, add the file picker
                   //
                   div.input-group.file-type
-                    span.mr-1 
+                    span.mr-1
                       | Document to read
                     input.btn.btn-sm.btn-outline-primary.ml-1(type='button', value='Google Drive', @click='getFileId(step)', disabled=!has_gdrive)
                     input.btn.btn-sm.btn-outline-primary.ml-1(type='button', value='Box', @click='getBoxFileId(step)', disabled=!has_box)
@@ -143,7 +145,7 @@ block content
                   // User Read and Upload Document
                   //
                   div.input-group.file-type
-                    span.mr-1 
+                    span.mr-1
                       | Document to read
                     input.btn.btn-sm.btn-outline-primary.ml-1(type='button', value='Google Drive', @click='getFileId(step)', disabled=!has_gdrive)
                     input.btn.btn-sm.btn-outline-primary.ml-1(type='button', value='Box', @click='getBoxFileId(step)', disabled=!has_box)
@@ -151,7 +153,7 @@ block content
                   p.text-muted {{step.document_name}}
                   hr
                   div.input-group.file-type
-                    span.mr-1 
+                    span.mr-1
                       | Answer destination folder
                     input.btn.btn-sm.btn-outline-primary.ml-1(type='button', value='Google Drive', @click='getFolderId(step)', disabled=!has_gdrive)
                     input.btn.btn-sm.btn-outline-primary.ml-1(type='button', value='Box', @click='getBoxFolderId(step)', disabled=!has_box)
