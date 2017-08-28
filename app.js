@@ -249,9 +249,14 @@ function resumeOngoingFlowsAfterServerStart() {
   });
 }
 
-
+let retryCount = 0;
 (function checkBotsReadyAndStartTheServer() {
   if (!botsReady) {
+    if (retryCount > 10) {
+      console.log('The bots are not ready; will not retry again.');
+      return;
+    }
+    retryCount++;
     console.log('The bots are not ready yet; waiting 1 second.');
     setTimeout(checkBotsReadyAndStartTheServer, 1000);
   } else {

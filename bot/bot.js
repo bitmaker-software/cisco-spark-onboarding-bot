@@ -63,6 +63,10 @@ module.exports = callbackWhenBotsRegistered => {
 
     bots.forEach((bot, index) => {
       console.log(`Creating bot ${index + 1}`);
+      if (!bot.access_token) {
+        console.log(`Missing access_token for this bot; skipping`);
+        return;
+      }
       controllers.push(Botkit.sparkbot({
         stats_optout: true, // Opt-out of Botkit Statistics Gathering
         // debug: true,
