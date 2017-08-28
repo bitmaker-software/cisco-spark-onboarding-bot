@@ -15,7 +15,7 @@
     "build": "npm-run-all clean -p build:* -s compress",
     "tool": "node index"
   },
-  "license": "IMT",
+  "license": "MIT",
   "dependencies": {
     "babel-core": "^6.25.0",
     "babel-preset-latest-minimal": "^1.1.2",
