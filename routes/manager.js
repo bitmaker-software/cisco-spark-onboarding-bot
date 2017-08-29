@@ -48,6 +48,7 @@ router.get('/', ensureAuthenticated, function(req, res, next) {
   }, err => {
     console.error(`Error fetching the flows:`);
     console.error(err);
+    res.send(err);
   });
 });
 
@@ -72,6 +73,7 @@ router.get('/api/flow/:id', ensureAuthenticated, function(req, res, next) {
   }, err => {
     console.error(`Error fetching the flow steps:`);
     console.error(err);
+    res.send(err);
   });
 });
 
@@ -89,6 +91,7 @@ router.post('/api/flow', ensureAuthenticated, (req, res, next) => {
   }, err => {
     console.error(`Error creating the flow`);
     console.error(err);
+    res.send(err);
   });
 });
 
@@ -123,6 +126,7 @@ router.get('/flow/:id/edit', ensureAuthenticated, function(req, res, next) {
   }, err => {
     console.error(`Error fetching the step types or flow:`);
     console.error(err);
+    res.send(err);
   });
 });
 
@@ -437,6 +441,7 @@ router.get('/flow/:id/send', ensureAuthenticated, function(req, res, next) {
   }, err => {
     console.error(`Error fetching the step types or flow:`);
     console.error(err);
+    res.send(err);
   });
 });
 
@@ -507,6 +512,7 @@ router.get('/flow/:id/answers', ensureAuthenticated, function(req, res, next) {
   }, err => {
     console.error(`Error fetching the step types, flow or answers:`);
     console.error(err);
+    res.send(err);
   });
 });
 
@@ -543,6 +549,7 @@ router.get('/flow/:id/dashboard', ensureAuthenticated, function(req, res, next) 
   }, err => {
     console.error(`Error fetching the step types or flow:`);
     console.error(err);
+    res.send(err);
   });
 });
 

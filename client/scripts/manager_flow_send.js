@@ -10,6 +10,8 @@ let app = new Vue({
     searchResults: [],
     flow: flowFromServer,
     peopleToMeetSteps: [],
+    currentStep: 1, // 1: search user; 2: select people to meet
+    currentUser: {},
   },
   methods: {
     addEmailToInput: event => {
@@ -20,7 +22,6 @@ let app = new Vue({
       app.searchResultsInfo = '';
       app.searchResults = [];
       const searchString = encodeURIComponent(app.searchInput);
-      console.log(this);
       app.$http.get('/manager/api/search_users/' + searchString).then(response => {
         app.searchResultsInfo = `Found ${response.body.length} result${response.body.length === 1 ? '' : 's' }.`;
         app.searchResults = response.body;
@@ -44,7 +45,8 @@ let app = new Vue({
         swal({
           title: 'Sent!',
           type: 'success'
-        })
+        });
+        app.clearUserAndPeopleToMeet();
       }, error => {
         if (error.status === 401) {
           window.location.replace('/auth/login');
@@ -54,9 +56,15 @@ let app = new Vue({
             title: 'Oops...',
             text: error.body,
             type: 'error'
-          })
+          });
+          app.clearUserAndPeopleToMeet();
         }
       });
+    },
+
+    showPeopleToMeetStep: user => {
+      app.currentUser = user;
+      app.currentStep = 2;
     },
 
     searchUserToMeet: item => {
@@ -77,6 +85,21 @@ let app = new Vue({
     },
     addPersonToPeopleToMeet: (person, list) => list.push(person),
     removePersonFromPeopleToMeet: (person, list) => list.splice(list.indexOf(person), 1),
+
+    clearUserAndPeopleToMeet: () => {
+      app.searchInput = '';
+      app.searchResultsInfo = '';
+      app.searchResults = [];
+      app.peopleToMeetSteps.forEach(step => {
+        step.list = [];
+        step.searchInput = '';
+        step.searching = false;
+        step.searchResultsInfo = '';
+        step.searchResults = [];
+      });
+      app.currentStep = 1;
+      app.currentUser = {};
+    }
   },
   mounted() {
     this.flow.steps.forEach(step => {

@@ -1052,6 +1052,12 @@ function getFlowStartingOnStepOrder(resolve, reject, flowId, startingStepOrder) 
       id: flowId
     }
   }).then(flow => {
+    if (flow === null) {
+      let err = `Flow not found`;
+      console.error(err);
+      reject(err);
+      return;
+    }
     models.step.findAll({
       where: {
         flow_id: flow.id,

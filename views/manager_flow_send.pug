@@ -19,7 +19,7 @@ block content
           svg.icon
             use(xlink:href=static.root + "/sprite.svg#answer")
           | Answers
-        a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/dashboard',role="button",data-toggle="tooltip")
+        a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/dashboard', role="button", data-toggle="tooltip")
           svg.icon
             use(xlink:href=static.root + "/sprite.svg#dashboard")
           | Dashboard
@@ -35,7 +35,8 @@ block content
     //    //+testemail('ricardo.fernandes@bitmaker-software.com')
     //    //+testemail('barbara.mendes@bitmaker-software.com')
 
-    div.row
+    h3(v-if='peopleToMeetSteps.length > 0') Step {{ currentStep }} of 2
+    div.row(v-if='currentStep === 1')
       div.col-6.offset-3
         div.row.search
           div.col-10
@@ -55,14 +56,19 @@ block content
               h5.mb-1 {{ user.displayName }}
               a(href="#").mb-1 {{ user.email }}
           div.col.text-right
-            input.btn.btn-outline-primary(type="button", value="Send", @click="sendFlowToUser(user)")
+            input.btn.btn-outline-primary(v-if='peopleToMeetSteps.length > 0', type="button", value="Next", @click="showPeopleToMeetStep(user)")
+            input.btn.btn-outline-primary(v-else, type="button", value="Send", @click="sendFlowToUser(user)")
         hr
 
 
 
-    div.div.col-6.offset-3(v-if='peopleToMeetSteps.length > 0')
-      h3 People to meet steps
-      h5 This flow has people to meet steps. Add the people for each step:
+    div.div.col-6.offset-3(v-if='currentStep === 2')
+      h3 People to meet steps for user {{ currentUser.displayName }}
+      div(style='display: flex; align-items: center;')
+        i.material-icons(style='padding-right: 5px;') info
+        span This flow has
+          em  people to meet
+          |  steps. Add the people for each step:
 
       div(v-for='(item, index) in peopleToMeetSteps', style='margin-top: 30px; padding: 20px; background-color: #f3f3f3;')
         h5 {{ index + 1 }}) {{ item.stepText }}
@@ -93,6 +99,7 @@ block content
                 a(href="#").mb-1 {{ user.email }}
             div.col.text-right
               input.btn.btn-outline-primary(type="button", value="Add", @click="addPersonToPeopleToMeet(user, item.list)")
+      input.btn.btn-primary(type="button", value="Send", @click="sendFlowToUser(currentUser)", style='float: right; margin: 15px;')
 
 block pageScripts
   script.
