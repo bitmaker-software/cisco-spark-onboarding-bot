@@ -491,23 +491,22 @@ module.exports = controller => {
 
       console.log(`Adding "people to meet" step: ${step.text}`);
 
-      console.log(step.people_to_meet);
+      let peopleToMeetInThisStep = respondentFlow.people_to_meet.filter(person => person.step_id === step.id);
       let peopleText = '';
-      const lastPersonIndex = respondentFlow.people_to_meet.length - 1; // TODO: fix this
-      const penultimatePersonIndex = respondentFlow.people_to_meet.length - 2; // TODO: fix this
-      let peopleToMeetInThisStep = [{email: convo.context.user}]; // start with the user itself and then add the others
-      respondentFlow.people_to_meet.forEach((person, index) => {
-        if (person.step_id === step.id) {
-          peopleToMeetInThisStep.push(person);
-          peopleText += person.display_name;
-          if (index === penultimatePersonIndex) {
-            peopleText += ' and '
-          } else if (index !== lastPersonIndex) {
-            peopleText += ', '
-          }
-          console.log(`Should meet ${person.display_name} (${person.email})`);
+      const penultimatePersonIndex = peopleToMeetInThisStep.length - 2;
+      const lastPersonIndex = peopleToMeetInThisStep.length - 1;
+      peopleToMeetInThisStep.forEach((person, index) => {
+        peopleText += person.display_name;
+        if (index === penultimatePersonIndex) {
+          peopleText += ' and '
+        } else if (index !== lastPersonIndex) {
+          // NOT penultimate and NOT last person
+          peopleText += ', '
         }
+        console.log(`Should meet ${person.display_name} (${person.email})`);
       });
+
+      // console.log(`DEBUG peopleText: ${peopleText}`);
 
       convo.addQuestion({
         text: `${step.text}.\n\n You should now meet with ${peopleText} in a new chat room. Type **ok** so I can create the room for you.`,
@@ -517,7 +516,6 @@ module.exports = controller => {
 
           // Create a room (using the bot access token)
           let bearer = bot.botkit.config.ciscospark_access_token;
-          console.log(bot);
           console.log(`Bearer: ${bearer}`);
           console.log(`Room name: ${step.text}`);
           sparkAPIUtils.createRoom({name: step.text}, bearer).then(roomId => {
@@ -530,6 +528,7 @@ module.exports = controller => {
 
             console.log(`People to add:`);
             console.log(peopleToMeetInThisStep);
+            peopleToMeetInThisStep.push({email: convo.context.user});
             sparkAPIUtils.addPeopleToRoom({roomId: roomId, people: peopleToMeetInThisStep}, bearer).then(response => {
               console.log(`Added people to the room.`);
             }, error => {
