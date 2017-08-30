@@ -1084,8 +1084,8 @@ function getFlowStartingOnStepOrder(resolve, reject, flowId, startingStepOrder) 
         botId: flow.bot_id,
         ownerId: flow.owner_id
       };
-      console.log(`Got the flow with its steps, resolving:`);
-      console.log(result);
+      // console.log(`Got the flow with its steps, resolving:`);
+      // console.log(result);
       resolve(result);
     }, err => {
       console.error(`Error fetching the steps:`);

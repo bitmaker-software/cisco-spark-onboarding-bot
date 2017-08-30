@@ -104,6 +104,84 @@ module.exports = {
     });
   },
 
+  createRoom: (params, bearer) => {
+    return new Promise((resolve, reject) => {
+
+      let reqBody = {
+        url: 'https://api.ciscospark.com/v1/rooms',
+        method: 'POST',
+        // qs: {name: params.name},
+        auth: {
+          user: null,
+          pass: null,
+          bearer: bearer
+        },
+        form: {title: params.name} // the body
+      };
+
+      request(reqBody, (error, response, body) => {
+        if (!error && response.statusCode === 200) {
+          console.log(`~~~ Created room:`);
+          console.log(body);
+          console.log(`~~~`);
+          const json = JSON.parse(body);
+          resolve(json.id);
+        } else {
+          console.log(`~~~ Creating room FAILED:`);
+          console.log(body);
+          resolve(body);
+        }
+      });
+    });
+  },
+
+  addPeopleToRoom: (params, bearer) => {
+    let roomId = params.roomId;
+    let people = params.people;
+
+    let promises = [];
+    people.forEach(person => {
+      console.log(`Adding ${person.personId} to the room`);
+      promises.push(
+        new Promise((resolve, reject) => {
+
+          let reqBody = {
+            url: 'https://api.ciscospark.com/v1/memberships',
+            method: 'POST',
+            // qs: {name: params.name},
+            auth: {
+              user: null,
+              pass: null,
+              bearer: bearer
+            },
+            form: {roomId: roomId, personEmail: person.email} // the body
+          };
+
+          request(reqBody, (error, response, body) => {
+            if (!error && response.statusCode === 200) {
+              console.log(`~~~ Created membership (added person to room):`);
+              console.log(body);
+              console.log(`~~~`);
+              // const json = JSON.parse(body);
+              // resolve(json.id);
+              resolve('OK');
+            } else {
+              console.log(`~~~ Creating membership (adding person to room) FAILED:`);
+              console.log(body);
+              resolve(body);
+            }
+          });
+        })
+      );
+    });
+
+    Promise.all(promises).then(results => {
+      resolve(results);
+    }, error => {
+      reject(error);
+    });
+  },
+
   startFlowForUser: (flowId, sparkUserId, bot) => {
     // This is only called from "Send flow" page ( POST to /api/flow/:id/send )
     console.log(`startFlowForUser(flowId=${flowId}, sparkUserId=${sparkUserId})`);

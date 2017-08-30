@@ -34,7 +34,7 @@ env(__dirname + '/../bot/.env');
 //                  View All Flows
 // ——————————————————————————————————————————————————
 
-router.get('/', ensureAuthenticated, function(req, res, next) {
+router.get('/', ensureAuthenticated, function (req, res, next) {
   //console.log(">>USER_ID<<");
   //console.log(req.user.id);
   databaseServices.getFlows(req.user.id).then(flows => {
@@ -57,14 +57,14 @@ router.get('/', ensureAuthenticated, function(req, res, next) {
 //                     View Flow
 // ——————————————————————————————————————————————————
 
-router.get('/api/flow/:id', ensureAuthenticated, function(req, res, next) {
+router.get('/api/flow/:id', ensureAuthenticated, function (req, res, next) {
   /**
    Used to show the steps at the edit flow page
    */
-  // TODO: filter by user, do not allow accessing other users flows
+    // TODO: filter by user, do not allow accessing other users flows
   let promises = [
-    databaseServices.getFlowSteps(req.params.id)
-  ];
+      databaseServices.getFlowSteps(req.params.id)
+    ];
   Promise.all(promises).then(values => {
     return res.send({
       flowId: req.params.id,
@@ -100,7 +100,7 @@ router.post('/api/flow', ensureAuthenticated, (req, res, next) => {
 //                     Edit Flow
 // ——————————————————————————————————————————————————
 
-router.get('/flow/:id/edit', ensureAuthenticated, function(req, res, next) {
+router.get('/flow/:id/edit', ensureAuthenticated, function (req, res, next) {
   let promises = [
     databaseServices.getStepTypes(),
     databaseServices.getFlow(req.params.id),
@@ -130,7 +130,7 @@ router.get('/flow/:id/edit', ensureAuthenticated, function(req, res, next) {
   });
 });
 
-router.put('/api/flow', ensureAuthenticated, function(req, res, next) {
+router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
   console.log(`————————————————————————————————————————————————————————————————————————————————————————————————————`);
   console.log(`Update flow, got:`);
   console.log(req.body);
@@ -396,7 +396,7 @@ router.put('/api/flow', ensureAuthenticated, function(req, res, next) {
   models.Sequelize.Promise
     .each(
       promiseArray,
-      function(result, index) {
+      function (result, index) {
         console.log(`\n\n*****`);
         console.log(`Processed step:`);
         console.log(result);
@@ -425,7 +425,7 @@ router.put('/api/flow', ensureAuthenticated, function(req, res, next) {
 //                    Send Flow
 // ——————————————————————————————————————————————————
 
-router.get('/flow/:id/send', ensureAuthenticated, function(req, res, next) {
+router.get('/flow/:id/send', ensureAuthenticated, function (req, res, next) {
   let promises = [
     databaseServices.getFlow(req.params.id)
   ];
@@ -446,7 +446,7 @@ router.get('/flow/:id/send', ensureAuthenticated, function(req, res, next) {
 });
 
 router.get('/api/search_users/:user', ensureAuthenticated, (req, res, next) => {
-  sparkAPIUtils.getUserFromSpark({ user: req.params.user }, req.user.spark_token).then(users => {
+  sparkAPIUtils.getUserFromSpark({user: req.params.user}, req.user.spark_token).then(users => {
     res.send(users);
   });
 });
@@ -495,7 +495,7 @@ router.post('/api/flow/:id/send', ensureAuthenticated, (req, res, next) => {
 //                   Flow Answers
 // ——————————————————————————————————————————————————
 
-router.get('/flow/:id/answers', ensureAuthenticated, function(req, res, next) {
+router.get('/flow/:id/answers', ensureAuthenticated, function (req, res, next) {
   let promises = [
     databaseServices.getStepTypes(),
     databaseServices.getFlow(req.params.id),
@@ -521,7 +521,7 @@ router.get('/flow/:id/answers', ensureAuthenticated, function(req, res, next) {
 //                   Flow Dashboard
 // ——————————————————————————————————————————————————
 
-router.get('/flow/:id/dashboard', ensureAuthenticated, function(req, res, next) {
+router.get('/flow/:id/dashboard', ensureAuthenticated, function (req, res, next) {
   let promises = [
     databaseServices.getStepTypes(),
     databaseServices.getFlow(req.params.id),

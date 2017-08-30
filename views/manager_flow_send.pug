@@ -63,12 +63,12 @@ block content
 
 
     div.div.col-6.offset-3(v-if='currentStep === 2')
-      h3 People to meet steps for user {{ currentUser.displayName }}
-      div(style='display: flex; align-items: center;')
-        i.material-icons(style='padding-right: 5px;') info
-        span This flow has
-          em  people to meet
-          |  steps. Add the people for each step:
+      h3 Choose the people {{ currentUser.displayName }} will meet:
+      //div(style='display: flex; align-items: center;')
+      //  i.material-icons(style='padding-right: 5px;') info
+      //  span This flow has
+      //    em  people to meet
+      //    |  steps. Add the people for each step:
 
       div(v-for='(item, index) in peopleToMeetSteps', style='margin-top: 30px; padding: 20px; background-color: #f3f3f3;')
         h5 {{ index + 1 }}) {{ item.stepText }}
@@ -99,7 +99,7 @@ block content
                 a(href="#").mb-1 {{ user.email }}
             div.col.text-right
               input.btn.btn-outline-primary(type="button", value="Add", @click="addPersonToPeopleToMeet(user, item.list)")
-      input.btn.btn-primary(type="button", value="Send", @click="sendFlowToUser(currentUser)", style='float: right; margin: 15px;')
+      input.btn.btn-primary(type="button", value="Send the flow", @click="sendFlowToUser(currentUser)", style='float: right; margin: 15px; padding: 10px;')
 
 block pageScripts
   script.
