@@ -35,6 +35,30 @@ module.exports = controller => {
     });
   });
 
+  // reply to a direct message
+  controller.on('direct_message', function (bot, message) {
+    // reply to _message_ by using the _bot_ object
+
+    console.log(`\n→ onboarding.js, on direct_message, bot "${bot.botkit.config.webhook_name}"`);
+    console.log(`Will look for an ongoing flow for the user "${message.user}"`);
+
+    databaseServices.getOngoingFlowForUserEmail(message.user).then(respondentFlow => {
+      //console.log('Here I am...');
+      console.log(`Got respondent flow with ID ${respondentFlow.id} and status ${respondentFlow.respondent_flow_status_id}`);
+      if (respondentFlow.respondent_flow_status_id === STATUS_TYPES.RESPONDENT_FLOW_STATUS.NOT_STARTED) {
+        console.log(`This flow is to be started`);
+        bot.reply(message, `\n\nStarting onboarding for ${respondentFlow.flow.name}.\n\n *(Please say* **start** *to begin)*`);
+      } else {
+        console.log(`This flow is to be resumed`);
+        bot.reply(message, `Hello, there is one onboarding process in progress, ${respondentFlow.flow.name}. Type **start** to resume it.`);
+      }
+    }, err => {
+      console.log(`No flow found:`);
+      console.log(err);
+      bot.reply(message, `Hello, there is no onboarding process in progress.`);
+    });
+  });
+
 
   /*
    Retrieve the current flow from the datastore, and build the conversation accordingly

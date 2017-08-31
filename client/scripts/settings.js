@@ -8,7 +8,7 @@ let app = new Vue({
     gdriveSettings: serverSideSettingsList.gdriveSettings,
     boxSettings: serverSideSettingsList.boxSettings,
     other: "Hello1",
-    saveBotsBtnText: "Save bots"
+    saveBotsBtnText: "Save and reload bots"
   },
   methods: {
     addBot: () => {
@@ -36,7 +36,7 @@ let app = new Vue({
           type: 'error'
         })
       }).finally(() => {
-        app.saveBotsBtnText = "Save bots";
+        app.saveBotsBtnText = "Save and reload bots";
       });
     },
     saveSettings: () => {

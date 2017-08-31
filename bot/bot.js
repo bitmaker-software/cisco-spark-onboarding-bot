@@ -48,7 +48,7 @@ module.exports = callbackWhenBotsRegistered => {
   const Botkit = require('botkit');
   const debug = require('debug')('botkit:main');
 
-  // Create the Botkit controller, which controls all instances of the bot.
+  // Create the Botkit controllers, which controls all instances of each bot.
   const controllers = [];
 
   const databaseServices = require('./database_services');
@@ -67,18 +67,23 @@ module.exports = callbackWhenBotsRegistered => {
         console.log(`Missing access_token for this bot; skipping`);
         return;
       }
-      controllers.push(Botkit.sparkbot({
-        stats_optout: true, // Opt-out of Botkit Statistics Gathering
-        // debug: true,
-        // limit_to_domain: ['mycompany.com'],
-        // limit_to_org: 'my_cisco_org_id',
-        public_address: bot.public_https_address,
-        ciscospark_access_token: bot.access_token,
-        // studio_token: process.env.studio_token, // get one from studio.botkit.ai to enable content management, stats, message console and more
-        secret: bot.secret, // this is an RECOMMENDED but optional setting that enables validation of incoming webhooks
-        webhook_name: bot.webhook_name,
-        // studio_command_uri: process.env.studio_command_uri,
-      }));
+      try {
+        controllers.push(Botkit.sparkbot({
+          stats_optout: true, // Opt-out of Botkit Statistics Gathering
+          // debug: true,
+          // limit_to_domain: ['mycompany.com'],
+          // limit_to_org: 'my_cisco_org_id',
+          public_address: bot.public_https_address,
+          ciscospark_access_token: bot.access_token,
+          // studio_token: process.env.studio_token, // get one from studio.botkit.ai to enable content management, stats, message console and more
+          secret: bot.secret, // this is an RECOMMENDED but optional setting that enables validation of incoming webhooks
+          webhook_name: bot.webhook_name,
+          // studio_command_uri: process.env.studio_command_uri,
+        }));
+      } catch (err) {
+        console.error(`Error creating the bot:`);
+        console.error(err);
+      }
     });
 
     console.log(`Bots created. controllers[] length: ${controllers.length}`);
@@ -93,7 +98,9 @@ module.exports = callbackWhenBotsRegistered => {
 
   function subscribeEvents() {
     // Tell Cisco Spark to start sending events to this application
-    require(__dirname + '/components/subscribe_events.js')(controllers);
+    controllers.forEach(controller => {
+      require(__dirname + '/components/subscribe_events.js')(controller);
+    });
   }
 
   // Enable Dashbot.io plugin
