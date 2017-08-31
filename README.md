@@ -86,3 +86,21 @@ This project uses BotKit
 * Follow the instructions of the Box guide on how to use Box Platform for custom app development found at https://developer.box.com/docs/getting-started-box-platform 
 * Once you have generated the Public/Private Keypair, use the downloaded file and replace the contents of _bot/sample-box-settings.json_
 * At the Box configuration page, fill in the client ID (you can find that at the file you just downloaded) and your Box user account (email address)
+
+## Docker
+#### Running the project using Docker (database on the host)
+* There is a Dockerfile provided
+* Build the image  
+`docker build -t cisco_onboarding:latest -f docker/prod/Dockerfile .`
+* Create a container based on that image:  
+`docker run --network=host -p 3000:3000 -e db_user=yourdatabaseuser -e db_pass=yourdatabasepassword -e db_host=localhost -e db_port=5432 -e db_db=yourdatabasename cisco_onboarding`      
+_--network=host_ to use the host network and be able to connect to the localhost (host) database  
+_-p 3000:3000_ to expose container port (hostPort:containerPort)  
+_-e …_ environment variables
+
+* If you need to reset the database:  
+`docker exec CONTAINER_ID npm run cleanAndSetupDatabase`
+
+* To restart the container:  
+`docker stop CONTAINER_ID` (`docker stop $(docker ps -q)` stops all containers)  
+`docker start CONTAINER_ID`

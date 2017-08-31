@@ -17,6 +17,7 @@ sequelize.sync({force: true}).then(() => {
   // Load database fixtures
   models.startLoadingDatabaseFixtures(() => {
     console.log(`Done loading database fixtures.`);
+    process.exit();
   });
 }, err => {
   console.error("Error on sequelize.sync():");
