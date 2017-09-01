@@ -10,9 +10,8 @@ html(lang='en')
     link(rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons")
 
     //- Bundled stylesheet
-    //- link(rel='stylesheet', href=static.root + '/css/index.css@' + static.suffix)
-    link(rel='stylesheet', href=static.root + '/css/index.css')
-    link(rel='stylesheet', href=static.root + '/css/c3.css')
+    link(rel='stylesheet', href=static.root + '/css/index.css' + static.suffix)
+    link(rel='stylesheet', href=static.root + '/css/c3.css' + static.suffix)
 
   body
     nav.navbar.navbar-light.sticky-top
@@ -36,7 +35,7 @@ html(lang='en')
 
     mixin item(title, url, icon)
       li.nav-item
-        a.nav-link(href=url, class=active === title ? 'active' : '', data-toggle="tooltip",data-animation="false", data-placement="right", title= title)
+        a.nav-link(href=url, class=active === title ? 'active' : '', data-toggle="tooltip", data-animation="false", data-placement="right", title= title)
           svg.icon
             use(xlink:href=static.root + "/sprite.svg#" + icon)
           span.sr-only= title
@@ -44,7 +43,7 @@ html(lang='en')
     .container-fluid
       .row
         .sidenav#sidenav
-          ul.nav.flex-column(style={position:'fixed'})
+          ul.nav.flex-column(style={position: 'fixed'})
             +item('Home', '/', 'home')
             +item('Manager', '/manager', 'manager')
             //+item('Search user', '/test', 'search')
@@ -60,7 +59,6 @@ html(lang='en')
             small.text-muted © Cisco Systems, Inc. 2017
 
     //- Main script, for all pages, before the custom page scripts
-    //- script(src=static.root + '/js/main.js@' + static.suffix)
-    script(src=static.root + '/js/main.js')
+    script(src=static.root + '/js/main.js' + static.suffix)
 
     block pageScripts
