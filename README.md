@@ -62,7 +62,7 @@ This project uses BotKit
         * service account name should describe what the account will do (e.g. spark-drive)
         * select a role (not yet sure the minimum role that we need; start with Project → Owner)
         * key type should be JSON
-        * a JSON file download starts. Copy the contents of this file to the file _bot/keys/sample-gdrive-settings.json_
+        * a JSON file download starts. You must upload it in the manager [settings page](http://localhost:8080/settings).
 * Click on the **manage service accounts** link on the right (credentials page)
 * the _Service account ID_ is an email address used to share documents to this account. Go to any Drive folder and then share it with this "user" (e.g., spark-drive@testdriveintegration-167213.iam.gserviceaccount.com).
 
@@ -84,7 +84,7 @@ This project uses BotKit
 ## Box Configuration
 
 * Follow the instructions of the Box guide on how to use Box Platform for custom app development found at https://developer.box.com/docs/getting-started-box-platform 
-* Once you have generated the Public/Private Keypair, use the downloaded file and replace the contents of _bot/keys/sample-box-settings.json_
+* Once you have generated the Public/Private Keypair, use the downloaded file and upload it in the manager [settings page](http://localhost:8080/settings).
 * At the Box configuration page, fill in the client ID (you can find that at the file you just downloaded) and your Box user account (email address)
 
 ## Docker

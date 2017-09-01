@@ -7,9 +7,10 @@ let app = new Vue({
     bots: serverSideSettingsList.bots,
     gdriveSettings: serverSideSettingsList.gdriveSettings,
     boxSettings: serverSideSettingsList.boxSettings,
-    other: "Hello1",
+    formData: new FormData(),
     saveBotsBtnText: "Save and reload bots"
   },
+
   methods: {
     addBot: () => {
       app.bots.push({
@@ -20,6 +21,7 @@ let app = new Vue({
         secret: undefined
       });
     },
+
     saveBots: () => {
       app.saveBotsBtnText = "Saving";
       app.$http.post('/settings/api/saveBots', app.bots).then(response => {
@@ -39,10 +41,15 @@ let app = new Vue({
         app.saveBotsBtnText = "Save and reload bots";
       });
     },
+
     saveSettings: () => {
       console.log("Saving settings...");
       //app.saveBotsBtnText = "Saving";
-      app.$http.post('/settings/api/save', { gdriveSettings: app.gdriveSettings, boxSettings: app.boxSettings }).then(response => {
+
+      app.formData.set('gdriveSettings', JSON.stringify(app.gdriveSettings));
+      app.formData.set('boxSettings', JSON.stringify(app.boxSettings));
+
+      app.$http.post('/settings/api/save', app.formData).then(response => {
         // success callback
         swal({
           title: 'Saved',
@@ -58,6 +65,15 @@ let app = new Vue({
       }).finally(() => {
         //app.saveBotsBtnText = "Save bots";
       });
-    }
+    },
+
+
+    bindFileGdrive: e => {
+      app.formData.set('file-gdrive', e.target.files[0]);
+    },
+    bindFileBox: e => {
+      app.formData.set('file-box', e.target.files[0]);
+    },
+
   }
 });

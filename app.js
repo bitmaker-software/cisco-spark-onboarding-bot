@@ -135,6 +135,13 @@ app.use(passport.session());
 
 
 // ——————————————————————————————————————————————————
+//                   File upload
+// ——————————————————————————————————————————————————
+const fileUpload = require('express-fileupload');
+app.use(fileUpload());
+
+
+// ——————————————————————————————————————————————————
 //  Middleware accessible on templates via 'locals'
 // ——————————————————————————————————————————————————
 

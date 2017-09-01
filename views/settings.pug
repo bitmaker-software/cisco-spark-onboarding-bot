@@ -79,7 +79,6 @@ block content
       //
       //  h2#results
 
-
       h2.mt-4 Google Drive
       div.row
         div.col-6
@@ -103,6 +102,12 @@ block content
                 class='blue'
                 ) User Account
                 input#gdrive-user-account.form-control(v-model="gdriveSettings.google_drive_user_account")
+              div.form-group
+                label(
+                for='gdrive-key-file'
+                class='blue'
+                ) Key file
+                input#gdrive-key-file.form-control(@change="bindFileGdrive", type="file")
 
       h2.mt-4 Box
       div.row
@@ -121,6 +126,12 @@ block content
                 class='blue'
                 ) User Account
                 input#box-user-account.form-control(v-model="boxSettings.box_user_account")
+              div.form-group
+                label(
+                for='box-key-file'
+                class='blue'
+                ) Key file
+                input#box-key-file.form-control(@change="bindFileBox", type="file")
 
 
     hr

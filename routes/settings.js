@@ -5,7 +5,7 @@ const router = express.Router();
 const ensureAuthenticated = require('./auth_middleware');
 const databaseServices = require('../bot/database_services');
 
-router.get('/', ensureAuthenticated, function(req, res, next) {
+router.get('/', ensureAuthenticated, function (req, res, next) {
   let promises = [
     databaseServices.getBotsByUser(req.user.id),
     databaseServices.getDocumentStore(req.user.id, 1),
@@ -27,7 +27,7 @@ router.get('/', ensureAuthenticated, function(req, res, next) {
   });
 });
 
-router.post('/api/saveBots', ensureAuthenticated, function(req, res, next) {
+router.post('/api/saveBots', ensureAuthenticated, function (req, res, next) {
   const bots = req.body;
   let promises = [];
   bots.forEach(bot => {
@@ -59,27 +59,78 @@ router.post('/api/saveBots', ensureAuthenticated, function(req, res, next) {
 });
 
 
-router.post('/api/save', ensureAuthenticated, function(req, res, next) {
-  const settings = req.body;
-  let promises = [];
-  console.log("Saving settings...");
-  promises.push(databaseServices.saveDocumentStore({
-    google_drive_client_id: settings.gdriveSettings.google_drive_client_id,
-    google_drive_developer_key: settings.gdriveSettings.google_drive_developer_key,
-    google_drive_user_account: settings.gdriveSettings.google_drive_user_account,
-    box_client_id: '',
-    box_user_account: '',
-    server_config_file: '../keys/sample-gdrive-settings.json'
-  }, req.user.id, 1));
+router.post('/api/save', ensureAuthenticated, function (req, res, next) {
 
-  promises.push(databaseServices.saveDocumentStore({
-    google_drive_client_id: '',
-    google_drive_developer_key: '',
-    google_drive_user_account: '',
-    box_client_id: settings.boxSettings.box_client_id,
-    box_user_account: settings.boxSettings.box_user_account,
-    server_config_file: '../keys/sample-box-settings.json'
-  }, req.user.id, 2));
+  let gdriveFilename = `bot/keys/user_${req.user.id}_gdrive_settings.json`;
+  let boxFilename = `bot/keys/user_${req.user.id}_box_settings.json`;
+  let gdriveFilenameDB = `../keys/user_${req.user.id}_gdrive-settings.json`;
+  let boxFilenameDB = `../keys/user_${req.user.id}_box-settings.json`;
+
+  if (req.files) {
+    // console.log(`Got files`);
+    // console.log(req.files);
+
+    // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
+    let gdriveKeyFile = req.files['file-gdrive'];
+    let boxKeyFile = req.files['file-box'];
+
+    if (gdriveKeyFile) {
+      // Use the mv() method to place the file somewhere on your server
+      gdriveKeyFile.mv(gdriveFilename, err => {
+        if (err) {
+          console.log(`Error saving the file:`);
+          console.log(err);
+        } else {
+          console.log('File saved!');
+        }
+      });
+    }
+
+    if (boxKeyFile) {
+      // Use the mv() method to place the file somewhere on your server
+      boxKeyFile.mv(boxFilename, err => {
+        if (err) {
+          console.log(`Error saving the file:`);
+          console.log(err);
+        } else {
+          console.log('File saved!');
+        }
+      });
+    }
+  }
+
+  const gdriveSettings = JSON.parse(req.body.gdriveSettings);
+  const boxSettings = JSON.parse(req.body.boxSettings);
+
+  let promises = [];
+  console.log("Gdrive settings:");
+  console.log(gdriveSettings);
+  console.log("Box settings:");
+  console.log(boxSettings);
+
+  const GDRIVE_DOCUMENT_STORE_TYPE = 1;
+  const BOX_DOCUMENT_STORE_TYPE = 2;
+
+  if (gdriveSettings) {
+    promises.push(databaseServices.saveDocumentStore({
+      google_drive_client_id: gdriveSettings.google_drive_client_id,
+      google_drive_developer_key: gdriveSettings.google_drive_developer_key,
+      google_drive_user_account: gdriveSettings.google_drive_user_account,
+      box_client_id: '',
+      box_user_account: '',
+      server_config_file: gdriveFilenameDB
+    }, req.user.id, GDRIVE_DOCUMENT_STORE_TYPE));
+  }
+  if (boxSettings) {
+    promises.push(databaseServices.saveDocumentStore({
+      google_drive_client_id: '',
+      google_drive_developer_key: '',
+      google_drive_user_account: '',
+      box_client_id: boxSettings.box_client_id,
+      box_user_account: boxSettings.box_user_account,
+      server_config_file: boxFilenameDB
+    }, req.user.id, BOX_DOCUMENT_STORE_TYPE));
+  }
 
   Promise.all(promises).then(results => {
     res.status(200).send();
