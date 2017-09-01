@@ -62,7 +62,7 @@ This project uses BotKit
         * service account name should describe what the account will do (e.g. spark-drive)
         * select a role (not yet sure the minimum role that we need; start with Project → Owner)
         * key type should be JSON
-        * a JSON file download starts. Copy the contents of this file to the file _bot/sample-gdrive-settings.json_
+        * a JSON file download starts. Copy the contents of this file to the file _bot/keys/sample-gdrive-settings.json_
 * Click on the **manage service accounts** link on the right (credentials page)
 * the _Service account ID_ is an email address used to share documents to this account. Go to any Drive folder and then share it with this "user" (e.g., spark-drive@testdriveintegration-167213.iam.gserviceaccount.com).
 
@@ -84,7 +84,7 @@ This project uses BotKit
 ## Box Configuration
 
 * Follow the instructions of the Box guide on how to use Box Platform for custom app development found at https://developer.box.com/docs/getting-started-box-platform 
-* Once you have generated the Public/Private Keypair, use the downloaded file and replace the contents of _bot/sample-box-settings.json_
+* Once you have generated the Public/Private Keypair, use the downloaded file and replace the contents of _bot/keys/sample-box-settings.json_
 * At the Box configuration page, fill in the client ID (you can find that at the file you just downloaded) and your Box user account (email address)
 
 ## Docker
@@ -109,9 +109,9 @@ _This image includes EXPOSE 5432 (the postgres port), so standard container link
 `docker build -t img-cisco-onboarding:latest -f docker/prod/Dockerfile .`
 * Create a container based on that image:  
   ###### Using the database on another Docker:
-  `docker run --name cisco-onboarding --link cisco-onboarding-database:postgres -p 3000:3000 -e db_host=cisco-onboarding-database -e db_port=5432 -e db_user=yourdatabaseuser -e db_pass=yourdatabasepassword -e db_db=yourdatabasename img-cisco-onboarding`  
+  `docker run --name cisco-onboarding --link cisco-onboarding-database:postgres -p 8080:8080 -e db_host=cisco-onboarding-database -e db_port=5432 -e db_user=yourdatabaseuser -e db_pass=yourdatabasepassword -e db_db=yourdatabasename img-cisco-onboarding`  
   ###### Using the database on the host:
-  `docker run --name cisco-onboarding --network=host -p 3000:3000 -e db_user=yourdatabaseuser -e db_host=localhost -e db_port=5432 -e db_pass=yourdatabasepassword -e db_db=yourdatabasename img-cisco-onboarding`      
+  `docker run --name cisco-onboarding --network=host -p 8080:8080 -e db_user=yourdatabaseuser -e db_host=localhost -e db_port=5432 -e db_pass=yourdatabasepassword -e db_db=yourdatabasename img-cisco-onboarding`      
 _--network=host_ to use the host network and be able to connect to the localhost (host) database  
 _-p 3000:3000_ to expose container port (hostPort:containerPort)  
 _-e …_ environment variables
