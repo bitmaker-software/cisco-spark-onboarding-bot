@@ -13,7 +13,7 @@ This project uses BotKit
 * Create a .env file on the bot dir (_/bot/.env_) with the Cisco Spark App information (more on this later) plus the database connection settings (use the _.env.template_ file as a model)
 
 ##### Database
-* You will need a PostgreSQL database
+* You will need a PostgreSQL database (**see the Docker section bellow**)
 * _(optional)_ use [pgAdmin](https://www.postgresql.org/ftp/pgadmin) to manage the database
 * Create the database (e.g. ciscosparkonboarding) and the user (e.g. ciscosparkbot)
 * Update your _bot/.env_ file with the database credentials, for example:
@@ -88,19 +88,38 @@ This project uses BotKit
 * At the Box configuration page, fill in the client ID (you can find that at the file you just downloaded) and your Box user account (email address)
 
 ## Docker
-#### Running the project using Docker (database on the host)
+### Database
+* Build the image  
+`docker build -t cisco-onboarding-database:latest -f docker/database/Dockerfile .`
+* Create a container based on that image (start an instance, use --detach or -d to run in background):  
+`docker run --name cisco-onboarding-database -e POSTGRES_PASSWORD=mysecretpassword cisco-onboarding-database`  
+_This image includes EXPOSE 5432 (the postgres port), so standard container linking will make it automatically available to the linked containers. The default postgres user and database are created in the entrypoint with initdb._
+* To attach (if running in background):  
+`docker attach cisco-onboarding-database` (`Ctrl P + Q` to detach)
+* Connect via `psql` to create the user and the database:  
+`docker run -it --rm --link cisco-onboarding-database:postgres postgres psql -h postgres -U postgres`  
+`CREATE ROLE yourdatabaseuser1 WITH LOGIN PASSWORD 'yourdatabasepassword' CREATEDB;` (gives Create DB permission)  
+
+
+* To restart:
+`docker stop cisco-onboarding-database`
+`docker start cisco-onboarding-database`
+### The project
 * There is a Dockerfile provided
 * Build the image  
-`docker build -t cisco_onboarding:latest -f docker/prod/Dockerfile .`
+`docker build -t cisco-onboarding:latest -f docker/prod/Dockerfile .`
 * Create a container based on that image:  
-`docker run --network=host -p 3000:3000 -e db_user=yourdatabaseuser -e db_pass=yourdatabasepassword -e db_host=localhost -e db_port=5432 -e db_db=yourdatabasename cisco_onboarding`      
+  ###### Using the database on another Docker:
+  `docker run --name cisco-onboarding --link cisco-onboarding-database:postgres -p 3000:3000 -e db_user=yourdatabaseuser -e db_pass=yourdatabasepassword -e db_host=localhost -e db_port=5432 -e db_db=yourdatabasename cisco_onboarding`      
+  ###### Using the database on the host:
+  `docker run --name cisco-onboarding --network=host -p 3000:3000 -e db_user=yourdatabaseuser -e db_pass=yourdatabasepassword -e db_host=localhost -e db_port=5432 -e db_db=yourdatabasename cisco_onboarding`      
 _--network=host_ to use the host network and be able to connect to the localhost (host) database  
 _-p 3000:3000_ to expose container port (hostPort:containerPort)  
 _-e …_ environment variables
 
 * If you need to reset the database:  
-`docker exec CONTAINER_ID npm run cleanAndSetupDatabase`
+`docker exec cisco-onboarding npm run cleanAndSetupDatabase`
 
-* To restart the container:  
-`docker stop CONTAINER_ID` (`docker stop $(docker ps -q)` stops all containers)  
-`docker start CONTAINER_ID`
+* To restart the container (`docker ps` to see running instances):  
+`docker stop cisco-onboarding`  
+`docker start cisco-onboarding`

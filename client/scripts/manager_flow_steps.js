@@ -142,10 +142,10 @@ $(function() {
       this.stepTypeIcons[this.STEP_TYPES.ANNOUNCEMENT] = "announcement"; // Announcement
       this.stepTypeIcons[this.STEP_TYPES.FREE_TEXT] = "question"; // Question
       this.stepTypeIcons[this.STEP_TYPES.MULTIPLE_CHOICE] = "multiplechoice"; // Multiple Choice
-      this.stepTypeIcons[this.STEP_TYPES.UPLOAD_TO_BOT] = "document"; // User upload Document
+      this.stepTypeIcons[this.STEP_TYPES.UPLOAD_TO_BOT] = "upload"; // User upload Document
       this.stepTypeIcons[this.STEP_TYPES.DOWNLOAD_FROM_BOT] = "document"; // User read Document
-      this.stepTypeIcons[this.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK] = "document"; // User read and upload
-      this.stepTypeIcons[this.STEP_TYPES.PEOPLE_TO_MEET] = ""; // People to meet // TODO: add the icon
+      this.stepTypeIcons[this.STEP_TYPES.DOWNLOAD_FROM_BOT_AND_UPLOAD_BACK] = "readupload"; // User read and upload
+      this.stepTypeIcons[this.STEP_TYPES.PEOPLE_TO_MEET] = "people"; // People to meet // TODO: add the icon
     }
   });
 
