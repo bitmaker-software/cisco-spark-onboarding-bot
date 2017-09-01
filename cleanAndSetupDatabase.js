@@ -5,6 +5,11 @@ const sequelize = models.sequelize;
 //             Database (create tables)
 // ——————————————————————————————————————————————————
 
+// Session
+const session = require('express-session');
+const SequelizeStore = require('connect-session-sequelize')(session.Store);
+new SequelizeStore({db: sequelize}).sync();
+
 //
 // sync() will create all table if they doesn't exist in database
 //
@@ -22,4 +27,5 @@ sequelize.sync({force: true}).then(() => {
 }, err => {
   console.error("Error on sequelize.sync():");
   console.error(err);
+  process.exit();
 });

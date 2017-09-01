@@ -24,9 +24,9 @@ const sparkAPIUtils = require('./bot/spark_api_utils');
 
 const passport = require('passport');
 const CiscoSparkStrategy = require('passport-cisco-spark').Strategy;
-const session = require('express-session');
 const models = require('./models/index.js');
 const sequelize = models.sequelize;
+const session = require('express-session');
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
 
 
