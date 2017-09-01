@@ -11,16 +11,16 @@ let getDocument = (client, fileId, callback) => {
 
   console.log(`Getting file with id ${fileId}`);
 
-  client.files.get(fileId, { fields: 'name' }, (err, data) => {
+  client.files.get(fileId, {fields: 'name'}, (err, data) => {
 
     console.log('Going to get file info...');
 
-    if (err != null) {
+    if (err !== null) {
       console.log(`Error trying to grab information about file id ${fileId}`);
     } else {
 
       // Download the file
-      client.files.getReadStream(fileId, null, function(error, stream) {
+      client.files.getReadStream(fileId, null, function (error, stream) {
 
         if (error) {
           // handle error
@@ -65,7 +65,7 @@ let upload = (client, file_info, file, folderId, callback) => {
   //var stream = fs.createReadStream(file);
   console.log(`Uploading file ${name} to box`);
   client.files.uploadFile(folderId, name, file, (err, uploadInfo) => {
-    if (err != null) {
+    if (err !== null) {
       console.log('Error uploading file');
       console.log(err);
     } else {
@@ -78,8 +78,8 @@ let upload = (client, file_info, file, folderId, callback) => {
       };
 
       // Let's create a shareable link to allow us to open the file afterwards
-      client.files.update(file.id, { shared_link: client.accessLevels.DEFAULT }, (err, response) => {
-        if (err != null) {
+      client.files.update(file.id, {shared_link: client.accessLevels.DEFAULT}, (err, response) => {
+        if (err !== null) {
           console.log('Error uploading file');
           console.log(err);
         } else {
@@ -109,7 +109,7 @@ let callAsUser = (client, clientId, callback) => {
 let buildDriveAndExecute = (store, callback) => {
 
   // Go get information about the store first
-  if (store.server_config_file != null) {
+  if (store.server_config_file !== null) {
 
     console.log(`Using server config file: ${store.server_config_file }`);
 
@@ -117,7 +117,7 @@ let buildDriveAndExecute = (store, callback) => {
     let key = require(store.server_config_file);
 
     // create an access token for read only access
-    var sdk = new BoxSDK({
+    let sdk = new BoxSDK({
       clientID: key.boxAppSettings.clientID,
       clientSecret: key.boxAppSettings.clientSecret,
       appAuth: {
@@ -128,21 +128,21 @@ let buildDriveAndExecute = (store, callback) => {
     });
 
     // Get the service account client, used to create and manage app user accounts
-    var client = sdk.getAppAuthClient('enterprise', key.enterpriseID);
+    let client = sdk.getAppAuthClient('enterprise', key.enterpriseID);
 
     // Let's check if we already have the user
-    var clientId = store.box_user_id;
+    let clientId = store.box_user_id;
     console.log(`Going to use clientId: ${clientId}`);
-    if (clientId == null) {
+    if (clientId === null) {
       console.log('Getting clientId');
       // Get the user and impersonate
       client.enterprise.getUsers(null, (error, data) => {
-        if (error != null) {
+        if (error !== null) {
           console.log(error);
         } else {
           console.log(`Trying to get user account for ${store.box_user_account}`);
-          var user = data.entries.find(match => match.login === store.box_user_account);
-          if (typeof user != 'undefined' && user != null) {
+          let user = data.entries.find(match => match.login === store.box_user_account);
+          if (typeof user !== 'undefined' && user !== null) {
             // update the database for the next time
             console.log(`Updating user id for user ${store.box_user_account}: ${user.id}`);
             databaseServices.updateDocumentStoreUserId(store.id, user.id);

@@ -1,5 +1,5 @@
 const version    = require('./package').version;
-const production = process.env.NODE_ENV == 'production';
+const production = process.env.NODE_ENV === 'production';
 
 module.exports = {
   production,

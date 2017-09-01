@@ -14,7 +14,7 @@
 // if (appRootEl) {
 //   const store = applyMiddleware(promise)(createStore)(reducers);
 //   const router = <Router history={browserHistory} routes={routes}/>;
-//   if (process.env.NODE_ENV == 'production') {
+//   if (process.env.NODE_ENV === 'production') {
 //     ReactDOM.render(<Provider store={store}>{router}</Provider>, appRootEl);
 //   } else {
 //     const AppContainer = require('react-hot-loader').AppContainer;

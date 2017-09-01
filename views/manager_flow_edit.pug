@@ -1,10 +1,10 @@
 extends layout
 block content
-  - var has_gdrive = gdrive_client_id != null && gdrive_developer_key != null;
-  - var has_box = box_client_id != null;
+  - var has_gdrive = gdrive_client_id !== null && gdrive_developer_key !== null;
+  - var has_box = box_client_id !== null;
   - var has_ftp = false;
   div#root
-    if selectedBot == null
+    if selectedBot === null
       div.alert.alert-danger.alert-dismissable.fade.show(role="alert")
         button.close(type="button", data-dismiss="alert", aria-label="Close")
           span(aria-hidden="true")

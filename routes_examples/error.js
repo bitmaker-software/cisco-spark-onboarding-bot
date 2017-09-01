@@ -13,7 +13,7 @@ router.use((error, req, res, next) => {
     res.end();
   } else {
     res.render('error', {
-      title: error.message || (error.status == 404 ? 'Not Found' : 'Server Error'),
+      title: error.message || (error.status === 404 ? 'Not Found' : 'Server Error'),
       error
     });
   }

@@ -125,7 +125,7 @@ let upload = (drive, file_info, file, folderId, callback) => {
 let buildDriveAndExecute = (store, callback) => {
 
   // Go get information about the store first
-  if (store.server_config_file != null) {
+  if (store.server_config_file !== null) {
     //this is the json file with the private key
     let key = require(store.server_config_file);
 
