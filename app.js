@@ -177,22 +177,21 @@ let botsReady = true;
 if (REGISTER_WITH_SPARK) {
   console.log(`Registering the bot`);
   botsReady = false;
-  require('./bot/bot')(callbackWhenBotsRegistered);
+  require('./bot/bot').init().then(() => {
+    setupBotRoutes();
+  });
 } else {
   console.log(`Skipping registering the bot`);
 }
 
-function callbackWhenBotsRegistered(botsControllers) {
-  // Setup bot routes
-  databaseServices.takeTheBotsControllers(botsControllers);
-  // import all the pre-defined bot routes that are present in /bot/components/routes
+function setupBotRoutes() {
+  // Import all the pre-defined bot routes that are present in /bot/components/routes
   const normalizedPath = require("path").join(__dirname, "bot/components/routes");
   require("fs").readdirSync(normalizedPath).forEach(file => {
     console.log(`Processing bot route file: ${file}`);
-    require("./bot/components/routes/" + file)(app, botsControllers); // incoming_webhooks.js
+    require("./bot/components/routes/" + file)(app); // incoming_webhooks.js
   });
-
-  console.log(`\nThe bots are ready`);
+  console.log(`\nThe bots are now ready.`);
   botsReady = true;
 }
 

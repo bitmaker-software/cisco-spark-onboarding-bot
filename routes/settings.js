@@ -46,8 +46,8 @@ router.post('/api/saveBots', ensureAuthenticated, function(req, res, next) {
 
   Promise.all(promises).then(results => {
 
-    console.log(`Finished saving the bots; will now reload the controllers (TODO!)`);
-    // TODO: reload bots; we have to register new routes on express and re-register the 404 routes at the end
+    console.log(`Finished saving the bots; will now reload the controllers`);
+    require('../bot/bot').init();
 
     res.status(200).send();
   }, err => {
@@ -82,7 +82,6 @@ router.post('/api/save', ensureAuthenticated, function(req, res, next) {
   }, req.user.id, 2));
 
   Promise.all(promises).then(results => {
-    // TODO: reload bots
     res.status(200).send();
   }, err => {
     console.log(`Error saving settings`);

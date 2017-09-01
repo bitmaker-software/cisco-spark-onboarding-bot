@@ -1,8 +1,9 @@
 "use strict";
 
 const debug = require('debug')('botkit:incoming_webhooks');
+const bots = require('../../bot');
 
-module.exports = function (app, botsControllers) {
+module.exports = function (app) {
 
   debug('Configuring POST /ciscospark/receive url for receiving events');
   console.log(`Configuring POST /ciscospark/receive url for receiving events`);
@@ -33,26 +34,14 @@ module.exports = function (app, botsControllers) {
     // console.log(`Request webhook name:`);
     // console.log(requestWebhookName);
 
-    let foundController = false;
-    botsControllers.forEach(controller => {
-      // Find the bot with this webhook name
-      const controllerWebhookName = controller.config.webhook_name;
-      // console.log(`Controller webhook name:`);
-      // console.log(controllerWebhookName);
-
-      if (requestWebhookName === controllerWebhookName) {
-        foundController = true;
-        console.log(`Dispatching message to "${controllerWebhookName}"`);
-        let bot = controller.spawn({});
-        // Pass the message into the controller to be processed.
-        controller.handleWebhookPayload(req, res, bot);
-      }
-    });
-
-    if (!foundController) {
+    bots.getControllerForWebhook(requestWebhookName).then(controller => {
+      console.log(`Dispatching message to "${requestWebhookName}"`);
+      let bot = controller.spawn({});
+      // Pass the message into the controller to be processed.
+      controller.handleWebhookPayload(req, res, bot);
+    }, () => {
       console.log(`WARNING, controller for webhook name "${requestWebhookName}" not found!`);
-    }
-
+    });
   }
 
   function notUsedYet_updateRoute() {
