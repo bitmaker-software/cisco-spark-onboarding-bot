@@ -217,7 +217,7 @@ block pageScripts
     console.log(stepTypesObj);
     var flowId = "!{flowId}"; // used on AJAX requests
 
-  script(src=static.root + '/js/manager_flow_steps.js')
+  script(src=static.root + '/js/manager_flow_steps.js' + static.suffix)
 
   script(id='gdrive', src=static.root + '/js/gdrive.js' + static.suffix,
   data-gdrive-client-id=gdrive_client_id,

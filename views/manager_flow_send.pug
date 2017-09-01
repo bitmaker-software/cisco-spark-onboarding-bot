@@ -105,4 +105,4 @@ block pageScripts
   script.
     var flowId = !{flowId}; // used on AJAX requests
     var flowFromServer = !{JSON.stringify(flow)};
-  script(src=static.root + '/js/manager_flow_send.js')
+  script(src=static.root + '/js/manager_flow_send.js' + static.suffix)
