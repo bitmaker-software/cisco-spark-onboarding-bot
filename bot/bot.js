@@ -6,12 +6,13 @@ env(__dirname + '/.env');
 const Botkit = require('botkit');
 const debug = require('debug')('botkit:main');
 const databaseServices = require('./database_services');
-const controllers = [];
+let controllers = [];
 
 module.exports = {
   init: () => {
     return new Promise((resolve, reject) => {
       // Get the bots credentials from the database
+      controllers = [];
       databaseServices.getAllBots().then(bots => {
         console.log(`Got ${bots.length} bot(s) from the database`);
 

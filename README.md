@@ -29,7 +29,7 @@ This project uses BotKit
 
 ##### Public endpoint
 * If you are _not_ running your bot at a public, SSL-enabled internet address, use a tool like [ngrok](http://ngrok.io/) or [localtunnel](http://localtunnel.me/) to create a secure route to your development application, and copy the address (http**s**://) to the .env file **public_address** variable:  
-  `ngrok http 3000` _[warning: Ubuntu's ngrok package is version 1.x and is not working]_
+  `ngrok http 8080` (3000 on dev) _[warning: Ubuntu's ngrok package is version 1.x and is not working]_
 
 ##### Bot account
 * Go to [https://developer.ciscospark.com](https://developer.ciscospark.com) and create a **Cisco Spark App Integration** in order to configure OAuth authentication
@@ -37,12 +37,12 @@ This project uses BotKit
 ##### Run
 * Before the first run you will need to do a `npm run cleanAndSetupDatabase` that will setup your database with the required fixtures
 * `npm run dev` will start the development server
-* You can now access [http://localhost:3000](http://localhost:3000) and log in using your Cisco Spark credentials
+* You can now access [http://localhost:8080](http://localhost:8080) and log in using your Cisco Spark credentials
 
 
 ## Bot configuration
 
-* After logging in, access the [settings page](http://localhost:3000/settings) and add a new bot configuration
+* After logging in, access the [settings page](http://localhost:8080/settings) and add a new bot configuration
 * Fill in the fields and hit the `Save bot` button
 * Restart the server (temporary workaround) for the newly created bot to get registered with Cisco Spark
 
@@ -113,7 +113,7 @@ _This image includes EXPOSE 5432 (the postgres port), so standard container link
   ###### Using the database on the host:
   `docker run --name cisco-onboarding --network=host -p 8080:8080 -e db_user=yourdatabaseuser -e db_host=localhost -e db_port=5432 -e db_pass=yourdatabasepassword -e db_db=yourdatabasename img-cisco-onboarding`      
 _--network=host_ to use the host network and be able to connect to the localhost (host) database  
-_-p 3000:3000_ to expose container port (hostPort:containerPort)  
+_-p 8080:8080_ to expose container port (hostPort:containerPort)  
 _-e …_ environment variables
 
 * If you need to reset the database:  
