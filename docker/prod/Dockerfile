@@ -11,6 +11,6 @@ WORKDIR /opt/ciscospark
 COPY . .
 
 RUN yarn # install project dependencies
-RUN npm run cleanAndSetupDatabase
+#RUN npm run cleanAndSetupDatabase
 
 ENTRYPOINT ["./entrypoint.sh"]
