@@ -16,14 +16,14 @@ This project uses BotKit
 * You will need a PostgreSQL database (**see the Docker section bellow**)
 * _(optional)_ use [pgAdmin](https://www.postgresql.org/ftp/pgadmin) to manage the database
 * Create the database (e.g. ciscosparkonboarding) and the user (e.g. ciscosparkbot)
-* Update your _bot/.env_ file with the database credentials, for example:
-
-  `db_user=ciscosparkbot`   
-  `db_pass=lNhV6HjFbIJF5n0L6eyEBEiqpQu7q6`  
-  `db_host=localhost`  
-  `db_port=5432`  
-  `db_db=ciscosparkonboarding`
-
+* **If not using Docker**, update your _bot/.env_ file with the database credentials, for example:
+```
+db_user=ciscosparkbot
+db_pass=lNhV6HjFbIJF5n0L6eyEBEiqpQu7q6  
+db_host=localhost
+db_port=5432
+db_db=ciscosparkonboarding
+```
 ##### Dependencies
 * Run `npm install` or `yarn` to install the project dependencies
 
@@ -34,11 +34,15 @@ This project uses BotKit
 ##### Bot account
 * Go to [https://developer.ciscospark.com](https://developer.ciscospark.com) and create a **Cisco Spark App Integration** in order to configure OAuth authentication
 
-##### Run
+##### Run on local machine in development mode
 * Before the first run you will need to do a `npm run cleanAndSetupDatabase` that will setup your database with the required fixtures
 * `npm run dev` will start the development server
-* You can now access [http://localhost:8080](http://localhost:8080) and log in using your Cisco Spark credentials
+* You can now access [http://localhost:3000](http://localhost:3000) and log in using your Cisco Spark credentials
 
+##### Run on local machine in production mode
+* `npm build` will build the project
+* `npm start` will start the project
+* You can now access [http://localhost:8080](http://localhost:8080) and log in using your Cisco Spark credentials
 
 ## Bot configuration
 
@@ -51,9 +55,9 @@ This project uses BotKit
 
 ### Setup Google Drive Access for server-to-server
 
-* Go to Google APIs & services Credentials page (https://console.developers.google.com/apis/credentials)
-* Create a new project (https://console.developers.google.com/projectcreate)
-* Select **Library** on the left and search for Google Drive API (https://console.developers.google.com/apis/api/drive.googleapis.com/overview)
+* Go to Google APIs & services Credentials page [(https://console.developers.google.com/apis/credentials)](https://console.developers.google.com/apis/credentials)
+* Create a new project [(https://console.developers.google.com/projectcreate)](https://console.developers.google.com/projectcreate)
+* Select **Library** on the left and search for Google Drive API [(https://console.developers.google.com/apis/api/drive.googleapis.com/overview)](https://console.developers.google.com/apis/api/drive.googleapis.com/overview)
 * Make sure that the newly created project is selected (on the top bar, after the Google APIs logo) and on the Google Drive API page click **ENABLE**
 
 * On the left menu, select _Credentials_
@@ -70,9 +74,9 @@ This project uses BotKit
 
 ### Setup Google Picker API for browser-side file & folder selection
 
-* Go to the developers console (https://console.developers.google.com)
+* Go to the developers console [(https://console.developers.google.com)](https://console.developers.google.com)
 * select the project (the same from above) and go to Library, search for Google Picker API
-* **ENABLE** the Google Picker API (https://console.developers.google.com/apis/api/picker.googleapis.com/overview)
+* **ENABLE** the Google Picker API [(https://console.developers.google.com/apis/api/picker.googleapis.com/overview)](https://console.developers.google.com/apis/api/picker.googleapis.com/overview)
 * Create credentials
 * one API key is created, if following the wizard
 * create "OAuth Client ID" credentials for the same project
@@ -83,7 +87,7 @@ This project uses BotKit
 
 ## Box Configuration
 
-* Follow the instructions of the Box guide on how to use Box Platform for custom app development found at https://developer.box.com/docs/getting-started-box-platform 
+* Follow the instructions of the Box guide on how to use Box Platform for custom app development found at [https://developer.box.com/docs/getting-started-box-platform](https://developer.box.com/docs/getting-started-box-platform) 
 * Once you have generated the Public/Private Keypair, use the downloaded file and upload it in the manager [settings page](http://localhost:8080/settings).
 * At the Box configuration page, fill in the client ID (you can find that at the file you just downloaded) and your Box user account (email address)
 
@@ -94,27 +98,53 @@ This project uses BotKit
 _This image includes EXPOSE 5432 (the postgres port), so standard container linking will make it automatically available to the linked containers. The default postgres user and database are created in the entrypoint with initdb._
 * To attach (if running in background): `docker attach cisco-onboarding-database` (`Ctrl P + Q` to detach)  
 * Connect via `psql` to create the user and the database:  
+
 `docker run -it --rm --link cisco-onboarding-database:postgres postgres psql -h postgres -U postgres`  
-`CREATE ROLE yourdatabaseuser WITH LOGIN PASSWORD 'yourdatabasepassword' CREATEDB;` (gives Create DB permission)  
-`\du`  
-`CREATE DATABASE yourdatabasename;`  
-`GRANT ALL PRIVILEGES ON DATABASE yourdatabasename TO yourdatabaseuser;`  
-`\list` (list databases)  
-`\c yourdatabasename` (use this database)  
-`\d` (list of relations)  
+```
+CREATE ROLE yourdatabaseuser WITH LOGIN PASSWORD 'yourdatabasepassword' CREATEDB; -- (gives Create DB permission)
+\du
+CREATE DATABASE yourdatabasename;
+GRANT ALL PRIVILEGES ON DATABASE yourdatabasename TO yourdatabaseuser;
+\list -- (list databases)
+\c yourdatabasename -- (use this database)
+\d -- (list of relations)
+```
 
 ### The project
 * There is a Dockerfile provided
 * Build the image  
 `docker build -t img-cisco-onboarding:latest -f docker/prod/Dockerfile .`
 * Create a container based on that image:  
-  ###### Using the database on another Docker:
-  `docker run --name cisco-onboarding --link cisco-onboarding-database:postgres -p 8080:8080 -e db_host=cisco-onboarding-database -e db_port=5432 -e db_user=yourdatabaseuser -e db_pass=yourdatabasepassword -e db_db=yourdatabasename img-cisco-onboarding`  
-  ###### Using the database on the host:
-  `docker run --name cisco-onboarding --network=host -p 8080:8080 -e db_user=yourdatabaseuser -e db_host=localhost -e db_port=5432 -e db_pass=yourdatabasepassword -e db_db=yourdatabasename img-cisco-onboarding`      
-_--network=host_ to use the host network and be able to connect to the localhost (host) database  
-_-p 8080:8080_ to expose container port (hostPort:containerPort)  
-_-e …_ environment variables
+
+#### Using the database on another Docker:  
+```
+docker run \
+--name cisco-onboarding \
+--link cisco-onboarding-database:postgres \
+-p 8080:8080 \
+-e db_host=cisco-onboarding-database \
+-e db_port=5432 \
+-e db_user=yourdatabaseuser \
+-e db_pass=yourdatabasepassword \
+-e db_db=yourdatabasename \
+img-cisco-onboarding
+```  
+#### Using the database on the host:  
+```
+docker run \
+--name cisco-onboarding \
+--network=host \
+-p 8080:8080 \
+-e db_user=yourdatabaseuser \
+-e db_host=localhost \
+-e db_port=5432 \
+-e db_pass=yourdatabasepassword \
+-e db_db=yourdatabasename \
+img-cisco-onboarding
+```  
+_--network=host_ — to use the host network and be able to connect to the localhost (host) database  
+_-p 8080:8080_ — to expose container port (hostPort:containerPort)  
+_-e …_ — environment variables  
 
 * If you need to reset the database:  
 `docker exec cisco-onboarding npm run cleanAndSetupDatabase`
