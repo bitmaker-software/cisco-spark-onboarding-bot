@@ -11,7 +11,7 @@ let getDocument = (client, fileId, callback) => {
 
   console.log(`Getting file with id ${fileId}`);
 
-  client.files.get(fileId, {fields: 'name'}, (err, data) => {
+  client.files.get(fileId, { fields: 'name' }, (err, data) => {
 
     console.log('Going to get file info...');
 
@@ -20,7 +20,7 @@ let getDocument = (client, fileId, callback) => {
     } else {
 
       // Download the file
-      client.files.getReadStream(fileId, null, function (error, stream) {
+      client.files.getReadStream(fileId, null, function(error, stream) {
 
         if (error) {
           // handle error
@@ -78,7 +78,7 @@ let upload = (client, file_info, file, folderId, callback) => {
       };
 
       // Let's create a shareable link to allow us to open the file afterwards
-      client.files.update(file.id, {shared_link: client.accessLevels.DEFAULT}, (err, response) => {
+      client.files.update(file.id, { shared_link: client.accessLevels.DEFAULT }, (err, response) => {
         if (err !== null) {
           console.log('Error uploading file');
           console.log(err);

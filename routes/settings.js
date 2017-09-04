@@ -5,7 +5,7 @@ const router = express.Router();
 const ensureAuthenticated = require('./auth_middleware');
 const databaseServices = require('../bot/database_services');
 
-router.get('/', ensureAuthenticated, function (req, res, next) {
+router.get('/', ensureAuthenticated, function(req, res, next) {
   let promises = [
     databaseServices.getBotsByUser(req.user.id),
     databaseServices.getDocumentStore(req.user.id, 1),
@@ -27,7 +27,7 @@ router.get('/', ensureAuthenticated, function (req, res, next) {
   });
 });
 
-router.post('/api/saveBots', ensureAuthenticated, function (req, res, next) {
+router.post('/api/saveBots', ensureAuthenticated, function(req, res, next) {
   const bots = req.body;
   let promises = [];
   bots.forEach(bot => {
@@ -59,12 +59,12 @@ router.post('/api/saveBots', ensureAuthenticated, function (req, res, next) {
 });
 
 
-router.post('/api/save', ensureAuthenticated, function (req, res, next) {
+router.post('/api/save', ensureAuthenticated, function(req, res, next) {
 
   let gdriveFilename = `bot/keys/user_${req.user.id}_gdrive_settings.json`;
   let boxFilename = `bot/keys/user_${req.user.id}_box_settings.json`;
-  let gdriveFilenameDB = `../keys/user_${req.user.id}_gdrive-settings.json`;
-  let boxFilenameDB = `../keys/user_${req.user.id}_box-settings.json`;
+  let gdriveFilenameDB = `../keys/user_${req.user.id}_gdrive_settings.json`;
+  let boxFilenameDB = `../keys/user_${req.user.id}_box_settings.json`;
 
   if (req.files) {
     // console.log(`Got files`);
