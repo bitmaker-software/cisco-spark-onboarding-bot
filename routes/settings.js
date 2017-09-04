@@ -31,7 +31,7 @@ router.post('/api/saveBots', ensureAuthenticated, function(req, res, next) {
   const bots = req.body;
   let promises = [];
   bots.forEach(bot => {
-    console.log(`Will save bot:`);
+    console.log(`Will save the bot:`);
     console.log(bot);
     promises.push(databaseServices.saveBot({
       id: bot.id,
@@ -40,7 +40,6 @@ router.post('/api/saveBots', ensureAuthenticated, function(req, res, next) {
       accessToken: bot.access_token,
       publicHttpsAddress: bot.public_https_address,
       webhookName: bot.webhook_name,
-      secret: bot.secret,
     }));
   });
 

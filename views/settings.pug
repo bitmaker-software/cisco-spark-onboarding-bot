@@ -28,19 +28,17 @@ block content
                 for='bot-public-address'
                 class='blue'
                 ) Public HTTPS address
+                  span(data-toggle="tooltip", data-placement="top" title="For incoming webhooks")
+                    i.material-icons info
                 input#bot-public-address.form-control(v-model="bot.public_https_address")
               div.form-group
                 label(
                 for='bot-webhook-name'
                 class='blue'
-                ) Webhook name (when you have more than one bot on the same address)
+                ) Webhook name
+                  span(data-toggle="tooltip", data-placement="top" title="Used to identify the bot when there is more than one")
+                    i.material-icons info
                 input#bot-webhook-name.form-control(v-model="bot.webhook_name")
-              div.form-group
-                label(
-                for='bot-secret'
-                class='blue'
-                ) Secret
-                input#bot-secret.form-control(v-model="bot.secret")
             div.card-footer
 
       input.mt-2.btn.btn-primary(

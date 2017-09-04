@@ -7,7 +7,7 @@ const STATUS_TYPES = require('./status_types');
 module.exports = {
 
   saveBot: bot => {
-    let {id, managerId, name, accessToken, publicHttpsAddress, webhookName, secret} = bot;
+    let {id, managerId, name, accessToken, publicHttpsAddress, webhookName} = bot;
     console.log(`Bot to save:`);
     console.log(id);
     console.log(managerId);
@@ -15,7 +15,6 @@ module.exports = {
     console.log(accessToken);
     console.log(publicHttpsAddress);
     console.log(webhookName);
-    console.log(secret);
     console.log(`---`);
     if (!id) {
       // New bot
@@ -25,7 +24,7 @@ module.exports = {
         access_token: accessToken,
         public_https_address: publicHttpsAddress,
         webhook_name: webhookName,
-        secret: secret
+        secret: Math.random().toString().replace(/0[,.]/, '')
       });
     } else {
       // Update existing
@@ -35,7 +34,7 @@ module.exports = {
         access_token: accessToken,
         public_https_address: publicHttpsAddress,
         webhook_name: webhookName,
-        secret: secret
+        secret: Math.random().toString().replace(/0[,.]/, '')
       }, {
         where: {
           id: id,

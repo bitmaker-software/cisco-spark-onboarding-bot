@@ -31,9 +31,6 @@ module.exports = function (app) {
       console.log(`No webhook name on the request`);
       return;
     }
-    // console.log(`Request webhook name:`);
-    // console.log(requestWebhookName);
-
     bots.getControllerForWebhook(requestWebhookName).then(controller => {
       console.log(`Dispatching message to "${requestWebhookName}"`);
       let bot = controller.spawn({});
@@ -42,28 +39,5 @@ module.exports = function (app) {
     }, () => {
       console.log(`WARNING, controller for webhook name "${requestWebhookName}" not found!`);
     });
-  }
-
-  function notUsedYet_updateRoute() {
-    // This would be called on runtime after saving the bots settings
-    console.log(`app._router.stack:`);
-    const routes = app._router.stack;
-    routes.forEach(replaceExistingRoute);
-
-    function replaceExistingRoute(route, i, routes) {
-      // console.log(i);
-      // console.log(route.handle.name);
-      // console.log(`~~~`);
-
-      if (route.handle.name === 'ciscoSparkReceive') {
-        console.log(`Replacing ciscoSparkReceive route by a new one`);
-        routes[i] = ciscoSparkReceive;
-      }
-
-      if (route.route) {
-        console.log(`The route has route`);
-        route.route.stack.forEach(replaceExistingRoute);
-      }
-    }
   }
 };
