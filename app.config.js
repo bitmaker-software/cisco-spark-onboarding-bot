@@ -8,5 +8,6 @@ module.exports = {
   static: {
     root: `/static/${version}`,
     suffix: production ? '.gz' : ''
-  }
+  },
+  hostAndPortForPassport: process.env.HOST_PORT || 'http://localhost:3000'
 };

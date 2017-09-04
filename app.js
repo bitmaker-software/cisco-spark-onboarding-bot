@@ -50,7 +50,7 @@ passport.deserializeUser((obj, done) => {
 passport.use(new CiscoSparkStrategy({
     clientID: process.env.cisco_spark_client_id,
     clientSecret: process.env.cisco_spark_client_secret,
-    callbackURL: "/auth/spark/callback",
+    callbackURL: config.hostAndPortForPassport + "/auth/spark/callback",
     scope: [
       'spark:all'
     ]

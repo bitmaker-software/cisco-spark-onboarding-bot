@@ -10,7 +10,7 @@ This project uses BotKit
 
 ## How do I get set up?
 
-* Create a .env file on the bot dir (_/bot/.env_) with the Cisco Spark App information (more on this later) plus the database connection settings (use the _.env.template_ file as a model)
+* Create a .env file on the bot dir (_/bot/.env_) with the Cisco Spark App information (more on this later) plus the database connection settings (use the _.env.template_ file as a model) and the hostname/port
 
 ##### Database
 * You will need a PostgreSQL database (**see the Docker section bellow**)
@@ -127,6 +127,7 @@ docker run \
 -e db_user=yourdatabaseuser \
 -e db_pass=yourdatabasepassword \
 -e db_db=yourdatabasename \
+-e HOST_PORT=http://localhost:3000 \
 img-cisco-onboarding
 ```  
 #### Using the database on the host:  
@@ -140,6 +141,7 @@ docker run \
 -e db_port=5432 \
 -e db_pass=yourdatabasepassword \
 -e db_db=yourdatabasename \
+-e HOST_PORT=http://localhost:3000 \
 img-cisco-onboarding
 ```  
 _--network=host_ — to use the host network and be able to connect to the localhost (host) database  
