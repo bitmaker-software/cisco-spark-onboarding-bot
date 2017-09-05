@@ -10,6 +10,7 @@ This project uses BotKit
 
 ### What is involved?
 In order to successfully setup the Cisco Onboarding Bot, the following tasks need to be performed:
+
 * Create a .env file for storing the main settings
 * Create a database (PostgresSQL)
 * Expose a public HTTPS endpoint (so Cisco Spark can access your bot)
@@ -20,6 +21,7 @@ In order to successfully setup the Cisco Onboarding Bot, the following tasks nee
 * Launch your Onboarding server 
 * Go to the settings page and register the bot you created and enter the information needed for integrating with Google Drive and/or Box
 * Create as many onboarding flows as you want and send them to users
+* Running on Docker (optional)
 
 # Project set up
 
@@ -61,7 +63,7 @@ db_db=ciscosparkonboarding
 * Go to [https://developer.ciscospark.com](https://developer.ciscospark.com) and create a new **Cisco Spark Bot**
 * Make sure you save the bot's access token since you will not be able to see it again (although you can generate a new one at any time). The access token is necessary for registering the bot in the onboarding server 
 
-## Google Drive Configuration
+## Google Drive Configuration (optional)
 
 ### Setup Google Drive Access for server-to-server
 
@@ -93,7 +95,7 @@ db_db=ciscosparkonboarding
     * A client ID and client secret are generated. You only need the **client ID**
 * Use the information in the Google Drive settings page
 
-## Box Configuration
+## Box Configuration (optional)
 
 * Follow the instructions of the Box guide on how to use Box Platform for custom app development found at [https://developer.box.com/docs/getting-started-box-platform](https://developer.box.com/docs/getting-started-box-platform) 
 * Once you have generated the Public/Private Keypair, use the downloaded file and upload it in the manager [settings page](http://localhost:8080/settings).
@@ -117,7 +119,7 @@ db_db=ciscosparkonboarding
 * Fill in the fields and hit the `Save bot` button
 
 
-## Docker
+## Running on Docker
 ### Database
 * Create a container based on postgres (use --detach or -d to run in background):  
 `docker run --name cisco-onboarding-database -e POSTGRES_PASSWORD=mysecretpassword postgres`  
