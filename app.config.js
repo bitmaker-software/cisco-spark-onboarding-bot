@@ -1,4 +1,4 @@
-const version    = require('./package').version;
+const version = require('./package').version;
 const production = process.env.NODE_ENV === 'production';
 
 module.exports = {
@@ -9,5 +9,5 @@ module.exports = {
     root: `/static/${version}`,
     suffix: production ? '.gz' : ''
   },
-  hostAndPortForPassport: process.env.HOST_PORT || 'http://localhost:3000'
+  hostAndPortForPassport: process.env.oauth_base_url || 'http://localhost:3000'
 };
