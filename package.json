@@ -14,7 +14,7 @@
     "compress": "bash -c 'gzip -9 -q public/**/*.{css,js,map}'",
     "build": "npm-run-all clean -p build:* -s compress",
     "tool": "node index",
-    "postinstall": "node ./ops/heroku-build.js"
+    "postinstall": "npm run build"
   },
   "license": "MIT",
   "dependencies": {
