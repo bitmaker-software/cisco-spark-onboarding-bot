@@ -2,18 +2,35 @@
 
 This project uses BotKit
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
-
 
 ### What is this repository for?
 
 * Cisco Onboarding Bot by Bitmaker
 
 
+## Quick start / deploy to Heroku
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
+After deploying go to your app settings [(https://dashboard.heroku.com/apps/your_app_name/settings)](https://dashboard.heroku.com/apps/your_app_name/settings), click *Reveal Config Vars* and add
+```
+cisco_spark_client_id
+cisco_spark_client_secret
+oauth_base_url
+session_secret
+```
+
+The `DATABASE_URL` should already be populated, as the `app.json` includes the `heroku-postgresql` add-on.
+
+Run `heroku run bash --app your_app_name` and, after connecting, setup the database with `npm run cleanAndSetupDatabase`.
+
+Run `heroku restart --app your_app_name` and everything should be working.
+
+
 ### What is involved?
 In order to successfully setup the Cisco Onboarding Bot, the following tasks need to be performed:
 
-* Create a .env file for storing the main settings
+* Create a .env file for storing the main settings (not applicable to Heroku/Docker, only on local/development)
 * Create a database (PostgresSQL)
 * Expose a public HTTPS endpoint (so Cisco Spark can access your bot)
 * Configure a new Cisco Spark Integration for handling user authetication via oAuth
