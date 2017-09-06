@@ -8,7 +8,10 @@ router.get('/login', function (req, res) {
   if (req.isAuthenticated()) {
     res.redirect('/');
   } else {
-    res.render('index', {user: req.user});
+    res.render('index', {
+      title: 'Cisco Spark Onboarding Bot',
+      user: req.user
+    });
   }
 });
 
