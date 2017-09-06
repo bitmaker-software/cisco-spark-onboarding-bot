@@ -1,0 +1,7 @@
+{
+  "name": "Cisco Bitmaker Bot",
+  "description": "Cisco Onboarding Bot by Bitmaker",
+  "repository": "https://github.com/bitmaker-software/cisco-spark-onboarding-bot",
+  "logo": "https://raw.githubusercontent.com/bitmaker-software/cisco-spark-onboarding-bot/master/client/images/bot.jpg",
+  "keywords": ["bitmaker", "cisco", "spark", "botkit", "onboarding"]
+}
