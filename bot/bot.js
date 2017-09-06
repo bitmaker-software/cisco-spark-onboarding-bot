@@ -1,7 +1,7 @@
 "use strict";
 
 const env = require('node-env-file');
-env(__dirname + '/.env');
+env(__dirname + '/.env', {raise: false});
 
 const Botkit = require('botkit');
 const debug = require('debug')('botkit:main');

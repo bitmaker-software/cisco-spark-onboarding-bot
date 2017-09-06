@@ -7,7 +7,7 @@ const basename = path.basename(module.filename);
 const db = {};
 
 const env = require('node-env-file');
-env(__dirname + '/../bot/.env');
+env(__dirname + '/../bot/.env', {raise: false});
 
 let db_user = process.env.db_user;
 let db_pass = process.env.db_pass;

@@ -5,7 +5,7 @@ let ensureAuthenticated = require('./auth_middleware');
 const databaseServices = require('../bot/database_services');
 const googleDriveConfig = require('../bot/keys/sample-gdrive-settings.json');
 let env = require('node-env-file');
-env(__dirname + '/../bot/.env');
+env(__dirname + '/../bot/.env', {raise: false});
 
 const STATUS_TYPES = require('../bot/status_types');
 const json2csv = require('json2csv');

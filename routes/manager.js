@@ -11,7 +11,7 @@ const STATUS_TYPES = require('../bot/status_types');
 
 //aqui
 let env = require('node-env-file');
-env(__dirname + '/../bot/.env');
+env(__dirname + '/../bot/.env', {raise: false});
 
 // const gdrive_client_id = process.env.gdrive_client_id;
 // const gdrive_developer_key = process.env.gdrive_developer_key;

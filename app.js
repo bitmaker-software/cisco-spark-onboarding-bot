@@ -31,7 +31,7 @@ const SequelizeStore = require('connect-session-sequelize')(session.Store);
 
 
 const env = require('node-env-file');
-env(__dirname + '/bot/.env');
+env(__dirname + '/bot/.env', {raise: false});
 
 
 // ——————————————————————————————————————————————————
