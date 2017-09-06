@@ -9,10 +9,26 @@ const db = {};
 const env = require('node-env-file');
 env(__dirname + '/../bot/.env');
 
+let db_user = process.env.db_user;
+let db_pass = process.env.db_pass;
+let db_host = process.env.db_host;
+let db_port = process.env.db_port;
+let db_db = process.env.db_db;
+
+if (process.env.DATABASE_URL) {
+  // Heroku configuration, override the other db vars
+  let match = process.env.DATABASE_URL.match(/postgres:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)/);
+  db_user = match[1];
+  db_pass = match[2];
+  db_host = match[3];
+  db_port = match[4];
+  db_db = match[5];
+}
+
 //Create a Sequelize connection to the database
-const sequelize = new Sequelize(process.env.db_db, process.env.db_user, process.env.db_pass, {
-  host: process.env.db_host,
-  port: process.env.db_port,
+const sequelize = new Sequelize(db_db, db_user, db_pass, {
+  host: db_host,
+  port: db_port,
   dialect: 'postgres',
   define: {
     // don't use camelcase for automatically added attributes but underscore style
