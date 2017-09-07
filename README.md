@@ -28,6 +28,7 @@ Run `heroku run bash --app your_app_name` and, after connecting, setup the datab
 
 Run `heroku restart --app your_app_name` and everything should be working.
 
+## Standard Deployment
 
 ### What is involved?
 In order to successfully setup the Cisco Onboarding Bot, the following tasks need to be performed:
