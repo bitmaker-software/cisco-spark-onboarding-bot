@@ -12,7 +12,7 @@ This project uses BotKit
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
-After deploying go to your app settings [(https://dashboard.heroku.com/apps/your_app_name/settings)](https://dashboard.heroku.com/apps/your_app_name/settings), click *Reveal Config Vars* and add
+After deploying go to your app settings [(https://dashboard.heroku.com/apps/your_app_name/settings)](https://dashboard.heroku.com/apps/your_app_name/settings), click *Reveal Config Vars* and add:
 ```
 cisco_spark_client_id
 cisco_spark_client_secret
@@ -22,7 +22,9 @@ session_secret
 
 The `DATABASE_URL` should already be populated, as the `app.json` includes the `heroku-postgresql` add-on.
 
-Run `heroku run bash --app your_app_name` and, after connecting, setup the database with `npm run cleanAndSetupDatabase`.
+For information about how to obtain those variables, please check the [Cisco Spark Integration](#spark-integration) section bellow.
+
+Run `heroku run bash --app your_app_name` and, after connecting, setup the database with `npm run cleanAndSetupDatabase` (if you do not have the Heroku CLI installed, you may run those commands directly from Heroku's web interface for the newly created app under *Deploy > More > Run Console*).
 
 Run `heroku restart --app your_app_name` and everything should be working.
 
@@ -69,14 +71,14 @@ db_db=ciscosparkonboarding
 * If that's the case, run `ngrok http 8080` for starting ngrok in production or `ngrok http 3000` for starting in dev _[warning: Ubuntu's ngrok package is version 1.x and is not working]_
 
 ## Cisco Spark Steps
-### Cisco Spark Integration
+### <a name="spark-integration"></a>Cisco Spark Integration
 * Go to [https://developer.ciscospark.com](https://developer.ciscospark.com) and create a **Cisco Spark App Integration** in order to configure OAuth authentication
 * Enter the information requested.
 * In the **Redirect URI(s)** field, you should enter an url in the form:
 `<oauth_base_url>/auth/spark/callback` where `oauth_base_url` is the base url of your server (note that this is not required to be the public endpoint defined previously, since the only requirement is that it has to be accessible by your clients, not the Cisco Spark platform).
 * In the **Scopes** field, select the following options: `spark:all, spark-admin:people_read, spark-admin:organizations-read and spark-admin:roles-read`
 
-* Update your _bot/.env_ file with the Client ID, Client Secret and the Redirect URI (only the base url part) of the integration you just created
+* Update your _bot/.env_ file with the Client ID (`cisco_spark_client_id`), the Client Secret (`cisco_spark_client_secret`), and the Redirect URI (only the base url part, and without the final slash, `oauth_base_url`) of the integration you just created plus a secret text of your choice (`session_secret`).
 
 ### Cisco Spark Bot
 * Go to [https://developer.ciscospark.com](https://developer.ciscospark.com) and create a new **Cisco Spark Bot**
