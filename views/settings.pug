@@ -87,7 +87,7 @@ block content
                 for='gdrive-client-id'
                 class='blue'
                 ) Client ID
-                input#gdrive-client-id.form-control(v-model="gdriveSettings.google_drive_client_id")
+                input#gdrive-client-id.form-control(v-model="gdriveSettings.gdrive_or_box_client_id")
               div.form-group
                 label(
                 for='gdrive-developer-key'
@@ -99,7 +99,7 @@ block content
                 for='gdrive-user-account'
                 class='blue'
                 ) User Account
-                input#gdrive-user-account.form-control(v-model="gdriveSettings.google_drive_user_account")
+                input#gdrive-user-account.form-control(v-model="gdriveSettings.gdrive_or_box_user_account")
               div.form-group
                 label(
                 for='gdrive-key-file'
@@ -114,16 +114,10 @@ block content
             div.card-block
               div.form-group
                 label(
-                for='box-client-id'
-                class='blue'
-                ) Client ID
-                input#box-client-id.form-control(v-model="boxSettings.box_client_id")
-              div.form-group
-                label(
                 for='box-user-account'
                 class='blue'
-                ) User Account
-                input#box-user-account.form-control(v-model="boxSettings.box_user_account")
+                ) User Account (email address)
+                input#box-user-account.form-control(v-model="boxSettings.gdrive_or_box_user_account")
               div.form-group
                 label(
                 for='box-key-file'

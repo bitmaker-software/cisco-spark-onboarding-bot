@@ -15,7 +15,7 @@
   self.onApiLoaded = function() {
     console.log('Box main API loaded');
 
-    var options = {
+    let options = {
       clientId: self.clientId,
       linkType: 'shared',
       multiselect: 'false'

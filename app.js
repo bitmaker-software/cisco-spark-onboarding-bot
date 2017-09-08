@@ -124,6 +124,9 @@ app.use(cookieParser());
 //             Setup session & passport
 // ——————————————————————————————————————————————————
 
+if (!process.env.session_secret) {
+  console.error(`Missing session_secret env var!`);
+}
 app.use(session({
   secret: process.env.session_secret,
   resave: false,

@@ -2,7 +2,7 @@
 
 const databaseServices = require('../database_services');
 const fs = require('fs');
-var BoxSDK = require('box-node-sdk');
+const BoxSDK = require('box-node-sdk');
 
 //
 // Retrieve the file from gdrive
@@ -11,7 +11,7 @@ let getDocument = (client, fileId, callback) => {
 
   console.log(`Getting file with id ${fileId}`);
 
-  client.files.get(fileId, { fields: 'name' }, (err, data) => {
+  client.files.get(fileId, {fields: 'name'}, (err, data) => {
 
     console.log('Going to get file info...');
 
@@ -20,7 +20,7 @@ let getDocument = (client, fileId, callback) => {
     } else {
 
       // Download the file
-      client.files.getReadStream(fileId, null, function(error, stream) {
+      client.files.getReadStream(fileId, null, function (error, stream) {
 
         if (error) {
           // handle error
@@ -57,12 +57,11 @@ let getDocument = (client, fileId, callback) => {
 // Uploads a file to box
 //
 let upload = (client, file_info, file, folderId, callback) => {
-
   const timeStamp = Math.floor(Date.now() / 1000);
   const name = timeStamp + file_info.filename.replace(/[\/\\]/g, '_');
   //console.log(`Wil upload file: `);
   //console.log(file);
-  //var stream = fs.createReadStream(file);
+  //let stream = fs.createReadStream(file);
   console.log(`Uploading file ${name} to box`);
   client.files.uploadFile(folderId, name, file, (err, uploadInfo) => {
     if (err !== null) {
@@ -78,7 +77,7 @@ let upload = (client, file_info, file, folderId, callback) => {
       };
 
       // Let's create a shareable link to allow us to open the file afterwards
-      client.files.update(file.id, { shared_link: client.accessLevels.DEFAULT }, (err, response) => {
+      client.files.update(file.id, {shared_link: client.accessLevels.DEFAULT}, (err, response) => {
         if (err !== null) {
           console.log('Error uploading file');
           console.log(err);
@@ -93,11 +92,11 @@ let upload = (client, file_info, file, folderId, callback) => {
 
 };
 
-let callAsUser = (client, clientId, callback) => {
+let callAsUser = (client, userId, callback) => {
 
   // Impersonate the user that owns the account
-  console.log(`Going to impersonate user ${clientId}`);
-  client.asUser(clientId);
+  console.log(`Going to impersonate user ${userId}`);
+  client.asUser(userId);
 
   // Pass the client to the callback
   callback(client);
@@ -108,60 +107,64 @@ let callAsUser = (client, clientId, callback) => {
 //
 let buildDriveAndExecute = (store, callback) => {
 
+  if (store.key_file === null || store.key_file === '') {
+    console.error(`No key file for this store`);
+    return;
+  }
+
+  // console.log(`Using key file: ${store.key_file}`);
+
   // Go get information about the store first
-  if (store.server_config_file !== null) {
+  //this is the json file with the private key
+  // let key = require(store.key_file); // .json file
+  let key = JSON.parse(store.key_file);
 
-    console.log(`Using server config file: ${store.server_config_file }`);
+  // create an access token for read only access
+  let sdkConfig = {
+    clientID: key.boxAppSettings.clientID,
+    clientSecret: key.boxAppSettings.clientSecret,
+    appAuth: {
+      keyID: key.boxAppSettings.appAuth.publicKeyID,
+      privateKey: key.boxAppSettings.appAuth.privateKey,
+      passphrase: key.boxAppSettings.appAuth.passphrase
+    }
+  };
+  // console.log(`Box SDK config:`);
+  // console.log(sdkConfig);
+  let sdk = new BoxSDK(sdkConfig);
 
-    //this is the json file with the private key
-    let key = require(store.server_config_file);
+  // Get the service account client, used to create and manage app user accounts
+  let client = sdk.getAppAuthClient('enterprise', key.enterpriseID);
 
-    // create an access token for read only access
-    let sdk = new BoxSDK({
-      clientID: key.boxAppSettings.clientID,
-      clientSecret: key.boxAppSettings.clientSecret,
-      appAuth: {
-        keyID: key.boxAppSettings.appAuth.publicKeyID,
-        privateKey: key.boxAppSettings.appAuth.privateKey,
-        passphrase: key.boxAppSettings.appAuth.passphrase
+  // Let's check if we already have the user
+  let userId = store.box_user_id;
+  console.log(`Going to use userId: ${userId}`);
+  if (userId === null) {
+    console.log('Getting userId');
+    // Get the user and impersonate
+    client.enterprise.getUsers(null, (error, data) => {
+      if (error !== null) {
+        console.log(error);
+      } else {
+        let userEmail = store.gdrive_or_box_user_account;
+        console.log(`Trying to get user account for ${userEmail}`);
+        let user = data.entries.find(match => match.login === userEmail);
+        if (typeof user !== 'undefined' && user !== null) {
+          // update the database for the next time
+          console.log(`Updating user id for user ${userEmail}: ${user.id}`);
+          databaseServices.updateDocumentStoreUserId(store.id, user.id);
+          userId = user.id;
+
+          // Pass the client to the callback
+          callAsUser(client, userId, callback);
+        } else {
+          console.log(`Unable to find user with email ${userEmail}`);
+        }
       }
     });
-
-    // Get the service account client, used to create and manage app user accounts
-    let client = sdk.getAppAuthClient('enterprise', key.enterpriseID);
-
-    // Let's check if we already have the user
-    let clientId = store.box_user_id;
-    console.log(`Going to use clientId: ${clientId}`);
-    if (clientId === null) {
-      console.log('Getting clientId');
-      // Get the user and impersonate
-      client.enterprise.getUsers(null, (error, data) => {
-        if (error !== null) {
-          console.log(error);
-        } else {
-          console.log(`Trying to get user account for ${store.box_user_account}`);
-          let user = data.entries.find(match => match.login === store.box_user_account);
-          if (typeof user !== 'undefined' && user !== null) {
-            // update the database for the next time
-            console.log(`Updating user id for user ${store.box_user_account}: ${user.id}`);
-            databaseServices.updateDocumentStoreUserId(store.id, user.id);
-            clientId = user.id;
-
-            // Pass the client to the callback
-            callAsUser(client, clientId, callback);
-          } else {
-            console.log(`Unable to find user wuth email ${store.box_user_account}`);
-          }
-        }
-      });
-    } else {
-      // Pass the client to the callback
-      callAsUser(client, clientId, callback);
-    }
-
   } else {
-    console.log("Missing server config file");
+    // Pass the client to the callback
+    callAsUser(client, userId, callback);
   }
 };
 
@@ -171,10 +174,10 @@ let buildDriveAndExecute = (store, callback) => {
 module.exports = {
 
   //
-  // Downloads a document from google drive
+  // Downloads a document from Box
   //
   getDriveDocument: (store, fileId, callback) => {
-    console.log(`Getting document with id: ${fileId}`);
+    console.log(`[Box] Getting document with id: ${fileId}`);
     buildDriveAndExecute(store, (client) => {
       // Download the file now
       getDocument(client, fileId, callback);
@@ -182,10 +185,10 @@ module.exports = {
   },
 
   // 
-  // Uploads a document to google drive
+  // Uploads a document to Box
   //
   uploadToDrive: (store, file_info, file, folderId, callback) => {
-    console.log(`Uploading document to folder id: ${folderId}`);
+    console.log(`[Box] Uploading document to folder id: ${folderId}`);
     buildDriveAndExecute(store, (client) => {
       // upload the file
       upload(client, file_info, file, folderId, callback);

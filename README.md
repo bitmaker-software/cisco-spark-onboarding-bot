@@ -120,8 +120,9 @@ db_db=ciscosparkonboarding
 ## Box Configuration (optional)
 
 * Follow the instructions of the Box guide on how to use Box Platform for custom app development found at [https://developer.box.com/docs/getting-started-box-platform](https://developer.box.com/docs/getting-started-box-platform) 
-* Once you have generated the Public/Private Keypair, use the downloaded file and upload it in the manager [settings page](http://localhost:8080/settings).
-* At the Box configuration page, fill in the client ID (you can find that at the file you just downloaded) and your Box user account (email address)
+* On your app configuration, *Application Access* should be **Enterprise**
+* Once you have generated the **Public/Private Keypair**, use the downloaded file and upload it in the manager [settings page](http://localhost:8080/settings).
+* At the Box configuration page, fill in your Box user account (email address)
 
 
 ## Launching the Server

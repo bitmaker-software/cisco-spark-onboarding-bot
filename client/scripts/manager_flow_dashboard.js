@@ -1,6 +1,6 @@
 "use strict";
 
-var c3 = require('c3');
+const c3 = require('c3');
 
 let app = new Vue({
   el: '#root',

@@ -5,26 +5,20 @@ module.exports = function(sequelize, DataTypes) {
     name: {
       type: DataTypes.STRING
     },
-    google_drive_client_id: {
+    gdrive_or_box_client_id: {
+      type: DataTypes.STRING
+    },
+    gdrive_or_box_user_account: {
       type: DataTypes.STRING
     },
     google_drive_developer_key: {
       type: DataTypes.STRING
     },
-    google_drive_user_account: {
-      type: DataTypes.STRING
-    },
-    box_client_id: {
-      type: DataTypes.STRING
-    },
-    box_user_account: {
-      type: DataTypes.STRING
-    },
     box_user_id: {
       type: DataTypes.STRING
     },
-    server_config_file: {
-      type: DataTypes.STRING(2048)
+    key_file: {
+      type: DataTypes.TEXT
     },
     sftp_host: {
       type: DataTypes.STRING

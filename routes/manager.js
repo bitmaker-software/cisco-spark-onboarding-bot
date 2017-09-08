@@ -116,11 +116,11 @@ router.get('/flow/:id/edit', ensureAuthenticated, function (req, res, next) {
       bots: values[2],
       selectedBot: values[1].botId,
       active: 'Manager', // left side bar icon
-      gdrive_client_id: values[3].google_drive_client_id, //gdrive_client_id,
+      gdrive_client_id: values[3].gdrive_or_box_client_id, //gdrive_client_id,
       gdrive_developer_key: values[3].google_drive_developer_key, //gdrive_developer_key,
-      gdrive_share_to: values[3].google_drive_user_account, //gdrive_share_to,
+      gdrive_share_to: values[3].gdrive_or_box_user_account, //gdrive_share_to,
       gdrive_document_store_id: values[3].id,
-      box_client_id: values[4].box_client_id,
+      box_client_id: values[4].gdrive_or_box_client_id,
       box_document_store_id: values[4].id
     });
   }, err => {

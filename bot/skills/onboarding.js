@@ -312,8 +312,13 @@ module.exports = controller => {
         "callback": function (response, convo) {
           if (response.original_message.files) {
             console.log("OK");
+            console.log(`response.original_message.files`);
+            console.log(response.original_message.files);
             //save answer
             bot.retrieveFileInfo(response.original_message.files[0], function (err, file_info) {
+              console.log(`Got file info from the bot:`);
+              console.log(file_info);
+              console.log(`~~~~~ request() with URL ${response.original_message.files[0]}`);
               request({
                 url: response.original_message.files[0],
                 headers: {
@@ -321,6 +326,9 @@ module.exports = controller => {
                 },
                 encoding: null,
               }, function (err, response, body) {
+                console.log(`~~~~~ request() callback:`);
+                console.log(body);
+                console.log(body.byteLength);
                 if (step.document_step !== null) {
                   if (step.document_step.upload_dir !== null) {
                     drive.uploadToDrive(step.document_step.document_store_id, file_info, body, step.document_step.upload_dir, function (file) {

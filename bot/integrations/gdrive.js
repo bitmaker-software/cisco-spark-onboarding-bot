@@ -16,7 +16,7 @@ let getDocument = (drive, fileId, callback) => {
   drive.files.get({
     'fileId': fileId,
     'fields': "id,mimeType,name"
-  }, function(err, file) {
+  }, function (err, file) {
     console.log(`getDriveDocument, file:`);
     console.log(file);
     let mimetype = file.mimeType;
@@ -48,14 +48,14 @@ let getDocument = (drive, fileId, callback) => {
       let filePath = "./bot/files_to_serve/" + file.name + extension;
       let dest = fs.createWriteStream(filePath);
 
-      dest.on('open', function(fd) {
+      dest.on('open', function (fd) {
         drive.files.export({
           fileId: file.id,
           mimeType: mimetype
-        }).on('end', function() {
+        }).on('end', function () {
           console.log('Done');
           callback(fs.createReadStream(filePath));
-        }).on('error', function(err) {
+        }).on('error', function (err) {
           console.log('Error during download', err);
         }).pipe(dest);
       });
@@ -65,14 +65,14 @@ let getDocument = (drive, fileId, callback) => {
       let filePath = "./bot/files_to_serve/" + file.name;
       let dest = fs.createWriteStream(filePath);
 
-      dest.on('open', function(fd) {
+      dest.on('open', function (fd) {
         drive.files.get({
           fileId: fileId,
           alt: 'media'
-        }).on('end', function() {
+        }).on('end', function () {
           console.log('Download Done');
           callback(fs.createReadStream(filePath));
-        }).on('error', function(err) {
+        }).on('error', function (err) {
           console.log('Error during download', err);
         }).pipe(dest);
       });
@@ -103,7 +103,7 @@ let upload = (drive, file_info, file, folderId, callback) => {
     resource: fileMetadata,
     media: media,
     fields: 'id',
-  }, function(err, file) {
+  }, function (err, file) {
     if (err) {
       console.log("Error uploading file :");
       console.log(err);
@@ -124,27 +124,31 @@ let upload = (drive, file_info, file, folderId, callback) => {
 //
 let buildDriveAndExecute = (store, callback) => {
 
-  // Go get information about the store first
-  if (store.server_config_file !== null) {
-    //this is the json file with the private key
-    let key = require(store.server_config_file);
-
-    // create an access token for read only access
-    let jwtClient = new google.auth.JWT(
-      key.client_email,
-      null,
-      key.private_key, ['https://www.googleapis.com/auth/drive'], //.readonly
-      null
-    );
-
-    let drive = google.drive({
-      version: 'v3',
-      auth: jwtClient
-    });
-
-    // Pass the drive to the callback
-    callback(drive);
+  if (store.key_file === null || store.key_file === '') {
+    console.error(`No key file for this store`);
+    return;
   }
+
+  // Go get information about the store first
+  //this is the json file with the private key
+  // let key = require(store.key_file); // .json file
+  let key = JSON.parse(store.key_file);
+
+  // create an access token for read only access
+  let jwtClient = new google.auth.JWT(
+    key.client_email,
+    null,
+    key.private_key, ['https://www.googleapis.com/auth/drive'], //.readonly
+    null
+  );
+
+  let drive = google.drive({
+    version: 'v3',
+    auth: jwtClient
+  });
+
+  // Pass the drive to the callback
+  callback(drive);
 };
 
 //
@@ -156,7 +160,7 @@ module.exports = {
   // Downloads a document from google drive
   //
   getDriveDocument: (store, fileId, callback) => {
-
+    console.log(`[Google Drive] Getting document with id: ${fileId}`);
     buildDriveAndExecute(store, (drive) => {
       // Download the file now
       getDocument(drive, fileId, callback);
@@ -167,7 +171,7 @@ module.exports = {
   // Uploads a document to google drive
   //
   uploadToDrive: (store, file_info, file, folderId, callback) => {
-
+    console.log(`[Google Drive] Uploading document to folder id: ${folderId}`);
     buildDriveAndExecute(store, (drive) => {
       // upload the file
       upload(drive, file_info, file, folderId, callback);

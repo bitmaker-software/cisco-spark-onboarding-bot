@@ -1,13 +1,6 @@
 extends layout
 
 block content
-
-  //script.
-    // Workaround to redirect to 3000 on dev after signing in
-    if (window.location.port === "8080") {
-      window.location.replace("http://localhost:3000")
-    }
-
   div.p-4
     h1.mb-4 Your flows
     if flows.length === 0

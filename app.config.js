@@ -1,6 +1,6 @@
 const version = require('./package').version;
 const production = process.env.NODE_ENV === 'production';
-const port = process.env.PORT || 80; //(production ? 80 : 8080);
+const port = process.env.PORT || (production ? 80 : 8080);
 
 module.exports = {
   production,

@@ -44,9 +44,9 @@ function spawnBotAndStartConversation(flowId, sparkUserId, botController, resume
         // console.log(`\nWill now call convo.say() and we'll receive a "Conversation with  undefined in undefined", "Task for  undefined in undefined"\n`);
 
         if (resume) {
-          convo.say(`Resuming onboarding for "${flowName}". Please say "Start" to resume.`);
+          convo.say(`\n\nOnboarding for ${flowName} can be resumed.\n\n *(Please say* **start** *to resume)*`);
         } else {
-          convo.say(`Starting onboarding for "${flowName}". Please say "Start" to begin.`);
+          convo.say(`\n\nNew onboarding for ${flowName}.\n\n *(Please say* **start** *to begin)*`);
         }
 
       }, error => {

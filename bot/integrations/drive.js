@@ -14,10 +14,10 @@ let buildDriveAndExecute = (documentStoreId, callback) => {
 
     // Act based on the store type
     if (store.document_store_type_id === 1) {
-      console.log("USING GOOGLE DRIVE!!!!!!");
+      console.log(`Using Google Drive`);
       callback(gdrive, store);
     } else if (store.document_store_type_id === 2) {
-      console.log("USING BOX!!!!!!");
+      console.log(`Using Box`);
       callback(box, store);
     }
 
