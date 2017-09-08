@@ -316,13 +316,14 @@ module.exports = controller => {
             console.log(response.original_message.files);
             //save answer
             bot.retrieveFileInfo(response.original_message.files[0], function (err, file_info) {
-              console.log(`Got file info from the bot:`);
+              let bearer = bot.botkit.config.ciscospark_access_token;
+              console.log(`Got file info from the bot (bearer: ${bearer}):`);
               console.log(file_info);
               console.log(`~~~~~ request() with URL ${response.original_message.files[0]}`);
               request({
                 url: response.original_message.files[0],
                 headers: {
-                  'Authorization': 'Bearer ' + process.env.access_token
+                  'Authorization': 'Bearer ' + bearer
                 },
                 encoding: null,
               }, function (err, response, body) {
@@ -473,11 +474,12 @@ module.exports = controller => {
             if (response.original_message.files) {
               console.log("OK");
               //save answer
+              let bearer = bot.botkit.config.ciscospark_access_token;
               bot.retrieveFileInfo(response.original_message.files[0], function (err, file_info) {
                 request({
                   url: response.original_message.files[0],
                   headers: {
-                    'Authorization': 'Bearer ' + process.env.access_token
+                    'Authorization': 'Bearer ' + bearer
                   },
                   encoding: null,
                 }, function (err, response, body) {

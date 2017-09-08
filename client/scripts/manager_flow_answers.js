@@ -29,7 +29,7 @@ Vue.component('DetailRow', {
     '<i class="text-muted"> {{detail.answer_date}}</i>' +
     '</p></div> ' +
     '<div v-if="isLink(detail.answer)">' +
-    '<p><a v-bind:href="detail.answer" target="_blank">Document Link</a> to access via your manager Google Drive account</p>' +
+    '<p><a v-bind:href="detail.answer" target="_blank">Document link</a> to access via your manager Box or Google Drive account</p>' +
     '</div> ' +
     '<div v-else>' +
     '<p>{{detail.answer}}</p>' +
