@@ -99,14 +99,15 @@ router.post('/api/flow', ensureAuthenticated, (req, res, next) => {
 // ——————————————————————————————————————————————————
 //                     Edit Flow
 // ——————————————————————————————————————————————————
-
+const GDRIVE_DOCUMENT_STORE_TYPE = 1;
+const BOX_DOCUMENT_STORE_TYPE = 2;
 router.get('/flow/:id/edit', ensureAuthenticated, function (req, res, next) {
   let promises = [
     databaseServices.getStepTypes(),
     databaseServices.getFlow(req.params.id),
     databaseServices.getBotsNames(req.user.id),
-    databaseServices.getDocumentStore(req.user.id, 1),
-    databaseServices.getDocumentStore(req.user.id, 2)
+    databaseServices.getDocumentStore(req.user.id, GDRIVE_DOCUMENT_STORE_TYPE),
+    databaseServices.getDocumentStore(req.user.id, BOX_DOCUMENT_STORE_TYPE)
   ];
   Promise.all(promises).then(values => {
     res.render('manager_flow_edit', {

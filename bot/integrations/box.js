@@ -5,45 +5,45 @@ const fs = require('fs');
 const BoxSDK = require('box-node-sdk');
 
 //
-// Retrieve the file from gdrive
+// Retrieve the file from Box
 //
 let getDocument = (client, fileId, callback) => {
 
-  console.log(`Getting file with id ${fileId}`);
+  console.log(`[Box] Getting file with id ${fileId}`);
 
   client.files.get(fileId, {fields: 'name'}, (err, data) => {
 
-    console.log('Going to get file info...');
+    console.log('[Box] Going to get file info...');
 
     if (err !== null) {
-      console.log(`Error trying to grab information about file id ${fileId}`);
+      console.log(`[Box] Error trying to grab information about file id ${fileId}`);
     } else {
 
-      // Download the file
+      // Download the file from Box and send back to Spark user
       client.files.getReadStream(fileId, null, function (error, stream) {
 
         if (error) {
           // handle error
-          console.log("Error downloading file");
+          console.log("[Box] Error downloading file");
         } else {
 
-          console.log(`Downloading file ${data.name}`);
+          console.log(`[Box] Downloading file ${data.name}`);
 
-          let filePath = "./bot/files_to_serve/" + data.name;
+          let filePath = "/tmp/" + data.name;
           let dest = fs.createWriteStream(filePath);
 
-          // After all data is saved, read them back to the callback
+          // After all data is saved, save to the database and read it back to the callback
           stream.on('end', () => {
             callback(fs.createReadStream(filePath));
           });
 
           // Check for errors saving the stream
           dest.on('error', (err) => {
-            console.log('We were unable to save the file:');
+            console.log('[Box] We were unable to save the file:');
             console.log(err);
           });
 
-          // pipen the destination on the stream
+          // pipe the destination on the stream
           stream.pipe(dest);
         }
 
@@ -62,14 +62,14 @@ let upload = (client, file_info, file, folderId, callback) => {
   //console.log(`Wil upload file: `);
   //console.log(file);
   //let stream = fs.createReadStream(file);
-  console.log(`Uploading file ${name} to box`);
+  console.log(`[Box] Uploading file ${name} to box`);
   client.files.uploadFile(folderId, name, file, (err, uploadInfo) => {
     if (err !== null) {
-      console.log('Error uploading file');
+      console.log('[Box] Error uploading file');
       console.log(err);
     } else {
 
-      console.log(`Uploading file ${name} done! Generating link...`);
+      console.log(`[Box] Uploading file ${name} done! Generating link...`);
 
       let file = {
         id: uploadInfo.entries[0].id,
@@ -79,10 +79,10 @@ let upload = (client, file_info, file, folderId, callback) => {
       // Let's create a shareable link to allow us to open the file afterwards
       client.files.update(file.id, {shared_link: client.accessLevels.DEFAULT}, (err, response) => {
         if (err !== null) {
-          console.log('Error uploading file');
+          console.log('[Box] Error uploading file');
           console.log(err);
         } else {
-          console.log(`Link to file ${name} done! Calling back...`);
+          console.log(`[Box] Link to file ${name} done! Calling back...`);
           file.webContentLink = response.shared_link.url;
           callback(file);
         }
@@ -95,7 +95,7 @@ let upload = (client, file_info, file, folderId, callback) => {
 let callAsUser = (client, userId, callback) => {
 
   // Impersonate the user that owns the account
-  console.log(`Going to impersonate user ${userId}`);
+  console.log(`[Box] Going to impersonate user ${userId}`);
   client.asUser(userId);
 
   // Pass the client to the callback
@@ -108,7 +108,7 @@ let callAsUser = (client, userId, callback) => {
 let buildDriveAndExecute = (store, callback) => {
 
   if (store.key_file === null || store.key_file === '') {
-    console.error(`No key file for this store`);
+    console.error(`[Box] No key file for this store`);
     return;
   }
 
@@ -138,27 +138,27 @@ let buildDriveAndExecute = (store, callback) => {
 
   // Let's check if we already have the user
   let userId = store.box_user_id;
-  console.log(`Going to use userId: ${userId}`);
+  console.log(`[Box] Going to use userId: ${userId}`);
   if (userId === null) {
-    console.log('Getting userId');
+    console.log('[Box] Getting userId');
     // Get the user and impersonate
     client.enterprise.getUsers(null, (error, data) => {
       if (error !== null) {
         console.log(error);
       } else {
         let userEmail = store.gdrive_or_box_user_account;
-        console.log(`Trying to get user account for ${userEmail}`);
+        console.log(`[Box] Trying to get user account for ${userEmail}`);
         let user = data.entries.find(match => match.login === userEmail);
         if (typeof user !== 'undefined' && user !== null) {
           // update the database for the next time
-          console.log(`Updating user id for user ${userEmail}: ${user.id}`);
+          console.log(`[Box] Updating user id for user ${userEmail}: ${user.id}`);
           databaseServices.updateDocumentStoreUserId(store.id, user.id);
           userId = user.id;
 
           // Pass the client to the callback
           callAsUser(client, userId, callback);
         } else {
-          console.log(`Unable to find user with email ${userEmail}`);
+          console.log(`[Box] Unable to find user with email ${userEmail}`);
         }
       }
     });

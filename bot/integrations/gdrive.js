@@ -10,14 +10,14 @@ const google = require('googleapis');
 
 
 //
-// Retrieve the file from gdrive
+// Retrieve the file from Google Drive and send back to Spark user
 //
 let getDocument = (drive, fileId, callback) => {
   drive.files.get({
     'fileId': fileId,
     'fields': "id,mimeType,name"
   }, function (err, file) {
-    console.log(`getDriveDocument, file:`);
+    console.log(`[Google Drive] getDriveDocument, file:`);
     console.log(file);
     let mimetype = file.mimeType;
     let parts = file.mimeType.split('google-apps');
@@ -45,7 +45,7 @@ let getDocument = (drive, fileId, callback) => {
         extension = '.pdf';
       }
 
-      let filePath = "./bot/files_to_serve/" + file.name + extension;
+      let filePath = "/tmp/" + file.name + extension;
       let dest = fs.createWriteStream(filePath);
 
       dest.on('open', function (fd) {
@@ -53,16 +53,16 @@ let getDocument = (drive, fileId, callback) => {
           fileId: file.id,
           mimeType: mimetype
         }).on('end', function () {
-          console.log('Done');
+          console.log('[Google Drive] Done');
           callback(fs.createReadStream(filePath));
         }).on('error', function (err) {
-          console.log('Error during download', err);
+          console.log('[Google Drive] Error during download', err);
         }).pipe(dest);
       });
     }
     //download
     else {
-      let filePath = "./bot/files_to_serve/" + file.name;
+      let filePath = "/tmp/" + file.name;
       let dest = fs.createWriteStream(filePath);
 
       dest.on('open', function (fd) {
@@ -70,10 +70,10 @@ let getDocument = (drive, fileId, callback) => {
           fileId: fileId,
           alt: 'media'
         }).on('end', function () {
-          console.log('Download Done');
+          console.log('[Google Drive] Download Done');
           callback(fs.createReadStream(filePath));
         }).on('error', function (err) {
-          console.log('Error during download', err);
+          console.log('[Google Drive] Error during download', err);
         }).pipe(dest);
       });
     }
@@ -105,14 +105,14 @@ let upload = (drive, file_info, file, folderId, callback) => {
     fields: 'id',
   }, function (err, file) {
     if (err) {
-      console.log("Error uploading file :");
+      console.log("[Google Drive] Error uploading file :");
       console.log(err);
     } else {
 
       let fileData = {
         id: file.id,
         webContentLink: 'https://drive.google.com/file/d/' + file.id + '/view'
-      }
+      };
 
       callback(fileData);
     }
@@ -125,7 +125,7 @@ let upload = (drive, file_info, file, folderId, callback) => {
 let buildDriveAndExecute = (store, callback) => {
 
   if (store.key_file === null || store.key_file === '') {
-    console.error(`No key file for this store`);
+    console.error(`[Google Drive] No key file for this store`);
     return;
   }
 
