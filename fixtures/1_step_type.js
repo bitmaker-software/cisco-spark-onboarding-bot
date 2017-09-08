@@ -26,11 +26,11 @@ module.exports = {
       name: 'Read Document Step',
       description: 'Owner must upload a document and the end user must read it'
     },
-    {
-      id: 6,
-      name: 'Read & Upload Document Step',
-      description: 'Owner upload a document and the end user must read it and upload a new one to complete the step'
-    },
+    // {
+    //   id: 6,
+    //   name: 'Read & Upload Document Step',
+    //   description: 'Owner upload a document and the end user must read it and upload a new one to complete the step'
+    // },
     {
       id: 7,
       name: 'People to meet',
