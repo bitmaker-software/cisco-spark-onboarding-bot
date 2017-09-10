@@ -50,13 +50,6 @@ html(lang='en')
             +item('Settings', '/settings', 'settings')
         main.content.col
           block content
-    footer
-      .container-fluid
-        .row
-          .col.text-center
-            svg.logo
-              use(xlink:href=static.root + "/sprite.svg#logo")
-            small.text-muted © Cisco Systems, Inc. 2017
 
     //- Main script, for all pages, before the custom page scripts
     script(src=static.root + '/js/main.js' + static.suffix)
