@@ -26,8 +26,8 @@ const passport = require('passport');
 const CiscoSparkStrategy = require('passport-cisco-spark').Strategy;
 const models = require('./models/index.js');
 const sequelize = models.sequelize;
-const session = require('express-session');
-const SequelizeStore = require('connect-session-sequelize')(session.Store);
+const expressSession = require('express-session');
+const SequelizeStore = require('connect-session-sequelize')(expressSession.Store);
 
 
 const env = require('node-env-file');
@@ -48,8 +48,8 @@ passport.deserializeUser((obj, done) => {
 
 // Use the CiscoSparkStrategy within passport
 passport.use(new CiscoSparkStrategy({
-    clientID: process.env.cisco_spark_client_id,
-    clientSecret: process.env.cisco_spark_client_secret,
+    clientID: process.env.SPARK_OAUTH__CLIENT_ID,
+    clientSecret: process.env.SPARK_OAUTH__CLIENT_SECRET,
     callbackURL: config.hostAndPortForPassport + "/auth/spark/callback",
     scope: [
       'spark:all'
@@ -124,11 +124,11 @@ app.use(cookieParser());
 //             Setup session & passport
 // ——————————————————————————————————————————————————
 
-if (!process.env.session_secret) {
-  console.error(`Missing session_secret env var!`);
+if (!process.env.EXPRESS_SESSION_SECRET) {
+  console.error(`Missing EXPRESS_SESSION_SECRET env var!`);
 }
-app.use(session({
-  secret: process.env.session_secret,
+app.use(expressSession({
+  secret: process.env.EXPRESS_SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   store: new SequelizeStore({db: sequelize})

@@ -10,15 +10,16 @@ This project uses BotKit
 
 ## Quick start / deploy to Heroku
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/bitmaker-software/cisco-spark-onboarding-bot)
 
-After deploying go to your app settings [(https://dashboard.heroku.com/apps/your_app_name/settings)](https://dashboard.heroku.com/apps/your_app_name/settings), click *Reveal Config Vars* and add:
+These are the required .env variables:
 ```
-cisco_spark_client_id
-cisco_spark_client_secret
-oauth_base_url
-session_secret
+SPARK_OAUTH__CLIENT_ID
+SPARK_OAUTH__CLIENT_SECRET
+PUBLIC_ADDRESS
+EXPRESS_SESSION_SECRET
 ```
+After deploying, if you want to change them, go to your app settings [(https://dashboard.heroku.com/apps/your_app_name/settings)](https://dashboard.heroku.com/apps/your_app_name/settings) and click *Reveal Config Vars*.
 
 The `DATABASE_URL` should already be populated, as the `app.json` includes the `heroku-postgresql` add-on.
 
@@ -76,10 +77,10 @@ db_db=ciscosparkonboarding
 * Go to [https://developer.ciscospark.com](https://developer.ciscospark.com) and create a **Cisco Spark App Integration** in order to configure OAuth authentication
 * Enter the information requested.
 * In the **Redirect URI(s)** field, you should enter an url in the form:
-`<oauth_base_url>/auth/spark/callback` where `oauth_base_url` is the base url of your server (note that this is not required to be the public endpoint defined previously, since the only requirement is that it has to be accessible by your clients, not the Cisco Spark platform).
+`<PUBLIC_ADDRESS>/auth/spark/callback` where `PUBLIC_ADDRESS` is the base url of your server (note that this is not required to be the public endpoint defined previously, since the only requirement is that it has to be accessible by your clients, not the Cisco Spark platform).
 * In the **Scopes** field, select the following options: `spark:all, spark-admin:people_read, spark-admin:organizations-read and spark-admin:roles-read`
 
-* Update your _bot/.env_ file with the Client ID (`cisco_spark_client_id`), the Client Secret (`cisco_spark_client_secret`), and the Redirect URI (only the base url part, and without the final slash, `oauth_base_url`) of the integration you just created plus a secret text of your choice (`session_secret`).
+* Update your _bot/.env_ file with the Client ID (`SPARK_OAUTH__CLIENT_ID`), the Client Secret (`SPARK_OAUTH__CLIENT_SECRET`), and the Redirect URI (only the base url part, and without the final slash, `PUBLIC_ADDRESS`) of the integration you just created plus a secret text of your choice (`EXPRESS_SESSION_SECRET`).
 
 ### Cisco Spark Bot
 * Go to [https://developer.ciscospark.com](https://developer.ciscospark.com) and create a new **Cisco Spark Bot**
@@ -178,7 +179,7 @@ docker run \
 -e db_user=yourdatabaseuser \
 -e db_pass=yourdatabasepassword \
 -e db_db=yourdatabasename \
--e oauth_base_url=http://localhost:3000 \
+-e PUBLIC_ADDRESS=http://localhost:3000 \
 img-cisco-onboarding
 ```  
 #### Using the database on the host:  
@@ -192,7 +193,7 @@ docker run \
 -e db_port=5432 \
 -e db_pass=yourdatabasepassword \
 -e db_db=yourdatabasename \
--e oauth_base_url=http://localhost:3000 \
+-e PUBLIC_ADDRESS=http://localhost:3000 \
 img-cisco-onboarding
 ```  
 _--network=host_ — to use the host network and be able to connect to the localhost (host) database  

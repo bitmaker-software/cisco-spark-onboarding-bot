@@ -10,5 +10,5 @@ module.exports = {
     root: `/static/${version}`,
     suffix: production ? '.gz' : ''
   },
-  hostAndPortForPassport: process.env.oauth_base_url || 'http://localhost:3000'
+  hostAndPortForPassport: process.env.PUBLIC_ADDRESS || 'http://localhost:3000'
 };

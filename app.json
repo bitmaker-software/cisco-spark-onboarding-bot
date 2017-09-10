@@ -4,5 +4,24 @@
   "repository": "https://github.com/bitmaker-software/cisco-spark-onboarding-bot",
   "logo": "https://raw.githubusercontent.com/bitmaker-software/cisco-spark-onboarding-bot/master/client/images/bot.jpg",
   "keywords": ["bitmaker", "cisco", "spark", "botkit", "onboarding"],
-  "addons": ["heroku-postgresql"]
+  "addons": ["heroku-postgresql"],
+  "env": {
+    "PUBLIC_ADDRESS": {
+      "description": "The address at which your bot can be reached. The public address of your Heroku app will be 'https://<App Name>.herokuapp.com",
+      "required": true
+    },
+    "SPARK_OAUTH__CLIENT_ID": {
+      "description": "The client ID of the *integration* for this bot",
+      "required": true
+    },
+    "SPARK_OAUTH__CLIENT_SECRET": {
+      "description": "The client secret of the *integration* for this bot",
+      "required": true
+    },
+    "EXPRESS_SESSION_SECRET": {
+      "description": "The secret used to sign the session ID cookie",
+      "required": true,
+      "generator": "secret"
+    }
+  }
 }
