@@ -7,13 +7,13 @@ const router = express.Router();
 router.get('/', function (req, res, next) {
   if (req.isAuthenticated()) {
     res.render('homepage', {
-        title: 'Homepage',
+        title: 'Onboarding Bot | Homepage',
         active: 'Home',
     });
   }
   else{
       res.render('index', {
-          title: 'Cisco Spark Onboarding Bot',
+          title: 'Onboarding Bot',
           manager_url: '/manager',
           user: req.user
       });

@@ -110,19 +110,25 @@ router.get('/flow/:id/edit', ensureAuthenticated, function (req, res, next) {
     databaseServices.getDocumentStore(req.user.id, BOX_DOCUMENT_STORE_TYPE)
   ];
   Promise.all(promises).then(values => {
+    const stepTypes = values[0];
+    const flow = values[1];
+    const botsNames = values[2];
+    const docStoreGDrive = values[3];
+    const docStoreBox = values[4];
+
     res.render('manager_flow_edit', {
-      flowId: req.params.id,
-      stepTypes: values[0],
-      title: values[1].name,
-      bots: values[2],
-      selectedBot: values[1].botId,
+      stepTypes: stepTypes,
+      flow: flow,
+      flowId: flow.flowId,
+      selectedBot: flow.botId,
+      bots: botsNames,
       active: 'Manager', // left side bar icon
-      gdrive_client_id: values[3].gdrive_or_box_client_id, //gdrive_client_id,
-      gdrive_developer_key: values[3].google_drive_developer_key, //gdrive_developer_key,
-      gdrive_share_to: values[3].gdrive_or_box_user_account, //gdrive_share_to,
-      gdrive_document_store_id: values[3].id,
-      box_client_id: values[4].gdrive_or_box_client_id,
-      box_document_store_id: values[4].id
+      gdrive_client_id: docStoreGDrive.gdrive_or_box_client_id, //gdrive_client_id,
+      gdrive_developer_key: docStoreGDrive.google_drive_developer_key, //gdrive_developer_key,
+      gdrive_share_to: docStoreGDrive.gdrive_or_box_user_account, //gdrive_share_to,
+      gdrive_document_store_id: docStoreGDrive.id,
+      box_client_id: docStoreBox.gdrive_or_box_client_id,
+      box_document_store_id: docStoreBox.id
     });
   }, err => {
     console.error(`Error fetching the step types or flow:`);
@@ -131,13 +137,30 @@ router.get('/flow/:id/edit', ensureAuthenticated, function (req, res, next) {
   });
 });
 
-router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
+router.put('/api/flow/:id', ensureAuthenticated, function (req, res, next) {
+  const flowId = req.params.id;
   console.log(`————————————————————————————————————————————————————————————————————————————————————————————————————`);
-  console.log(`Update flow, got:`);
+  console.log(`Update flow ${flowId}, got:`);
   console.log(req.body);
   console.log(`————————————————————————————————————————————————————————————————————————————————————————————————————`);
   // TODO check this steps belongs to this flow and this flow belongs to the user requesting this !!!!!!!!!!
   // TODO handle multiple db queries and send response only when finished!
+
+  if (req.body.disable === true) {
+    return disableFlow(res, flowId);
+  }
+
+  if (req.body.enable === true) {
+    databaseServices.enableFlow(flowId).then(result => {
+      console.log(`Enabled flow ${flowId}`);
+      return res.send('OK');
+    }, err => {
+      console.error(`Error enabling flow ${flowId}`);
+      console.error(err);
+      return res.send(err);
+    });
+    return;
+  }
 
   let promiseArray = [];
 
@@ -152,7 +175,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
 
   //update flow name and selected bot
   promiseArray.push(databaseServices.updateFlow({
-    id: req.body.flowId,
+    id: flowId,
     name: req.body.title,
     botId: req.body.botId,
   }));
@@ -165,7 +188,7 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
         databaseServices.createBaseStep(
           step.text,
           index + 1,
-          req.body.flowId,
+          flowId,
           step.step_type_id
         ).then(newStep => {
           console.log(`Result from new base step`);
@@ -422,6 +445,31 @@ router.put('/api/flow', ensureAuthenticated, function (req, res, next) {
     });
 });
 
+function disableFlow(res, flowId) {
+  databaseServices.disableFlow(flowId).then(result => {
+    console.log(`Disabled flow ${flowId}`);
+    require('../bot/bot').stopConversationsForFlow(flowId);
+    return res.send('OK');
+  }, err => {
+    console.error(`Error disabling flow ${flowId}`);
+    console.error(err);
+    return res.send(err);
+  });
+}
+
+router.delete('/api/flow/:id/', ensureAuthenticated, function (req, res, next) {
+  const flowId = req.params.id;
+  console.log(`Delete flow ${flowId}`);
+  databaseServices.deleteFlow(flowId).then(result => {
+    console.log(`Deleted flow ${flowId}`);
+    return res.send('OK');
+  }, err => {
+    console.error(`Error deleting flow ${flowId}`);
+    console.error(err);
+    return res.send(err);
+  });
+});
+
 // ——————————————————————————————————————————————————
 //                    Send Flow
 // ——————————————————————————————————————————————————
@@ -433,6 +481,14 @@ router.get('/flow/:id/send', ensureAuthenticated, function (req, res, next) {
   Promise.all(promises).then(values => {
 
     let flow = values[0];
+
+    if (flow.status === STATUS_TYPES.FLOW_STATUS.INACTIVE) {
+      res.render('error', {
+        title: 'Onboarding Bot | Error',
+        error: {status: 'This flow is disabled'}
+      });
+      return;
+    }
 
     res.render('manager_flow_send', {
       flow: flow,

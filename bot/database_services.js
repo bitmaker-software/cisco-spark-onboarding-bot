@@ -64,7 +64,7 @@ module.exports = {
   },
 
   getBotsNames: (managerId) => {
-    console.log(`GETTING BOTS!!!! ${managerId}`);
+    console.log(`Getting bots for manager ${managerId}`);
     return models.bot.findAll({
       attributes: ['id', 'name'],
       where: {
@@ -149,7 +149,7 @@ module.exports = {
         ['id', 'ASC']
       ],
       include: [
-        {model: models.flow_status, attributes: ['description']}
+        {model: models.flow_status, attributes: ['id', 'description']}
       ],
     });
   },
@@ -182,6 +182,48 @@ module.exports = {
     return models.flow.update(newValues, {
       where: {id: flow.id}
     });
+  },
+
+  enableFlow: flowId => {
+    return models.flow.update({
+      flow_status_id: STATUS_TYPES.FLOW_STATUS.ACTIVE
+    }, {
+      where: {id: flowId}
+    });
+  },
+
+  disableFlow: flowId => {
+    return new Promise((resolve, reject) => {
+      models.flow.update({
+        flow_status_id: STATUS_TYPES.FLOW_STATUS.INACTIVE
+      }, {
+        where: {id: flowId}
+      }).then(flow => {
+        // Suspend ongoing
+        models.respondent_flow.update({
+          respondent_flow_status_id: STATUS_TYPES.RESPONDENT_FLOW_STATUS.TERMINATED_BY_DISABLED_FLOW
+        }, {
+          where: {flow_id: flowId}
+        }).then(respondentFlow => {
+          resolve();
+        }, err => {
+          console.error(`Error updating the respondent flows status`);
+          console.error(err);
+          reject(err);
+        });
+      }, err => {
+        console.error(`Error updating the flow ${flowId} status`);
+        console.error(err);
+        reject(err);
+      })
+    });
+  },
+
+  deleteFlow: flowId => {
+    return models.flow.destroy({
+        where: {id: flowId}
+      }
+    );
   },
 
   getFlowName: id => {

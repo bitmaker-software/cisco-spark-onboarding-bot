@@ -7,12 +7,14 @@ const Botkit = require('botkit');
 const debug = require('debug')('botkit:main');
 const databaseServices = require('./database_services');
 let controllers = [];
+let conversationsPerFlow = {};
 
 module.exports = {
   init: () => {
     return new Promise((resolve, reject) => {
       // Get the bots credentials from the database
       controllers = [];
+      conversationsPerFlow = {};
       databaseServices.getAllBots().then(bots => {
         console.log(`Got ${bots.length} bot(s) from the database`);
 
@@ -76,4 +78,45 @@ module.exports = {
       });
     });
   },
+  addConversationToFlow: addConversationForFlow,
+  getConversationsForFlow: getConversationsForFlow,
+  stopConversationsForFlow: stopConversationsForFlow,
+  removeConversationForFlow: removeConversationForFlow,
 };
+
+function addConversationForFlow(conversation, flowId) {
+  console.log(`Adding a conversation to the flow ${flowId}`);
+  getConversationsForFlow(flowId).push(conversation);
+}
+
+function getConversationsForFlow(flowId) {
+  if (flowId in conversationsPerFlow) {
+    return conversationsPerFlow[flowId];
+  }
+  // Does not exist yet
+  conversationsPerFlow[flowId] = [];
+  return conversationsPerFlow[flowId];
+}
+
+function stopConversationsForFlow(flowId) {
+  console.log(`STOP conversations for the flow ${flowId}`);
+  let conversations = getConversationsForFlow(flowId);
+  conversations.forEach(conversation => {
+    conversation.flowDisabled = true;
+    conversation.stop(); // end the conversation immediately, and set convo.status to stopped
+  });
+  conversationsPerFlow[flowId] = []; // Clear all
+}
+
+function removeConversationForFlow(conversationToRemove, flowId) {
+  console.log(`The conversation ended up naturally, will now remove it.`);
+  let conversations = getConversationsForFlow(flowId);
+  // console.log(conversations);
+  conversations.some((conversation, index) => {
+    if (conversationToRemove.id === conversation.id) {
+      conversations.splice(index, 1);
+    }
+    return conversationToRemove.id === conversation.id;
+  });
+  // console.log(conversations);
+}

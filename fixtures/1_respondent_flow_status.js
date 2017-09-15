@@ -13,5 +13,9 @@ module.exports = {
       id: 3,
       description: 'Finished'
     },
+    {
+      id: 4,
+      description: 'Terminated by disabled flow'
+    }
   ]
 };

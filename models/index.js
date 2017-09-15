@@ -88,11 +88,11 @@ Object.keys(db).forEach(function (modelName) {
   m.bot.belongsTo(m.manager);
 
   // —————————— Step ——————————
-  m.step.belongsTo(m.flow); // adds flow_id to step table
+  m.step.belongsTo(m.flow, {foreignKey: {allowNull: false}, onDelete: 'CASCADE'}); // adds flow_id to step table
   m.step.belongsTo(m.step_type); // adds step_type_id to step table
-  m.step.hasMany(m.step_choice); // adds step_id to step_choice table
-  m.step.hasOne(m.document_step); // adds step_id to document_step table
-  m.step.hasMany(m.people_to_meet, {as: 'people_to_meet'}); // adds respondent_flow_id to step table
+  m.step.hasMany(m.step_choice, {onDelete: 'CASCADE'}); // adds step_id to step_choice table
+  m.step.hasOne(m.document_step, {onDelete: 'CASCADE'}); // adds step_id to document_step table
+  m.step.hasMany(m.people_to_meet, {as: 'people_to_meet', onDelete: 'CASCADE'}); // adds respondent_flow_id to step table
 
   // —————————— Step Type ——————————
 
@@ -106,21 +106,20 @@ Object.keys(db).forEach(function (modelName) {
 
   // —————————— Document Step ——————————
   m.document_step.belongsTo(m.document_store);
-  //m.document_step.belongsTo(m.step);  //AQUI
 
   // —————————— Respondent ——————————
   m.respondent.belongsTo(m.manager);
 
   // —————————— Respondent Flow ——————————
-  m.respondent_flow.belongsTo(m.manager, {as: 'assigner'});
-  m.respondent_flow.belongsTo(m.respondent);
+  m.respondent_flow.belongsTo(m.manager, {as: 'assigner', foreignKey: {allowNull: false}, onDelete: 'CASCADE'});
+  m.respondent_flow.belongsTo(m.respondent, {foreignKey: {allowNull: false}, onDelete: 'CASCADE'});
   m.respondent_flow.belongsTo(m.step, {as: 'current_step'});
-  m.respondent_flow.belongsTo(m.flow);
-  m.respondent_flow.belongsTo(m.respondent_flow_status);
+  m.respondent_flow.belongsTo(m.flow, {foreignKey: {allowNull: false}, onDelete: 'CASCADE'});
+  m.respondent_flow.belongsTo(m.respondent_flow_status, {foreignKey: {allowNull: false}, onDelete: 'CASCADE'});
   m.respondent_flow.hasMany(m.people_to_meet, {as: 'people_to_meet'}); // adds respondent_flow_id to people_to_meet table
 
   // —————————— Respondent Answer ——————————
-  m.respondent_answer.belongsTo(m.respondent_flow);
+  m.respondent_answer.belongsTo(m.respondent_flow, {foreignKey: {allowNull: false}, onDelete: 'CASCADE'});
   m.respondent_answer.belongsTo(m.step);
   m.respondent_answer.belongsTo(m.step_choice);
   m.respondent_answer.belongsTo(m.answer_status);

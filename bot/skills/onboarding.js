@@ -117,6 +117,9 @@ module.exports = controller => {
 
             addEndConversationHandler(bot, convo, respondentFlow);
 
+            console.log(`Saving the conversation so we can stop it later if needed`);
+            require('../bot').addConversationToFlow(convo, flow.flowId);
+
             console.log('Activating the conversation');
             convo.activate();
 
@@ -140,11 +143,14 @@ module.exports = controller => {
 
   function addEndConversationHandler(bot, convo, respondentFlow) {
     convo.on('end', function (convo) {
+      require('../bot').removeConversationForFlow(convo, respondentFlow.flow_id);
       if (convo.status === 'completed') {
         databaseServices.setRespondentFlowFinished(respondentFlow);
-        bot.reply(convo.source_message, "Thank you so much for your time! Have a nice day!");
+        bot.reply(convo.source_message, `Thank you so much for your time! Have a nice day!`);
+      } else if (convo.status === 'stopped' && convo.flowDisabled) {
+        bot.reply(convo.source_message, `This flow was disabled, this conversation will now stop. Thank you.`);
       } else {
-        bot.reply(convo.source_message, "Sorry, something went wrong. Please contact your HR department for more information.");
+        bot.reply(convo.source_message, `Sorry, something went wrong. Please contact your HR department for more information.`);
       }
     });
   }

@@ -21,13 +21,17 @@ block content
         | .
 
     div.row
-      h1.mt-4.mb-4.col-8 Editing Flow !{title}
+      h1.mt-4.mb-4.col-8 Editing Flow !{flow.name}
       div.btn-group.mb-4.mt-4.col-4.btn-header(role="group")
         a.btn.btn-outline-dark.active(href='/manager/flow/' + flowId + '/edit', role="button", data-toggle="tooltip")
           svg.icon
             use(xlink:href=static.root + "/sprite.svg#settings")
           | Edit
-        a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/send', role="button", data-toggle="tooltip")
+        a.btn.btn-outline-dark(
+        :class="{disabled: flowStatus === '3'}",
+        href='/manager/flow/' + flowId + '/send',
+        role="button",
+        data-toggle="tooltip")
           svg.icon.send
             use(xlink:href=static.root + "/sprite.svg#send")
           | Send
@@ -35,7 +39,7 @@ block content
           svg.icon
             use(xlink:href=static.root + "/sprite.svg#answer")
           | Answers
-        a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/dashboard',role="button",data-toggle="tooltip")
+        a.btn.btn-outline-dark(href='/manager/flow/' + flowId + '/dashboard', role="button", data-toggle="tooltip")
           svg.icon
             use(xlink:href=static.root + "/sprite.svg#dashboard")
           | Dashboard
@@ -58,7 +62,7 @@ block content
               svg.step-icon
                 use(v-bind="{'xlink:href':'" + static.root + "/sprite.svg#' + stepTypeIcons[stepType.id]}")
                 span {{ stepType.name }}
-                span(data-toggle="tooltip", data-placement="top", title, v-bind:title="stepType.description")
+                span(data-toggle="tooltip", data-placement="top", title, :title="stepType.description")
                   i.material-icons info
 
       div.col-md-9.flow-container
@@ -177,6 +181,12 @@ block content
           div.col.text-right
             button.btn.btn-primary.btn-lg(type="button", @click="saveSteps") {{ saveStepsButtonText }}
 
+        div.row(style="margin-top: 40px;")
+          div.col.text-right
+            button.btn.btn-outline-success(v-if="flowStatus === '3'", type="button", @click="enableFlow") Enable Flow
+            button.btn.btn-outline-primary(v-else, type="button", @click="disableFlow") Disable Flow
+            button.btn.btn-outline-danger(type="button", @click="deleteFlow", style="margin-left: 20px") Delete Flow
+
     // Modal
     div#myModal.modal.fade(role="dialog")
       div.modal-dialog
@@ -203,19 +213,26 @@ block pageScripts
     var stepTypesFromServer = !{JSON.stringify(stepTypes).replace(/<\//g, '<\\/')};
     var botsFromServer = !{JSON.stringify(bots)};
     var selectedBotFromServer = "!{selectedBot}";
+
     var stepTypesObj = {};
     stepTypesFromServer.forEach(function (element) {
       stepTypesObj[element.id] = element;
       console.log(element)
     });
-    var flowId = !{flowId}; // used on AJAX requests
-    var titleReceived = "!{title}"; // used on AJAX requests
-    console.log(titleReceived);
+
+    var flowId = "!{flowId}"; // used on AJAX requests
+
+    var flowTitleFromServer = "!{flow.name}"; // used on AJAX requests
+    console.log(flowTitleFromServer);
+
+    var flowStatusFromServer = "!{flow.status}"; // used on AJAX requests
+    console.log(flowStatusFromServer);
+
     console.log('stepTypesFromServer');
     console.log(stepTypesFromServer);
+
     console.log('stepTypesObj:');
     console.log(stepTypesObj);
-    var flowId = "!{flowId}"; // used on AJAX requests
 
   script(src=static.root + '/js/manager_flow_steps.js' + static.suffix)
 

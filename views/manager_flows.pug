@@ -27,7 +27,7 @@ block content
                         | Edit flow
                     div.col.text-right
                       div.btn-group(role="group")
-                        a.btn.btn-outline-dark(href='/manager/flow/' + flow.id + '/send', role="button", data-toggle="tooltip" data-placement="bottom" title="Send")
+                        a.btn.btn-outline-dark(class={disabled: flow.flow_status.id === 3}, href='/manager/flow/' + flow.id + '/send', role="button", data-toggle="tooltip" data-placement="bottom" title="Send")
                           svg.icon.send
                             use(xlink:href=static.root + "/sprite.svg#send")
                         a.btn.btn-outline-dark(href='/manager/flow/' + flow.id + '/answers', role="button", data-toggle="tooltip" data-placement="bottom" title="Answers")

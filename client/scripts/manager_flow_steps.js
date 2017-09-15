@@ -2,7 +2,7 @@
 
 import draggable from 'vuedraggable';
 
-$(function() {
+$(function () {
   console.log("manager_flow_steps.js");
 
   let app = new Vue({
@@ -27,8 +27,9 @@ $(function() {
       stepTypes2: [],
       stepTypeIcons: {},
       newStepTypeSelected: 1,
-      title: titleReceived,
+      title: flowTitleFromServer,
       saveStepsButtonText: "Save Flow",
+      flowStatus: flowStatusFromServer
     },
     methods: {
 
@@ -77,7 +78,7 @@ $(function() {
       },
 
       getFileId: (step) => {
-        GDrive.selectFile(function(id, name, document_store_id) {
+        GDrive.selectFile(function (id, name, document_store_id) {
           if (id === 'wrong') {
             alert('The document ' + name + ' can not be shared due to incompatible document type.')
           } else {
@@ -89,7 +90,7 @@ $(function() {
       },
 
       getFolderId: (step) => {
-        GDrive.selectFolder(function(id, name, document_store_id) {
+        GDrive.selectFolder(function (id, name, document_store_id) {
           if (id === 'wrong') {
             alert('The document ' + name + ' can not be shared due to incompatible document type.')
           } else {
@@ -101,7 +102,7 @@ $(function() {
       },
 
       getBoxFileId: (step) => {
-        Box.selectFile(function(id, name, document_store_id) {
+        Box.selectFile(function (id, name, document_store_id) {
           if (id === 'wrong') {
             alert('The document ' + name + ' can not be shared due to incompatible document type.')
           } else {
@@ -113,7 +114,7 @@ $(function() {
       },
 
       getBoxFolderId: (step) => {
-        Box.selectFolder(function(id, name, document_store_id) {
+        Box.selectFolder(function (id, name, document_store_id) {
           if (id === 'wrong') {
             alert('The document ' + name + ' can not be shared due to incompatible document type.')
           } else {
@@ -132,6 +133,94 @@ $(function() {
 
       stopDraggingStepTypes: (x) => {
         console.log("Stop dragging");
+      },
+
+      enableFlow: () => {
+        app.$http.put(`/manager/api/flow/${flowId}`, {
+          flowId: flowId,
+          enable: true,
+        }).then(response => {
+            // success callback
+            swal(
+              'Enabled!',
+              'This flow has been enabled.',
+              'success'
+            );
+            console.log("Enabled the flow");
+            app.flowStatus = "2";
+          }, error => {
+            // error callback
+            swal({
+              title: 'Oops...',
+              text: error.body,
+              type: 'error'
+            });
+          }
+        );
+      },
+
+      disableFlow: () => {
+        swal({
+          title: 'Are you sure?',
+          text: "The flow will stop for all the users currently answering it.",
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Disable'
+        }).then(() => {
+          app.$http.put(`/manager/api/flow/${flowId}`, {
+            flowId: flowId,
+            disable: true,
+          }).then(response => {
+              // success callback
+              swal(
+                'Disabled!',
+                'This flow has been disabled.',
+                'success'
+              );
+              console.log("Disabled the flow");
+              app.flowStatus = "3";
+            }, error => {
+              // error callback
+              swal({
+                title: 'Oops...',
+                text: error.body,
+                type: 'error'
+              });
+            }
+          );
+        });
+      },
+
+      deleteFlow: () => {
+        swal({
+          title: 'Are you sure?',
+          text: "All the answers will be deleted. You won't be able to revert this!",
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Delete'
+        }).then(() => {
+          app.$http.delete(`/manager/api/flow/${flowId}`).then(response => {
+            console.log('Deleted flow ' + flowId);
+
+            swal({
+              title: 'Deleted!',
+              text: 'This flow has been deleted.',
+              type: 'success'
+            }).then(() => {
+              // when clicking OK / closing the message:
+              location.replace(`/manager`);
+            });
+
+          }, error => {
+            if (error.status === 401) {
+              window.location.replace('/auth/spark');
+            }
+          });
+        });
       },
     },
     components: {
@@ -192,7 +281,7 @@ $(function() {
   // Get data
   //
   function fetchSteps() {
-    $.get('/manager/api/flow/' + flowId, {}, function(flow) {
+    $.get(`/manager/api/flow/${flowId}`, {}, function (flow) {
       // console.log("Raw flow steps from the server:");
       // console.log(flow.steps);
       // console.log("Flow steps curated to be handled by Vue:"); // TODO: do it on server-side?
@@ -239,7 +328,7 @@ $(function() {
     if (stepTypesObj[typeId]) {
       return stepTypesObj[typeId];
     }
-    return { description: "Unknown step type" };
+    return {description: "Unknown step type"};
   }
 
   function getDocumentUrl(step) {
@@ -281,7 +370,7 @@ $(function() {
   function saveSteps() {
     app.saveStepsButtonText = "Saving…";
 
-    app.$http.put('/manager/api/flow', {
+    app.$http.put(`/manager/api/flow/${flowId}`, {
       flowId: flowId,
       botId: app.selectedBot,
       steps: app.steps,

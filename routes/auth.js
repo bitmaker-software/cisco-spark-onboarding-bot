@@ -9,7 +9,7 @@ router.get('/login', function (req, res) {
     res.redirect('/');
   } else {
     res.render('index', {
-      title: 'Cisco Spark Onboarding Bot',
+      title: 'Onboarding Bot | Login',
       user: req.user
     });
   }

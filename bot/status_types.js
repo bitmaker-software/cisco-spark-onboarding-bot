@@ -17,6 +17,7 @@ module.exports = {
     NOT_STARTED: 1,
     IN_PROGRESS: 2,
     FINISHED: 3,
+    TERMINATED_BY_DISABLED_FLOW: 4,
   },
 
   STEP_TYPES: {
