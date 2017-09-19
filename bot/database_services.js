@@ -383,14 +383,6 @@ module.exports = {
     });
   },
 
-  updateDocumentStoreUserId: (id, box_user_id) => {
-    return models.document_store.update({
-      box_user_id: box_user_id
-    }, {
-      where: {id: id}
-    });
-  },
-
   saveDocumentStore: (data, managerId, documentStoreTypeId) => {
     return models.document_store.update(data, {
       where: {manager_id: managerId, document_store_type_id: documentStoreTypeId}

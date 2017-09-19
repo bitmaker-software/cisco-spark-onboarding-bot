@@ -114,9 +114,15 @@ block content
             div.card-block
               div.form-group
                 label(
+                for='box-user-id'
+                class='blue'
+                ) Account User ID
+                input#box-user-id.form-control(v-model="boxSettings.box_user_id")
+              div.form-group
+                label(
                 for='box-client-id'
                 class='blue'
-                ) Client ID
+                ) Application Client ID
                 input#box-client-id.form-control(v-model="boxSettings.gdrive_or_box_client_id")
               div.form-group
                 label(

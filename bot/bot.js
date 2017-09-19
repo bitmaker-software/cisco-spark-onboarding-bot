@@ -6,6 +6,8 @@ env(__dirname + '/.env', {raise: false});
 const Botkit = require('botkit');
 const debug = require('debug')('botkit:main');
 const databaseServices = require('./database_services');
+const sparkAPIUtils = require('./spark_api_utils');
+
 let controllers = [];
 let conversationsPerFlow = {};
 
@@ -63,6 +65,8 @@ module.exports = {
 
         console.log(`Bots created. controllers[] length: ${controllers.length}`);
 
+        resumeOngoingFlows();
+
         resolve();
       });
     });
@@ -119,4 +123,21 @@ function removeConversationForFlow(conversationToRemove, flowId) {
     return conversationToRemove.id === conversation.id;
   });
   // console.log(conversations);
+}
+
+function resumeOngoingFlows() {
+  // Called after server restarts or after reloading the controllers
+  // TODO: fetch also the flows that are ready to start (status 1)
+  console.log('resumeOngoingFlows()');
+  console.log(`Will call getAllOngoingFlows`);
+  databaseServices.getAllOngoingFlows().then(respondentFlows => {
+    console.log(`Result from getAllOngoingFlows:`);
+    console.log(respondentFlows);
+    respondentFlows.forEach(respondentFlow => {
+      console.log(`Resuming flow ${respondentFlow.id}`); // TODO
+      databaseServices.getFlowBotController(respondentFlow.flow_id).then(bot => {
+        sparkAPIUtils.resumeFlowForUser(respondentFlow.flow_id, respondentFlow.respondent.spark_id, bot);
+      });
+    });
+  });
 }

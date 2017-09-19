@@ -120,10 +120,19 @@ db_db=ciscosparkonboarding
 
 ## Box Configuration (optional)
 
-* Follow the instructions of the Box guide on how to use Box Platform for custom app development found at [https://developer.box.com/docs/getting-started-box-platform](https://developer.box.com/docs/getting-started-box-platform) 
-* On your app configuration, *Application Access* should be **Enterprise**
-* Once you have generated the **Public/Private Keypair**, use the downloaded file and upload it in the manager [settings page](http://localhost:8080/settings).
-* At the Box configuration page, fill in your Box user account (email address)
+* Follow the instructions of the Box guide on how to use Box Platform for custom app development found at [https://developer.box.com/docs/getting-started-box-platform](https://developer.box.com/docs/getting-started-box-platform)
+* You will need a Box developer account ([sign up](https://box.com/developer_signup)). You will need to enable Two-Factor Authentication on your account.
+* After logging in, create a [new box app](https://bitmaker.app.box.com/developers/console/newapp) of type **Partner Integration**
+* Open your newly created app Configuration page:
+  * At *Authentication Method*, change from *Standard OAuth 2.0 (User Authentication)* to **_OAuth 2.0 with JWT (Server Authentication)_**. Click **Save Changes**.
+  * At *Application Access* select **Enterprise**
+  * At *Advanced Features* enable **Generate User Access Tokens** (this will enable the *Manage Users* at the previous *Application Scopes* section)
+  * **Save Changes**
+  * Copy your application **Client ID**
+  * At *Add and Manage Public Keys*, click **Generate a Public/Private Keypair**: this will download a JSON file you must upload at the manager [settings page](http://localhost:8080/settings).
+* Go to the Box app *General* page to copy your account **User ID** to the Bot configuration page
+* Back to the Bot Box configuration page, fill in your Box **User ID** (copied from the app *General* page), your application **Client ID**, your Box **User Account** (email address), and upload your **JSON file**.
+* [You must grant access to your application in Enterprise Admin Console](https://developer.box.com/docs/authentication-with-jwt#section-2-grant-access-to-your-application-in-enterprise-admin-console)
 
 
 ## Launching the Server

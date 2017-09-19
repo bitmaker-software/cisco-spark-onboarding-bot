@@ -16,7 +16,8 @@ let getDocument = (client, fileId, callback) => {
     console.log('[Box] Going to get file info...');
 
     if (err !== null) {
-      console.log(`[Box] Error trying to grab information about file id ${fileId}`);
+      console.error(`[Box] Error trying to grab information about file id ${fileId}`);
+      console.error(err);
     } else {
 
       // Download the file from Box and send back to Spark user
@@ -92,16 +93,6 @@ let upload = (client, file_info, file, folderId, callback) => {
 
 };
 
-let callAsUser = (client, userId, callback) => {
-
-  // Impersonate the user that owns the account
-  console.log(`[Box] Going to impersonate user ${userId}`);
-  client.asUser(userId);
-
-  // Pass the client to the callback
-  callback(client);
-};
-
 //
 // Retrieves the user store in order to build the drive object and execute the function
 //
@@ -134,38 +125,7 @@ let buildDriveAndExecute = (store, callback) => {
   let sdk = new BoxSDK(sdkConfig);
 
   // Get the service account client, used to create and manage app user accounts
-  let client = sdk.getAppAuthClient('enterprise', key.enterpriseID);
-
-  // Let's check if we already have the user
-  let userId = store.box_user_id;
-  console.log(`[Box] Going to use userId: ${userId}`);
-  if (userId === null) {
-    console.log('[Box] Getting userId');
-    // Get the user and impersonate
-    client.enterprise.getUsers(null, (error, data) => {
-      if (error !== null) {
-        console.log(error);
-      } else {
-        let userEmail = store.gdrive_or_box_user_account;
-        console.log(`[Box] Trying to get user account for ${userEmail}`);
-        let user = data.entries.find(match => match.login === userEmail);
-        if (typeof user !== 'undefined' && user !== null) {
-          // update the database for the next time
-          console.log(`[Box] Updating user id for user ${userEmail}: ${user.id}`);
-          databaseServices.updateDocumentStoreUserId(store.id, user.id);
-          userId = user.id;
-
-          // Pass the client to the callback
-          callAsUser(client, userId, callback);
-        } else {
-          console.log(`[Box] Unable to find user with email ${userEmail}`);
-        }
-      }
-    });
-  } else {
-    // Pass the client to the callback
-    callAsUser(client, userId, callback);
-  }
+  callback(sdk.getAppAuthClient('user', store.box_user_id));
 };
 
 //
@@ -178,7 +138,7 @@ module.exports = {
   //
   getDriveDocument: (store, fileId, callback) => {
     console.log(`[Box] Getting document with id: ${fileId}`);
-    buildDriveAndExecute(store, (client) => {
+    buildDriveAndExecute(store, client => {
       // Download the file now
       getDocument(client, fileId, callback);
     });
@@ -189,7 +149,7 @@ module.exports = {
   //
   uploadToDrive: (store, file_info, file, folderId, callback) => {
     console.log(`[Box] Uploading document to folder id: ${folderId}`);
-    buildDriveAndExecute(store, (client) => {
+    buildDriveAndExecute(store, client => {
       // upload the file
       upload(client, file_info, file, folderId, callback);
     });

@@ -47,7 +47,6 @@ router.post('/api/saveBots', ensureAuthenticated, function (req, res, next) {
 
     console.log(`Finished saving the bots; will now reload the controllers`);
     require('../bot/bot').init();
-
     res.status(200).send();
   }, err => {
     console.log(`Error saving the bots:`);
@@ -114,6 +113,7 @@ router.post('/api/save', ensureAuthenticated, function (req, res, next) {
     let data = {
       gdrive_or_box_client_id: boxSettings.gdrive_or_box_client_id,
       gdrive_or_box_user_account: boxSettings.gdrive_or_box_user_account,
+      box_user_id: boxSettings.box_user_id,
       google_drive_developer_key: '',
     };
     if (boxKeyFileString) {
@@ -123,6 +123,8 @@ router.post('/api/save', ensureAuthenticated, function (req, res, next) {
   }
 
   Promise.all(promises).then(results => {
+    console.log(`Finished saving the document stores settings; will now reload the controllers`);
+    require('../bot/bot').init();
     res.status(200).send();
   }, err => {
     console.log(`Error saving settings`);
